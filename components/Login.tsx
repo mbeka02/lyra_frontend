@@ -68,7 +68,7 @@ export function Login() {
         className="bg-greenPrimary mt-8 py-2 px-1  rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        <Text className="dark:text-white font-semibold text-black ">Login</Text>
+        <Text className="text-white font-semibold">Login</Text>
       </Button>
     </View>
   );

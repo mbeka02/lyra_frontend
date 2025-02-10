@@ -163,10 +163,7 @@ export function SignUp() {
         className="bg-greenPrimary  py-2 px-1  mt-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        <Text className="dark:text-white font-semibold text-black ">
-          {" "}
-          Submit
-        </Text>
+        <Text className="text-white font-semibold ">Submit</Text>
       </Button>
     </View>
   );
