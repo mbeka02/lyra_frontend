@@ -65,10 +65,10 @@ export function Login() {
         <Text className="text-red-600">{errors.password.message}</Text>
       )}
       <Button
-        className="bg-greenPrimary dark:text-white text-black font-semibold py-2 px-1  rounded-lg"
+        className="bg-greenPrimary mt-8 py-2 px-1  rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        Submit
+        <Text className="dark:text-white font-semibold text-black ">Login</Text>
       </Button>
     </View>
   );

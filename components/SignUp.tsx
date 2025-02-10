@@ -7,6 +7,16 @@ import { View } from "react-native";
 import { Text } from "./ui/text";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 const schema = z.object({
   full_name: z.string().min(2),
   email: z.string().email("invalid email format"),
@@ -16,6 +26,13 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 export function SignUp() {
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: insets.bottom,
+    left: 12,
+    right: 12,
+  };
   const {
     control,
     handleSubmit,
@@ -58,13 +75,29 @@ export function SignUp() {
       </Label>
       <Controller
         control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="e.g Patient or Specialist"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
+        render={({ field: { onChange } }) => (
+          <Select
+            onValueChange={onChange}
+            defaultValue={{ value: "patient", label: "Patient" }}
+          >
+            <SelectTrigger className="">
+              <SelectValue
+                className="text-foreground text-sm native:text-lg"
+                placeholder="Select an account type"
+              />
+            </SelectTrigger>
+            <SelectContent insets={contentInsets} className="w-[250px]">
+              <SelectGroup>
+                <SelectLabel>Account Type</SelectLabel>
+                <SelectItem label="Patient" value="patient">
+                  Patient
+                </SelectItem>
+                <SelectItem label="Medical Specialist" value="specialist">
+                  Medical Specilaist
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         )}
         name="role"
       />
@@ -127,10 +160,13 @@ export function SignUp() {
         <Text className="text-red-600">{errors.password.message}</Text>
       )}
       <Button
-        className="bg-greenPrimary dark:text-white text-black font-semibold py-2 px-1  rounded-lg"
+        className="bg-greenPrimary  py-2 px-1  mt-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        Submit
+        <Text className="dark:text-white font-semibold text-black ">
+          {" "}
+          Submit
+        </Text>
       </Button>
     </View>
   );

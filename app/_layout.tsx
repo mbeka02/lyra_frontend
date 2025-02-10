@@ -15,7 +15,8 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
-
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
@@ -56,15 +57,19 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={"light"} />
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: "Lyra Base",
-            headerRight: () => <ThemeToggle />,
-          }}
-        />
-      </Stack>
+      <ActionSheetProvider>
+        <GestureHandlerRootView>
+          <Stack>
+            <Stack.Screen
+              name="index"
+              options={{
+                title: "Lyra Base",
+                headerRight: () => <ThemeToggle />,
+              }}
+            />
+          </Stack>
+        </GestureHandlerRootView>
+      </ActionSheetProvider>
       <PortalHost />
     </ThemeProvider>
   );
