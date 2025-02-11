@@ -6,17 +6,17 @@ import {
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AuthProvider, useAuthentication } from "~/context/AuthContext";
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
@@ -30,7 +30,33 @@ export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
+const InitialLayout = () => {
+  const { authState, initialized } = useAuthentication();
+  const segments = useSegments();
+  const router = useRouter();
+  React.useEffect(() => {
+    if (!initialized) return;
 
+    //check if the user is in the protected group
+    const inProtectedGroup = segments[0] === "(protected)";
+    if (authState?.isAuthenticated && inProtectedGroup) {
+      router.replace("/(protected)");
+    } else if (!authState?.isAuthenticated) {
+      router.replace("/");
+    }
+  }, [initialized, authState]);
+  return (
+    <Stack>
+      <Stack.Screen name="index" />
+      <Stack.Screen
+        name="(protected)"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
+  );
+};
 export default function RootLayout() {
   const hasMounted = React.useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
@@ -55,23 +81,17 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <StatusBar style={"light"} />
-      <ActionSheetProvider>
-        <GestureHandlerRootView>
-          <Stack>
-            <Stack.Screen
-              name="index"
-              options={{
-                title: "Lyra Base",
-                headerRight: () => <ThemeToggle />,
-              }}
-            />
-          </Stack>
-        </GestureHandlerRootView>
-      </ActionSheetProvider>
-      <PortalHost />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <StatusBar style={"light"} />
+        <ActionSheetProvider>
+          <GestureHandlerRootView>
+            <InitialLayout />
+          </GestureHandlerRootView>
+        </ActionSheetProvider>
+        <PortalHost />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

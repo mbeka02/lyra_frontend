@@ -6,11 +6,11 @@ import { View } from "react-native";
 import { Text } from "./ui/text";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-const schema = z.object({
+export const loginSchema = z.object({
   email: z.string().email("invalid email format"),
   password: z.string().min(8, "password must be a minimum of 8 characters"),
 });
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<typeof loginSchema>;
 export function Login() {
   const {
     control,
@@ -21,7 +21,7 @@ export function Login() {
       email: "",
       password: "",
     },
-    resolver: zodResolver(schema),
+    resolver: zodResolver(loginSchema),
   });
   const onSubmit = async (data: FormData) => {
     console.log(data);

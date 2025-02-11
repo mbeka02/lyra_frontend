@@ -17,14 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-const schema = z.object({
+export const signUpSchema = z.object({
   full_name: z.string().min(2),
   email: z.string().email("invalid email format"),
   telephone_number: z.string().refine(validator.isMobilePhone),
   password: z.string().min(8, "password must be a minimum of 8 characters"),
   role: z.string(),
 });
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<typeof signUpSchema>;
 export function SignUp() {
   const insets = useSafeAreaInsets();
   const contentInsets = {
@@ -45,7 +45,7 @@ export function SignUp() {
       telephone_number: "",
       role: "",
     },
-    resolver: zodResolver(schema),
+    resolver: zodResolver(signUpSchema),
   });
   const onSubmit = async (data: FormData) => {
     console.log(data);
@@ -163,7 +163,7 @@ export function SignUp() {
         className="bg-greenPrimary  py-2 px-1  mt-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        <Text className="text-white font-semibold ">Submit</Text>
+        <Text className="text-white font-semibold ">Register</Text>
       </Button>
     </View>
   );
