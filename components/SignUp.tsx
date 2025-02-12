@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { useAuthentication } from "~/context/AuthContext";
 export const signUpSchema = z.object({
   full_name: z.string().min(2),
   email: z.string().email("invalid email format"),
@@ -43,12 +44,15 @@ export function SignUp() {
       email: "",
       password: "",
       telephone_number: "",
-      role: "",
+      role: "patient",
     },
     resolver: zodResolver(signUpSchema),
   });
+  const { onRegister } = useAuthentication();
   const onSubmit = async (data: FormData) => {
-    console.log(data);
+    console.log(data.role);
+
+    await onRegister!(data);
   };
   return (
     <View className="px-2 mt-1">
@@ -77,7 +81,7 @@ export function SignUp() {
         control={control}
         render={({ field: { onChange } }) => (
           <Select
-            onValueChange={onChange}
+            onValueChange={(value) => onChange(value)}
             defaultValue={{ value: "patient", label: "Patient" }}
           >
             <SelectTrigger className="">
@@ -86,7 +90,7 @@ export function SignUp() {
                 placeholder="Select an account type"
               />
             </SelectTrigger>
-            <SelectContent insets={contentInsets} className="w-[250px]">
+            <SelectContent insets={contentInsets} className="">
               <SelectGroup>
                 <SelectLabel>Account Type</SelectLabel>
                 <SelectItem label="Patient" value="patient">

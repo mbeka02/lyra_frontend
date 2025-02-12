@@ -39,9 +39,10 @@ const InitialLayout = () => {
 
     //check if the user is in the protected group
     const inProtectedGroup = segments[0] === "(protected)";
-    if (authState?.isAuthenticated && inProtectedGroup) {
-      router.replace("/(protected)");
+    if (authState?.isAuthenticated && !inProtectedGroup) {
+      router.replace("/(protected)/(tabs)/home");
     } else if (!authState?.isAuthenticated) {
+      console.log("not authenticated");
       router.replace("/");
     }
   }, [initialized, authState]);

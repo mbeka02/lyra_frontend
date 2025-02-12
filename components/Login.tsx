@@ -6,6 +6,7 @@ import { View } from "react-native";
 import { Text } from "./ui/text";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { useAuthentication } from "~/context/AuthContext";
 export const loginSchema = z.object({
   email: z.string().email("invalid email format"),
   password: z.string().min(8, "password must be a minimum of 8 characters"),
@@ -23,8 +24,10 @@ export function Login() {
     },
     resolver: zodResolver(loginSchema),
   });
+  const { onLogin } = useAuthentication();
+
   const onSubmit = async (data: FormData) => {
-    console.log(data);
+    await onLogin!(data);
   };
   return (
     <View className="px-2 mt-1">

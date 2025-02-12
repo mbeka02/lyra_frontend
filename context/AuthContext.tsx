@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     }
   };
   const handleLogout = async () => {
+    console.log("logging out....");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,
