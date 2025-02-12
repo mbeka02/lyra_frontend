@@ -14,8 +14,3 @@ export type User = {
   role: string;
   profile_image_url: ProfileImage;
 };
-
-export type UserResponse = {
-  access_token: string;
-  user: User;
-};

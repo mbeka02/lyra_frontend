@@ -1,17 +1,21 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, UserResponse } from "~/types";
+import { User } from "~/types";
+import { APIError, handleApiError, UserAPIResponse } from "~/services/api";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { signUpSchema } from "~/components/SignUp";
 import { loginSchema } from "~/components/Login";
+
 interface AuthProps {
   authState: {
     token: string | null;
     isAuthenticated: boolean | null;
     user: User | null;
   };
-  onRegister: (values: z.infer<typeof signUpSchema>) => Promise<UserResponse>;
-  onLogin: (values: z.infer<typeof loginSchema>) => Promise<UserResponse>;
+  onRegister: (
+    values: z.infer<typeof signUpSchema>,
+  ) => Promise<UserAPIResponse>;
+  onLogin: (values: z.infer<typeof loginSchema>) => Promise<UserAPIResponse>;
   onLogout: () => Promise<any>;
   initialized: boolean;
 }
@@ -53,9 +57,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     loadToken();
   }, []);
 
-  const handleRegistration = async (
-    values: z.infer<typeof signUpSchema>,
-  ): Promise<UserResponse> => {
+  const handleRegistration = async (values: z.infer<typeof signUpSchema>) => {
     try {
       const response = await fetch(`${API_URL}/register`, {
         method: "POST",
@@ -64,22 +66,28 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         },
         body: JSON.stringify(values),
       });
+      if (!response.ok) {
+        throw await handleApiError(response);
+      }
       const data = await response.json();
       setAuthState({
         token: data.access_token,
         isAuthenticated: true,
         user: data.user,
       });
+
       await SecureStore.setItemAsync(TOKEN_KEY, JSON.stringify(data));
       return data;
     } catch (error) {
-      console.error(error);
-      throw new Error(`registration error:${error}`);
+      if ((error as APIError).detail) {
+        console.error(`Error:${(error as APIError).detail}`);
+        alert("error:unable to create to your account");
+      } else {
+        alert("An unexpected error occurred");
+      }
     }
   };
-  const handleLogin = async (
-    values: z.infer<typeof loginSchema>,
-  ): Promise<UserResponse> => {
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
     try {
       // refactor
       const response = await fetch(`${API_URL}/login`, {
@@ -89,6 +97,10 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
           "Content-Type": "application/json",
         },
       });
+      if (!response.ok) {
+        throw await handleApiError(response);
+      }
+
       const data = await response.json();
       setAuthState({
         token: data.access_token,
@@ -98,12 +110,15 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       await SecureStore.setItemAsync(TOKEN_KEY, JSON.stringify(data));
       return data;
     } catch (error) {
-      console.error(error);
-      throw new Error(`login error:${error}`);
+      if ((error as APIError).detail) {
+        console.error(`error:${(error as APIError).detail}`);
+        alert(`error:${(error as APIError).detail}`);
+      } else {
+        alert("An unexpected error occurred");
+      }
     }
   };
   const handleLogout = async () => {
-    console.log("logging out....");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,

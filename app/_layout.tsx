@@ -42,7 +42,6 @@ const InitialLayout = () => {
     if (authState?.isAuthenticated && !inProtectedGroup) {
       router.replace("/(protected)/(tabs)/home");
     } else if (!authState?.isAuthenticated) {
-      console.log("not authenticated");
       router.replace("/");
     }
   }, [initialized, authState]);
