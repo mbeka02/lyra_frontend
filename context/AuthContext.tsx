@@ -6,7 +6,7 @@ import { z } from "zod";
 import { signUpSchema } from "~/components/SignUp";
 import { loginSchema } from "~/components/Login";
 import { toast } from "sonner-native";
-
+import { TOKEN_KEY } from "~/constants";
 interface AuthProps {
   authState: {
     token: string | null;
@@ -20,7 +20,6 @@ interface AuthProps {
   onLogout: () => Promise<any>;
   initialized: boolean;
 }
-const TOKEN_KEY = "my-token";
 const API_URL = process.env.EXPO_PUBLIC_DEV_URL;
 const AuthContext = createContext<Partial<AuthProps>>({});
 
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
 
         // Set our context state
         setAuthState({
-          token: object.token,
+          token: object.access_token,
           isAuthenticated: true,
           user: object.user,
         });
