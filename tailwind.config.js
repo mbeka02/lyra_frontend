@@ -7,6 +7,9 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        jakarta: ["Jakarta Sans", "serif"],
+      },
       colors: {
         greenPrimary: "#24AE7C",
         bluePrimary: "#82DBF7",

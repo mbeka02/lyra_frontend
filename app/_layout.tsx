@@ -17,6 +17,10 @@ import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuthentication } from "~/context/AuthContext";
+import { useFonts } from "expo-font";
+import { useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
+SplashScreen.preventAutoHideAsync();
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
@@ -47,7 +51,12 @@ const InitialLayout = () => {
   }, [initialized, authState]);
   return (
     <Stack>
-      <Stack.Screen name="index" />
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="(protected)"
         options={{
@@ -60,8 +69,21 @@ const InitialLayout = () => {
 export default function RootLayout() {
   const hasMounted = React.useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  // const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const [loaded] = useFonts({
+    "Jakarta-Sans": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
+  });
 
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+  /*
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
       return;
@@ -75,10 +97,7 @@ export default function RootLayout() {
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
-
-  if (!isColorSchemeLoaded) {
-    return null;
-  }
+*/
 
   return (
     <AuthProvider>
