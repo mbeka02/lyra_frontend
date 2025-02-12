@@ -5,6 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { signUpSchema } from "~/components/SignUp";
 import { loginSchema } from "~/components/Login";
+import { toast } from "sonner-native";
 
 interface AuthProps {
   authState: {
@@ -81,9 +82,9 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     } catch (error) {
       if ((error as APIError).detail) {
         console.error(`Error:${(error as APIError).detail}`);
-        alert("error:unable to create to your account");
+        toast.error("error:unable to create to your account");
       } else {
-        alert("An unexpected error occurred");
+        toast.error("An unexpected error occurred");
       }
     }
   };
@@ -112,9 +113,9 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     } catch (error) {
       if ((error as APIError).detail) {
         console.error(`error:${(error as APIError).detail}`);
-        alert(`error:${(error as APIError).detail}`);
+        toast.error(`error:${(error as APIError).detail}`);
       } else {
-        alert("An unexpected error occurred");
+        toast.error("An unexpected error occurred");
       }
     }
   };

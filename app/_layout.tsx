@@ -20,6 +20,8 @@ import { AuthProvider, useAuthentication } from "~/context/AuthContext";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Toaster } from "sonner-native";
 SplashScreen.preventAutoHideAsync();
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -110,9 +112,20 @@ export default function RootLayout() {
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={"light"} />
         <ActionSheetProvider>
-          <GestureHandlerRootView>
-            <InitialLayout />
-          </GestureHandlerRootView>
+          <SafeAreaProvider>
+            <GestureHandlerRootView>
+              <InitialLayout />
+              <Toaster
+                theme={isDarkColorScheme ? "dark" : "light"}
+                position="top-center"
+                toastOptions={{
+                  style: {
+                    backgroundColor: `${isDarkColorScheme ? "black" : "white"}`,
+                  },
+                }}
+              />
+            </GestureHandlerRootView>
+          </SafeAreaProvider>
         </ActionSheetProvider>
         <PortalHost />
       </ThemeProvider>
