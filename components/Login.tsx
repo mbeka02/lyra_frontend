@@ -47,7 +47,9 @@ export function Login() {
         name="email"
       />
       {errors.email && (
-        <Text className="text-red-600">{errors.email.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold ">
+          {errors.email.message}
+        </Text>
       )}
       <Label nativeID="password_label" className="mt-4 mb-2">
         Password
@@ -65,13 +67,15 @@ export function Login() {
         name="password"
       />
       {errors.password && (
-        <Text className="text-red-600">{errors.password.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold ">
+          {errors.password.message}
+        </Text>
       )}
       <Button
-        className="bg-greenPrimary mt-8 py-2 px-1  rounded-lg"
+        className="bg-greenPrimary my-8 py-2 px-1   rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        <Text className="text-white font-semibold">Login</Text>
+        <Text className="text-white font-jakarta-semibold">Login</Text>
       </Button>
     </View>
   );

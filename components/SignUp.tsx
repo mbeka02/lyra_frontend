@@ -72,7 +72,9 @@ export function SignUp() {
         name="full_name"
       />
       {errors.full_name && (
-        <Text className="text-red-600">{errors.full_name.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.full_name.message}
+        </Text>
       )}
       <Label nativeID="role_label" className="mt-4 mb-2">
         Role
@@ -106,7 +108,9 @@ export function SignUp() {
         name="role"
       />
       {errors.role && (
-        <Text className="text-red-600">{errors.role.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.role.message}
+        </Text>
       )}
       <Label nativeID="telephone_label" className="mt-4 mb-2">
         Telephone Number
@@ -124,7 +128,9 @@ export function SignUp() {
         name="telephone_number"
       />
       {errors.telephone_number && (
-        <Text className="text-red-600">{errors.telephone_number.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.telephone_number.message}
+        </Text>
       )}
 
       <Label nativeID="email_label" className="mt-4 mb-2">
@@ -143,7 +149,9 @@ export function SignUp() {
         name="email"
       />
       {errors.email && (
-        <Text className="text-red-600">{errors.email.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.email.message}
+        </Text>
       )}
       <Label nativeID="password_label" className="mt-4 mb-2">
         Password
@@ -161,13 +169,15 @@ export function SignUp() {
         name="password"
       />
       {errors.password && (
-        <Text className="text-red-600">{errors.password.message}</Text>
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.password.message}
+        </Text>
       )}
       <Button
-        className="bg-greenPrimary  py-2 px-1  mt-8 rounded-lg"
+        className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
       >
-        <Text className="text-white font-semibold ">Register</Text>
+        <Text className="text-white font-jakarta-semibold ">Register</Text>
       </Button>
     </View>
   );

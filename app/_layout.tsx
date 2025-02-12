@@ -71,7 +71,13 @@ export default function RootLayout() {
   const { colorScheme, isDarkColorScheme } = useColorScheme();
   // const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [loaded] = useFonts({
-    "Jakarta-Sans": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
+    "Jakarta-Sans-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
+    "Jakarta-Sans-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
+    "Jakarta-Sans-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
+    "Jakarta-Sans-Medium": require("../assets/fonts/PlusJakartaSans-Medium.ttf"),
+    "Jakarta-Sans-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
+    "Jakarta-Sans-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
+    "Jakarta-Sans-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
   });
 
   useEffect(() => {

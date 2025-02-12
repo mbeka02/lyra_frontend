@@ -8,11 +8,18 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        jakarta: ["Jakarta Sans", "serif"],
+        "jakarta-extralight": ["Jakarta-Sans-ExtraLight"],
+        "jakarta-light": ["Jakarta-Sans-Light"],
+        "jakarta-medium": ["Jakarta-Sans-Medium"],
+        "jakarta-regular": ["Jakarta-Sans-Regular"],
+        "jakarta-semibold": ["Jakarta-Sans-SemiBold"],
+        "jakarta-bold": ["Jakarta-Sans-Bold"],
+        "jakarta-extrabold": ["Jakarta-Sans-ExtraBold"],
       },
       colors: {
         greenPrimary: "#24AE7C",
         bluePrimary: "#82DBF7",
+        backgroundPrimary: "#131619",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

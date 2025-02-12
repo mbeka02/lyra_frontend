@@ -66,27 +66,22 @@ export default function HomeScreen() {
   return (
     <BottomSheetModalProvider>
       <View
-        className={`flex-1   justify-center pt-[${top + 30}px] items-center gap-5  bg-secondary/30`}
+        className={`flex-1 dark:bg-backgroundPrimary   justify-center pt-[${top + 30}px] items-center gap-5  bg-secondary/30`}
       >
         <Text
-          className="font-semibold text-white text-lg py-8"
-          style={{
-            fontFamily: "Jakarta-Sans",
-          }}
+          className="font-semibold font-jakarta-semibold text-white text-lg py-8"
+        // style={{
+        //   fontFamily: "Jakarta-Sans",
+        // }}
         >
           Hi there,....
         </Text>
         <View className="w-full px-10 gap-5">
           <Button
-            className="py-2.5 rounded-lg bg-greenPrimary text-white font-semibold items-center"
+            className="py-2.5 rounded-lg bg-greenPrimary text-white  items-center"
             onPress={() => showModal(ModalType.Login)}
           >
-            <Text
-              className={` text-black dark:text-white font-semibold text-lg`}
-              style={{
-                fontFamily: "Jakarta-Sans",
-              }}
-            >
+            <Text className={`text-white font-jakarta-semibold text-lg`}>
               Log in
             </Text>
           </Button>
@@ -94,40 +89,18 @@ export default function HomeScreen() {
             className="py-2.5 rounded-lg items-center bg-greenPrimary text-white"
             onPress={() => showModal(ModalType.SignUp)}
           >
-            <Text
-              className="dark:text-white  text-black font-semibold text-lg"
-              style={{
-                fontFamily: "Jakarta-Sans",
-              }}
-            >
+            <Text className="text-white font-jakarta-semibold text-lg">
               Sign Up
             </Text>
           </Button>
 
-          <Text
-            className="text-white text-xs text-center mx-16"
-            style={{
-              fontFamily: "Jakarta-Sans",
-            }}
-          >
+          <Text className="text-white text-xs font-jakarta-bold text-center mx-16">
             By signing up, you agree to the{" "}
-            <Text
-              className="text-white text-xs underline"
-              onPress={openLink}
-              style={{
-                fontFamily: "Jakarta-Sans",
-              }}
-            >
+            <Text className="text-white text-xs underline" onPress={openLink}>
               User Notice
             </Text>{" "}
             and{" "}
-            <Text
-              className="text-white text-xs underline"
-              onPress={openLink}
-              style={{
-                fontFamily: "Jakarta-Sans",
-              }}
-            >
+            <Text className="text-white text-xs underline" onPress={openLink}>
               Privacy Policy
             </Text>
             .
@@ -136,9 +109,6 @@ export default function HomeScreen() {
           <Text
             className="text-white text-xs underline text-center"
             onPress={openActionSheet}
-            style={{
-              fontFamily: "Jakarta-Sans",
-            }}
           >
             Can't log in or sign up?
           </Text>
