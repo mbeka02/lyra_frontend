@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
-        opacity={0.2}
+        opacity={0.6}
         appearsOnIndex={0}
         disappearsOnIndex={-1}
         {...props}

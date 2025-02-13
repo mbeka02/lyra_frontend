@@ -6,7 +6,7 @@ export default function ProtectedLayout() {
       <Stack.Screen
         name="(tabs)"
         options={{
-          headerRight: () => <ThemeToggle />,
+          headerShown: false,
         }}
       />
     </Stack>

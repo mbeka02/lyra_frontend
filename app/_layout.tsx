@@ -13,7 +13,7 @@ import { Platform } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
-import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
+// import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuthentication } from "~/context/AuthContext";
