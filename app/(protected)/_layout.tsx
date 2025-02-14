@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { ThemeToggle } from "~/components/ThemeToggle";
 export default function ProtectedLayout() {
   return (
     <Stack>

@@ -66,7 +66,7 @@ export default function HomeScreen() {
   return (
     <BottomSheetModalProvider>
       <View
-        className={`flex-1 dark:bg-backgroundPrimary   justify-center pt-[${top + 30}px] items-center gap-5  bg-secondary/30`}
+        className={`flex-1 dark:bg-backgroundPrimary   justify-center pt-[${top + 30}px] items-center gap-5  `}
       >
         <Text
           className="font-semibold font-jakarta-semibold text-white text-lg py-8"
