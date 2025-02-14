@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
 
       if (data) {
         const object = JSON.parse(data);
-        console.log("access_token=>", object.access_token);
         // Set our context state
         setAuthState({
           token: object.access_token,

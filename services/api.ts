@@ -51,4 +51,7 @@ const handleApiError = async (response: Response): Promise<APIError> => {
 
   return error;
 };
-export { Api, handleApiError };
+type ApiResponse<Data> = {
+  data: Data;
+};
+export { Api, ApiResponse, handleApiError };
