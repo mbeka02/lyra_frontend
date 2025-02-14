@@ -21,6 +21,7 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner-native";
 SplashScreen.preventAutoHideAsync();
 const LIGHT_THEME: Theme = {
@@ -31,7 +32,7 @@ const DARK_THEME: Theme = {
   ...DarkTheme,
   colors: NAV_THEME.dark,
 };
-
+const queryClient = new QueryClient();
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -109,26 +110,28 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={"light"} />
-        <ActionSheetProvider>
-          <SafeAreaProvider>
-            <GestureHandlerRootView>
-              <InitialLayout />
-              <Toaster
-                theme={isDarkColorScheme ? "dark" : "light"}
-                position="top-center"
-                toastOptions={{
-                  style: {
-                    backgroundColor: `${isDarkColorScheme ? "black" : "white"}`,
-                  },
-                }}
-              />
-            </GestureHandlerRootView>
-          </SafeAreaProvider>
-        </ActionSheetProvider>
-        <PortalHost />
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? "dark" : "light"} />
+          <ActionSheetProvider>
+            <SafeAreaProvider>
+              <GestureHandlerRootView>
+                <InitialLayout />
+                <Toaster
+                  theme={isDarkColorScheme ? "dark" : "light"}
+                  position="top-center"
+                  toastOptions={{
+                    style: {
+                      backgroundColor: `${isDarkColorScheme ? "black" : "white"}`,
+                    },
+                  }}
+                />
+                <PortalHost />
+              </GestureHandlerRootView>
+            </SafeAreaProvider>
+          </ActionSheetProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     </AuthProvider>
   );
 }
