@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useAuthentication } from "~/context/AuthContext";
+import FormInput from "./form/FormInput";
 export const signUpSchema = z.object({
   full_name: z.string().min(2),
   email: z.string().email("invalid email format"),
@@ -56,26 +57,13 @@ export function SignUp() {
   };
   return (
     <View className="px-2 mt-1">
-      <Label nativeID="full_name_label" className="mt-4 mb-2">
-        Full Name
-      </Label>
-      <Controller
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="e.g David Njoroge"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+      <FormInput
         name="full_name"
+        title="Full Name"
+        control={control}
+        placeholder="e.g David Njoroge"
       />
-      {errors.full_name && (
-        <Text className="text-red-600 font-jakarta-bold">
-          {errors.full_name.message}
-        </Text>
-      )}
+
       <Label nativeID="role_label" className="mt-4 mb-2">
         Role
       </Label>
@@ -112,67 +100,20 @@ export function SignUp() {
           {errors.role.message}
         </Text>
       )}
-      <Label nativeID="telephone_label" className="mt-4 mb-2">
-        Telephone Number
-      </Label>
-      <Controller
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="e.g +254XXXXXXXXX"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+      <FormInput
+        title="Telephone"
+        placeholder="e.g +254XXXXXXXXX"
         name="telephone_number"
-      />
-      {errors.telephone_number && (
-        <Text className="text-red-600 font-jakarta-bold">
-          {errors.telephone_number.message}
-        </Text>
-      )}
-
-      <Label nativeID="email_label" className="mt-4 mb-2">
-        Email
-      </Label>
-      <Controller
         control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="e.g davidnjoroge22@example.com"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+      />
+      <FormInput
+        control={control}
+        title="Email"
         name="email"
+        placeholder="e.g davidnjoroge@example.com"
       />
-      {errors.email && (
-        <Text className="text-red-600 font-jakarta-bold">
-          {errors.email.message}
-        </Text>
-      )}
-      <Label nativeID="password_label" className="mt-4 mb-2">
-        Password
-      </Label>
-      <Controller
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            placeholder="........"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
-        name="password"
-      />
-      {errors.password && (
-        <Text className="text-red-600 font-jakarta-bold">
-          {errors.password.message}
-        </Text>
-      )}
+      <FormInput control={control} title="Password" name="password" />
+
       <Button
         className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
