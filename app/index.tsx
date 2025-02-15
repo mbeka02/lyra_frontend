@@ -66,10 +66,10 @@ export default function HomeScreen() {
   return (
     <BottomSheetModalProvider>
       <View
-        className={`flex-1 dark:bg-backgroundPrimary   justify-center pt-[${top + 30}px] items-center gap-5  `}
+        className={`flex-1   justify-center pt-[${top + 30}px] items-center gap-5  `}
       >
         <Text
-          className="font-semibold font-jakarta-semibold text-white text-lg py-8"
+          className="font-semibold font-jakarta-semibold  text-lg py-8"
         // style={{
         //   fontFamily: "Jakarta-Sans",
         // }}
@@ -94,20 +94,20 @@ export default function HomeScreen() {
             </Text>
           </Button>
 
-          <Text className="text-white text-xs font-jakarta-bold text-center mx-16">
+          <Text className=" text-xs font-jakarta-bold text-center mx-16">
             By signing up, you agree to the{" "}
-            <Text className="text-white text-xs underline" onPress={openLink}>
+            <Text className=" text-xs underline" onPress={openLink}>
               User Notice
             </Text>{" "}
             and{" "}
-            <Text className="text-white text-xs underline" onPress={openLink}>
+            <Text className=" text-xs underline" onPress={openLink}>
               Privacy Policy
             </Text>
             .
           </Text>
 
           <Text
-            className="text-white text-xs underline text-center"
+            className=" text-xs underline text-center"
             onPress={openActionSheet}
           >
             Can't log in or sign up?
