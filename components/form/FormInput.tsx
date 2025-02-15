@@ -1,4 +1,4 @@
-import { ComponentProps, useState } from "react";
+import { useState } from "react";
 import {
   Controller,
   ControllerProps,
@@ -11,17 +11,21 @@ import { Text } from "../ui/text";
 import { Eye } from "@/lib/icons/Eye";
 import { EyeOff } from "@/lib/icons/EyeOff";
 import { useColorScheme } from "~/lib/useColorScheme";
-// import { Eye, EyeOff } from "lucide-react-native";
 import { Label } from "../ui/label";
-interface LabelProps {
+import type { LucideIcon } from "lucide-react-native";
+import { cn } from "~/lib/utils";
+import { StyleSheet } from "react-native";
+interface CustomProps {
   title: string;
+  icon?: LucideIcon;
+  iconPosition?: "left" | "right";
 }
 type FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = Pick<ControllerProps<TFieldValues, TName>, "name" | "control" | "rules"> &
   TextInputProps &
-  LabelProps;
+  CustomProps;
 
 export default function FormInput<
   T extends FieldValues = FieldValues,
@@ -33,10 +37,14 @@ export default function FormInput<
   onChange,
   onBlur,
   title,
+  icon: Icon,
+  iconPosition,
+  className,
   ...rest
 }: FormInputProps<T, U>) {
   const [showPassword, setShowPassword] = useState(false);
   const { isDarkColorScheme } = useColorScheme();
+  console.log("icon", Icon);
   return (
     <Controller
       name={name}
@@ -55,10 +63,15 @@ export default function FormInput<
               onChangeText={field.onChange}
               value={field.value}
               secureTextEntry={!showPassword && name === "password"}
+              className={cn(
+                iconPosition === "left" ? "pl-12" : "pr-12",
+                className,
+              )}
             />
+
             {name === "password" && (
               <TouchableOpacity
-                className="absolute top-1/2 text-black -translate-y-1/2  right-3"
+                className="absolute top-1/2  -translate-y-1/2  right-3"
                 onPress={() => setShowPassword(!showPassword)}
               >
                 {!showPassword ? (
@@ -76,6 +89,17 @@ export default function FormInput<
                 )}
               </TouchableOpacity>
             )}
+            {Icon && (
+              <Icon
+                style={[
+                  styles.icon,
+                  iconPosition === "left" ? styles.iconLeft : styles.iconRight,
+                ]}
+                size={20}
+                strokeWidth={1.25}
+                stroke={isDarkColorScheme ? "white" : "black"}
+              />
+            )}
           </View>
 
           {fieldState.error && fieldState.error.message && (
@@ -88,3 +112,18 @@ export default function FormInput<
     />
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    position: "absolute",
+
+    top: "50%",
+    transform: [{ translateY: "-50%" }],
+  },
+  iconLeft: {
+    left: 12,
+  },
+  iconRight: {
+    right: 12,
+  },
+});

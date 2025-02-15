@@ -19,6 +19,7 @@ import {
 } from "./ui/select";
 import { useAuthentication } from "~/context/AuthContext";
 import FormInput from "./form/FormInput";
+import { Mail } from "lucide-react-native";
 export const signUpSchema = z.object({
   full_name: z.string().min(2),
   email: z.string().email("invalid email format"),
@@ -65,7 +66,7 @@ export function SignUp() {
       />
 
       <Label nativeID="role_label" className="mt-4 mb-2">
-        Role
+        Account Type
       </Label>
       <Controller
         control={control}
@@ -110,6 +111,8 @@ export function SignUp() {
         control={control}
         title="Email"
         name="email"
+        icon={Mail}
+        iconPosition="left"
         placeholder="e.g davidnjoroge@example.com"
       />
       <FormInput control={control} title="Password" name="password" />
