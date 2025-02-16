@@ -31,8 +31,10 @@ const AuthContext = createContext<Partial<AuthProps>>({});
 export const useAuthentication = () => {
   return useContext(AuthContext);
 };
-
-export const AuthProvider = ({ children }: React.PropsWithChildren) => {
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authState, setAuthState] = useState<{
     token: string | null;
     isAuthenticated: boolean | null;
