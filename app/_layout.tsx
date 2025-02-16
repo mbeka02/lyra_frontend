@@ -9,7 +9,7 @@ import {
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { Platform } from "react-native";
+import { Platform, View, ActivityIndicator } from "react-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
@@ -23,6 +23,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner-native";
+import { checkOnboardingStatus } from "~/constants";
+
 SplashScreen.preventAutoHideAsync();
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -39,19 +41,42 @@ export {
 } from "expo-router";
 const InitialLayout = () => {
   const { authState, initialized } = useAuthentication();
+  const [hasOnboarded, setHasOnboarded] = React.useState<boolean | null>(null);
   const segments = useSegments();
   const router = useRouter();
   React.useEffect(() => {
-    if (!initialized) return;
+    console.log("Effect triggered! Auth state:", authState);
+  }, [authState]);
+  React.useEffect(() => {
+    if (!initialized || !authState?.user?.email || authState.isAuthenticated)
+      return;
 
-    //check if the user is in the protected group
-    const inProtectedGroup = segments[0] === "(protected)";
-    if (authState?.isAuthenticated && !inProtectedGroup) {
-      router.replace("/(protected)/(tabs)/home");
-    } else if (!authState?.isAuthenticated) {
-      router.replace("/");
-    }
-  }, [initialized, authState]);
+    const checkAndRedirect = async (email: string) => {
+      const isOnboarded = await checkOnboardingStatus(email);
+      setHasOnboarded(isOnboarded);
+      //check if the user is in the protected group
+      const inProtectedGroup = segments[0] === "(protected)";
+      if (authState?.isAuthenticated) {
+        if (!inProtectedGroup) {
+          // if (isOnboarded) {
+          router.replace("/(protected)/(tabs)/home");
+          // } else {
+          // router.replace("/(protected)/onboarding");
+          // }
+        }
+      } else {
+        router.replace("/");
+      }
+    };
+    checkAndRedirect(authState.user.email);
+  }, [initialized, authState, segments, router]);
+  // if (hasOnboarded === null) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <ActivityIndicator size="large" color="#24AE7C" />
+  //     </View>
+  //   );
+  // }
   return (
     <Stack>
       <Stack.Screen

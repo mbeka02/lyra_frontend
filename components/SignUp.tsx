@@ -70,7 +70,7 @@ export function SignUp() {
         control={control}
         render={({ field: { onChange } }) => (
           <Select
-            onValueChange={(value) => onChange(value)}
+            onValueChange={(option) => onChange(option?.value)}
             defaultValue={{ value: "patient", label: "Patient" }}
           >
             <SelectTrigger className="">

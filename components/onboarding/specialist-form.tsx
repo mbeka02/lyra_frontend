@@ -5,12 +5,17 @@ import { View } from "react-native";
 import { Text } from "../ui/text";
 import { Button } from "../ui/button";
 import FormInput from "../form/FormInput";
+import { completeOnboarding } from "~/constants";
+import { useAuthentication } from "~/context/AuthContext";
+import { useRouter } from "expo-router";
 export const specialistOnboardingSchema = z.object({
   specialization: z.string(),
   license_number: z.string(),
 });
 type FormData = z.infer<typeof specialistOnboardingSchema>;
-export function SignUp() {
+export function SpecialistForm() {
+  const router = useRouter();
+  const { authState } = useAuthentication();
   const { control, handleSubmit } = useForm({
     defaultValues: {
       specialization: "",
@@ -18,7 +23,11 @@ export function SignUp() {
     },
     resolver: zodResolver(specialistOnboardingSchema),
   });
-  const onSubmit = async (data: FormData) => { };
+  const onSubmit = async (data: FormData) => {
+    console.log(data);
+    await completeOnboarding(authState?.user?.email!);
+    router.replace("/(protected)/(tabs)/home");
+  };
   return (
     <View className="px-2 mt-1">
       <FormInput
@@ -34,7 +43,10 @@ export function SignUp() {
         placeholder="enter your license number"
       />
 
-      <Button className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg">
+      <Button
+        className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
+        onPress={handleSubmit(onSubmit)}
+      >
         <Text className="text-white font-jakarta-semibold ">Submit</Text>
       </Button>
     </View>

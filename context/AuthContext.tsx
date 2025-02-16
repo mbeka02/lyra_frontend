@@ -9,8 +9,8 @@ import { toast } from "sonner-native";
 import { TOKEN_KEY } from "~/constants";
 
 export enum Role {
-  ADMIN = "admin",
-  USER = "user",
+  SPECIALIST = "specialist",
+  PATIENT = "patient",
 }
 interface AuthProps {
   authState: {
