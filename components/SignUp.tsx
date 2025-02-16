@@ -46,14 +46,12 @@ export function SignUp() {
       email: "",
       password: "",
       telephone_number: "",
-      role: "patient",
+      role: "",
     },
     resolver: zodResolver(signUpSchema),
   });
   const { onRegister } = useAuthentication();
   const onSubmit = async (data: FormData) => {
-    console.log(data.role);
-
     await onRegister!(data);
   };
   return (
