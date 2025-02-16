@@ -69,32 +69,37 @@ export default function HomeScreen() {
         className={`flex-1   justify-center pt-[${top + 30}px] items-center gap-5  `}
       >
         <Text
-          className="font-semibold font-jakarta-semibold  text-lg py-8"
+          className=" font-jakarta-bold  text-5xl "
         // style={{
         //   fontFamily: "Jakarta-Sans",
         // }}
         >
-          Hi there,....
+          Welcome to Lyra
         </Text>
-        <View className="w-full px-10 gap-5">
+        <Text className="font-jakarta-regular max-w-sm   dark:text-gray-300 text-gray-500">
+          Schedule your first appointment with a healthcare professional today!
+        </Text>
+        <View className="w-full my-2 px-10 gap-5">
           <Button
-            className="py-2.5 rounded-lg bg-greenPrimary text-white  items-center"
-            onPress={() => showModal(ModalType.Login)}
+            size="lg"
+            className=" bg-greenPrimary "
+            onPress={() => showModal(ModalType.SignUp)}
           >
-            <Text className={`text-white font-jakarta-semibold text-lg`}>
-              Log in
+            <Text className="text-white font-jakarta-semibold text-xl">
+              Let's get started
             </Text>
           </Button>
           <Button
-            className="py-2.5 rounded-lg items-center bg-greenPrimary text-white"
-            onPress={() => showModal(ModalType.SignUp)}
+            size="lg"
+            className="   border-2 border-solid border-greenPrimary bg-transparent   items-center"
+            onPress={() => showModal(ModalType.Login)}
           >
-            <Text className="text-white font-jakarta-semibold text-lg">
-              Sign Up
+            <Text className={`text-greenPrimary font-jakarta-semibold text-lg`}>
+              I already have an account
             </Text>
           </Button>
 
-          <Text className=" text-xs font-jakarta-bold text-center mx-16">
+          <Text className=" text-xs font-jakarta-bold text-center mx-2">
             By signing up, you agree to the{" "}
             <Text className=" text-xs underline" onPress={openLink}>
               User Notice

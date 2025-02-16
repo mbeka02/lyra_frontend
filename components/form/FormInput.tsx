@@ -44,7 +44,6 @@ export default function FormInput<
 }: FormInputProps<T, U>) {
   const [showPassword, setShowPassword] = useState(false);
   const { isDarkColorScheme } = useColorScheme();
-  console.log("icon", Icon);
   return (
     <Controller
       name={name}
