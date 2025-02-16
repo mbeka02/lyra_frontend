@@ -7,6 +7,11 @@ import { signUpSchema } from "~/components/SignUp";
 import { loginSchema } from "~/components/Login";
 import { toast } from "sonner-native";
 import { TOKEN_KEY } from "~/constants";
+
+export enum Role {
+  ADMIN = "admin",
+  USER = "user",
+}
 interface AuthProps {
   authState: {
     token: string | null;
@@ -45,6 +50,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       if (data) {
         const object = JSON.parse(data);
         // Set our context state
+
         setAuthState({
           token: object.access_token,
           isAuthenticated: true,
