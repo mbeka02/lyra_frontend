@@ -10,6 +10,7 @@ import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { specialistOnboardingSchema } from "~/types/zod";
 import { onboardSpecialist } from "~/services/onboarding";
+import { toast } from "sonner-native";
 type FormData = z.infer<typeof specialistOnboardingSchema>;
 export function SpecialistForm() {
   const router = useRouter();
@@ -25,8 +26,10 @@ export function SpecialistForm() {
     try {
       await onboardSpecialist(data);
       await completeOnboarding(authState?.user?.email!);
+      toast.success("completed onboarding");
       router.replace("/(protected)/(tabs)/home");
     } catch (error) {
+      toast.error("error:unable to complete onboarding");
       console.error(error);
     }
   };

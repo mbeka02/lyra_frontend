@@ -12,7 +12,6 @@ export type APIError = {
 };
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { TOKEN_KEY } from "~/constants";
-import { promise } from "zod";
 const url = process.env.EXPO_PUBLIC_DEV_URL;
 
 const Api: AxiosInstance = axios.create({ baseURL: url });

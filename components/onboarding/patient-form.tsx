@@ -12,6 +12,7 @@ import { patientOnboardingSchema } from "~/types/zod";
 import { DatePicker } from "../DatePicker";
 import { Label } from "../ui/label";
 import { onboardPatient } from "~/services/onboarding";
+import { toast } from "sonner-native";
 
 type FormData = z.infer<typeof patientOnboardingSchema>;
 export function PatientForm() {
@@ -28,9 +29,11 @@ export function PatientForm() {
     try {
       await onboardPatient(data);
       await completeOnboarding(authState?.user?.email!);
+      toast.success("completed onboarding");
       router.replace("/(protected)/(tabs)/home");
     } catch (error) {
       console.error(error);
+      toast.error("error:unable to complete onboarding");
     }
   };
   return (
