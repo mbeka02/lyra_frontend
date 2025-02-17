@@ -3,10 +3,9 @@ import { User } from "~/types";
 import { APIError, handleApiError, UserAPIResponse } from "~/services/api";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
-import { signUpSchema } from "~/components/SignUp";
-import { loginSchema } from "~/components/Login";
+import { signUpSchema, loginSchema } from "~/types/zod";
 import { toast } from "sonner-native";
-import { TOKEN_KEY } from "~/constants";
+import { clearOnboardingStatus, TOKEN_KEY } from "~/constants";
 
 export enum Role {
   SPECIALIST = "specialist",
@@ -126,6 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
   const handleLogout = async () => {
+    await clearOnboardingStatus("antonymbeka@gmail.com");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,

@@ -8,10 +8,7 @@ import FormInput from "../form/FormInput";
 import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
-export const specialistOnboardingSchema = z.object({
-  specialization: z.string(),
-  license_number: z.string(),
-});
+import { specialistOnboardingSchema } from "~/types/zod";
 type FormData = z.infer<typeof specialistOnboardingSchema>;
 export function SpecialistForm() {
   const router = useRouter();

@@ -11,6 +11,7 @@ import { Text } from "~/components/ui/text";
 import { getUser } from "~/services/user";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { useAuthentication } from "~/context/AuthContext";
+import { Loader } from "~/components/Loader";
 
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
@@ -22,11 +23,7 @@ export default function SettingsScreen() {
 
   const RenderContent = () => {
     if (isLoading) {
-      return (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#24AE7C" />
-        </View>
-      );
+      return <Loader />;
     }
 
     if (isError) {
@@ -156,7 +153,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text className="mt-6 mb-6 text-sm font-medium text-center text-gray-500">
-          App Version 0.12
+          App Version 0.15
         </Text>
       </ScrollView>
     );

@@ -7,10 +7,7 @@ import { Button } from "./ui/button";
 import { useAuthentication } from "~/context/AuthContext";
 import FormInput from "./form/FormInput";
 import { Mail } from "lucide-react-native";
-export const loginSchema = z.object({
-  email: z.string().email("invalid email format"),
-  password: z.string().min(8, "password must be a minimum of 8 characters"),
-});
+import { loginSchema } from "~/types/zod";
 type FormData = z.infer<typeof loginSchema>;
 export function Login() {
   const { control, handleSubmit } = useForm({

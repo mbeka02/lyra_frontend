@@ -1,6 +1,6 @@
 import "~/global.css";
 import * as React from "react";
-import { Platform, View, ActivityIndicator } from "react-native";
+import { Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
@@ -22,6 +22,7 @@ import {
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { Loader } from "~/components/Loader";
 // Prevent auto-hiding of splash screen
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
@@ -132,11 +133,7 @@ export default function RootLayout() {
   }, [fontsLoaded, isLayoutReady]);
 
   if (!fontsLoaded || !isLayoutReady || fontError) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <Loader />;
   }
 
   return (
