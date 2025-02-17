@@ -1,31 +1,31 @@
 import "~/global.css";
-
+import * as React from "react";
+import { Platform, View, ActivityIndicator } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+import { useColorScheme } from "~/lib/useColorScheme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PortalHost } from "@rn-primitives/portal";
+import { AuthProvider } from "~/context/AuthContext";
+import { Toaster } from "sonner-native";
+import { Slot, useRouter, useSegments } from "expo-router";
+import { useAuthentication } from "~/context/AuthContext";
+import { checkOnboardingStatus } from "~/constants";
+import { NAV_THEME } from "~/lib/constants";
 import {
   DarkTheme,
   DefaultTheme,
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack, useRouter, useSegments } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import * as React from "react";
-import { Platform, View, ActivityIndicator } from "react-native";
-import { NAV_THEME } from "~/lib/constants";
-import { useColorScheme } from "~/lib/useColorScheme";
-import { PortalHost } from "@rn-primitives/portal";
-// import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
-import { ActionSheetProvider } from "@expo/react-native-action-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AuthProvider, useAuthentication } from "~/context/AuthContext";
-import { useFonts } from "expo-font";
-import { useEffect } from "react";
-import * as SplashScreen from "expo-splash-screen";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner-native";
-import { checkOnboardingStatus } from "~/constants";
-
-SplashScreen.preventAutoHideAsync();
+// Prevent auto-hiding of splash screen
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* reloading the app might trigger some race conditions, ignore them */
+});
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
@@ -35,70 +35,67 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 const queryClient = new QueryClient();
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
-const InitialLayout = () => {
+function InitialLayout() {
   const { authState, initialized } = useAuthentication();
-  const [hasOnboarded, setHasOnboarded] = React.useState<boolean | null>(null);
   const segments = useSegments();
   const router = useRouter();
-  React.useEffect(() => {
-    console.log("Effect triggered! Auth state:", authState);
-  }, [authState]);
-  React.useEffect(() => {
-    if (!initialized || !authState?.user?.email || authState.isAuthenticated)
-      return;
+  const [isNavigating, setIsNavigating] = React.useState(false);
 
-    const checkAndRedirect = async (email: string) => {
-      const isOnboarded = await checkOnboardingStatus(email);
-      setHasOnboarded(isOnboarded);
-      //check if the user is in the protected group
-      const inProtectedGroup = segments[0] === "(protected)";
-      if (authState?.isAuthenticated) {
-        if (!inProtectedGroup) {
-          // if (isOnboarded) {
-          router.replace("/(protected)/(tabs)/home");
-          // } else {
-          // router.replace("/(protected)/onboarding");
-          // }
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const handleNavigation = async () => {
+      // Prevent multiple navigations
+      if (!initialized || isNavigating || !isMounted) return;
+
+      try {
+        setIsNavigating(true);
+        const inProtectedGroup = segments[0] === "(protected)";
+
+        if (authState?.isAuthenticated) {
+          if (!inProtectedGroup) {
+            // Only check onboarding if we're not already in the protected group
+            const isOnboarded = await checkOnboardingStatus(
+              authState.user?.email!,
+            );
+            const route = isOnboarded
+              ? "/(protected)/(tabs)/home"
+              : "/(protected)/onboarding";
+
+            if (isMounted) {
+              router.replace(route);
+            }
+          }
+        } else if (segments[0] !== undefined) {
+          // Only redirect to home if we're not already there
+          if (isMounted) {
+            router.replace("/");
+          }
         }
-      } else {
-        router.replace("/");
+      } catch (error) {
+        console.error("Navigation error:", error);
+      } finally {
+        if (isMounted) {
+          setIsNavigating(false);
+        }
       }
     };
-    checkAndRedirect(authState.user.email);
-  }, [initialized, authState, segments, router]);
-  // if (hasOnboarded === null) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center">
-  //       <ActivityIndicator size="large" color="#24AE7C" />
-  //     </View>
-  //   );
-  // }
-  return (
-    <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="(protected)"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
-  );
-};
+
+    handleNavigation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialized, authState?.isAuthenticated, segments]);
+
+  return <Slot />;
+}
+
 export default function RootLayout() {
-  const hasMounted = React.useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
-  // const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
-  const [loaded] = useFonts({
+  const { isDarkColorScheme } = useColorScheme();
+  const [isLayoutReady, setIsLayoutReady] = React.useState(false);
+
+  const [fontsLoaded, fontError] = useFonts({
     "Jakarta-Sans-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
     "Jakarta-Sans-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
     "Jakarta-Sans-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -108,30 +105,39 @@ export default function RootLayout() {
     "Jakarta-Sans-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+  React.useEffect(() => {
+    async function prepare() {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
-  if (!loaded) {
-    return null;
-  }
-  /*
-  useIsomorphicLayoutEffect(() => {
-    if (hasMounted.current) {
-      return;
+        if (Platform.OS === "web") {
+          document.documentElement.classList.add("bg-background");
+        }
+      } catch (error) {
+        console.error("Error during initialization:", error);
+      } finally {
+        setIsLayoutReady(true);
+      }
     }
 
-    if (Platform.OS === "web") {
-      // Adds the background color to the html element to prevent white background on overscroll.
-      document.documentElement.classList.add("bg-background");
-    }
-    setAndroidNavigationBar(colorScheme);
-    setIsColorSchemeLoaded(true);
-    hasMounted.current = true;
+    prepare();
   }, []);
-*/
+
+  React.useEffect(() => {
+    if (fontsLoaded && isLayoutReady) {
+      SplashScreen.hideAsync().catch((error) => {
+        console.warn("Error hiding splash screen:", error);
+      });
+    }
+  }, [fontsLoaded, isLayoutReady]);
+
+  if (!fontsLoaded || !isLayoutReady || fontError) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <AuthProvider>
@@ -140,14 +146,14 @@ export default function RootLayout() {
           <StatusBar style={isDarkColorScheme ? "dark" : "light"} />
           <ActionSheetProvider>
             <SafeAreaProvider>
-              <GestureHandlerRootView>
+              <GestureHandlerRootView style={{ flex: 1 }}>
                 <InitialLayout />
                 <Toaster
                   theme={isDarkColorScheme ? "dark" : "light"}
                   position="top-center"
                   toastOptions={{
                     style: {
-                      backgroundColor: `${isDarkColorScheme ? "black" : "white"}`,
+                      backgroundColor: isDarkColorScheme ? "black" : "white",
                     },
                   }}
                 />
@@ -160,8 +166,3 @@ export default function RootLayout() {
     </AuthProvider>
   );
 }
-
-const useIsomorphicLayoutEffect =
-  Platform.OS === "web" && typeof window === "undefined"
-    ? React.useEffect
-    : React.useLayoutEffect;
