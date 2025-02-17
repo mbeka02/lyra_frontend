@@ -14,3 +14,4 @@ const onboardSpecialist = (
 ) => {
   return Api.post("/user/patient", values);
 };
+export { onboardPatient, onboardSpecialist };

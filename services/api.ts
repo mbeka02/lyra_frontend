@@ -12,6 +12,7 @@ export type APIError = {
 };
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { TOKEN_KEY } from "~/constants";
+import { promise } from "zod";
 const url = process.env.EXPO_PUBLIC_DEV_URL;
 
 const Api: AxiosInstance = axios.create({ baseURL: url });
@@ -27,11 +28,42 @@ Api.interceptors.request.use(async (config) => {
 });
 
 Api.interceptors.response.use(
-  async (res: AxiosResponse) => res.data,
-  async (err: AxiosError) => Promise.reject(err),
+  (res: AxiosResponse) => res.data,
+  (err: AxiosError) => {
+    const apierror = handleAxiosError(err);
+    return Promise.reject(apierror);
+  },
 );
+function handleAxiosError(error: AxiosError): APIError {
+  // Fallback error
+  const apiError: APIError = {
+    status: 0,
+    message: "An unknown error occurred",
+  };
 
-const handleApiError = async (response: Response): Promise<APIError> => {
+  // If the request made it to the server and got a response
+  if (error.response) {
+    apiError.status = error.response.status || 0;
+
+    // Cast the response data to 'any' because server error shapes can vary
+    const data = error.response.data as any;
+
+    if (data) {
+      if (data.message) {
+        apiError.message = data.message;
+      }
+      if (data.detail) {
+        apiError.detail = data.detail;
+      }
+    }
+  } else {
+    // If no response, it's likely a network or config error
+    apiError.message = error.message || apiError.message;
+  }
+
+  return apiError;
+}
+const handleFetchError = async (response: Response): Promise<APIError> => {
   let error: APIError = {
     status: response.status,
     message: "An unknown error occurred",
@@ -54,4 +86,4 @@ const handleApiError = async (response: Response): Promise<APIError> => {
 type ApiResponse<Data> = {
   data: Data;
 };
-export { Api, ApiResponse, handleApiError };
+export { Api, ApiResponse, handleFetchError };

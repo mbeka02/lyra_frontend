@@ -9,6 +9,7 @@ import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { specialistOnboardingSchema } from "~/types/zod";
+import { onboardSpecialist } from "~/services/onboarding";
 type FormData = z.infer<typeof specialistOnboardingSchema>;
 export function SpecialistForm() {
   const router = useRouter();
@@ -21,9 +22,13 @@ export function SpecialistForm() {
     resolver: zodResolver(specialistOnboardingSchema),
   });
   const onSubmit = async (data: FormData) => {
-    console.log(data);
-    await completeOnboarding(authState?.user?.email!);
-    router.replace("/(protected)/(tabs)/home");
+    try {
+      await onboardSpecialist(data);
+      await completeOnboarding(authState?.user?.email!);
+      router.replace("/(protected)/(tabs)/home");
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <View className="px-2 mt-1">

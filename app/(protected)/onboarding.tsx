@@ -8,7 +8,12 @@ import { SpecialistForm } from "~/components/onboarding/specialist-form";
 function OnBoardingScreen() {
   return (
     <View className="py-4 px-6 mt-12">
-      <SpecialistForm />
+      <WithRole role={Role.PATIENT}>
+        <PatientForm />
+      </WithRole>
+      <WithRole role={Role.SPECIALIST}>
+        <SpecialistForm />
+      </WithRole>
     </View>
   );
 }

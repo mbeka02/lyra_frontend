@@ -42,15 +42,12 @@ function AndroidDateTimePicker({ onChange, currentDate }: DateTimePickerProps) {
     });
   };
   return (
-    <View className="flex flex-col justify-self-center gap-2 items-center">
+    <View className="flex flex-col w-full gap-2 ">
       <Text className="font-jakarta-medium">
         {currentDate.toLocaleDateString()}
       </Text>
-      <Button
-        className="bg-greenPrimary text-white font-jakarta-semibold"
-        onPress={showDatePicker}
-      >
-        Open Calendar
+      <Button className="bg-greenPrimary" onPress={showDatePicker}>
+        <Text className="font-jakarta-semibold text-white">Open Calendar</Text>
       </Button>
     </View>
   );

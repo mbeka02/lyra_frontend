@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "~/types";
-import { APIError, handleApiError, UserAPIResponse } from "~/services/api";
+import { APIError, handleFetchError, UserAPIResponse } from "~/services/api";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { signUpSchema, loginSchema } from "~/types/zod";
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         body: JSON.stringify(values),
       });
       if (!response.ok) {
-        throw await handleApiError(response);
+        throw await handleFetchError(response);
       }
       const data = await response.json();
       setAuthState({
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         },
       });
       if (!response.ok) {
-        throw await handleApiError(response);
+        throw await handleFetchError(response);
       }
 
       const data = await response.json();

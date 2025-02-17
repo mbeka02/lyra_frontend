@@ -20,5 +20,5 @@ export const signUpSchema = z.object({
 
 export const patientOnboardingSchema = z.object({
   allergies: z.string().optional(),
-  dob: z.date(),
+  date_of_birth: z.date(),
 });
