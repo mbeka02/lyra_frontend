@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
   const handleLogout = async () => {
-    await clearOnboardingStatus("antonymbeka@gmail.com");
+    // await clearOnboardingStatus("antonymbeka@gmail.com");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,
