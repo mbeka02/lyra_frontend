@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 
 // import defaultAvatar from "@/assets/images/default-avatar.png";
 interface UserAvatarProps {
-  uri: string; //  profile image URL
+  uri: string | null; //  profile image URL
   name: string; // User's full name
   size?: number; // Avatar size (optional, default: 40)
 }

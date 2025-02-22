@@ -8,8 +8,8 @@ const getUser = (): Promise<User> => {
 const updateUser = (data: z.infer<typeof profileSchema>) => {
   return Api.patch("/user", data);
 };
-export const updateAvatar = (data: FormData) => {
-  return Api.postForm("/user/profilePicture", data);
+const updateAvatar = (data: FormData) => {
+  return Api.patchForm("/user/profilePicture", data);
 };
 
-export { getUser, updateUser };
+export { getUser, updateUser, updateAvatar };

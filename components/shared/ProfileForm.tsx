@@ -1,6 +1,6 @@
 import { getUser, updateAvatar, updateUser } from "~/services/user";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import FormInput from "../form/FormInput";
 import { Loader } from "../Loader";
 import { profileSchema } from "~/types/zod";
@@ -13,6 +13,8 @@ import { Button } from "../ui/button";
 import { Text } from "../ui/text";
 import { useEffect, useState } from "react";
 import * as expoImagePicker from "expo-image-picker";
+import UserAvatar from "./UserAvatar";
+import { Pencil } from "lucide-react-native";
 type FormData = z.infer<typeof profileSchema>;
 
 export function ProfileForm() {
@@ -39,12 +41,12 @@ export function ProfileForm() {
         email: data.email || "",
         telephone_number: data.telephone_number || "",
       });
+      setImage(data.profile_image_url);
     }
   }, [data, reset]);
 
   const onSubmit = async (formData: FormData) => {
     try {
-      console.log(formData);
       await updateUser(formData);
       toast.success("Your details have been updated");
     } catch (error) {
@@ -79,13 +81,20 @@ export function ProfileForm() {
       // Ensure there's at least one asset
       if (result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-        const img = await fetchImageFromUri(asset.uri);
+        // Use default values if not provided
+        const fileName = asset.fileName || "profile.jpg";
+        const mimeType = asset.mimeType || "image/jpeg";
+        // const img = await fetchImageFromUri(asset.uri);
         setImage(asset.uri);
         const formData = new FormData();
-        formData.append("image", img); // TypeScript fix for FormData
-
+        // formData.append("image", img); // TypeScript fix for FormData
+        formData.append("image", {
+          uri: asset.uri,
+          name: fileName,
+          type: mimeType,
+        } as any); // TypeScript fix for FormData
         await updateAvatar(formData);
-        queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
         toast.success("Image uploaded successfully.");
       } else {
         toast.error("No image selected.");
@@ -100,7 +109,8 @@ export function ProfileForm() {
     const blob = await response.blob();
     return blob;
   };
-  if (isLoading) {
+
+  if (isLoading || !data) {
     return <Loader />;
   }
 
@@ -123,7 +133,16 @@ export function ProfileForm() {
   }
 
   return (
-    <View className="rounded-xl shadow-sm px-4 dark:bg-backgroundPrimary bg-gray-50">
+    <View className="rounded-xl shadow-sm px-4  dark:bg-backgroundPrimary bg-gray-50">
+      <View className="relative mx-auto my-6 w-24 h-24">
+        <UserAvatar uri={image} name={data.full_name} size={96} />
+        <Pressable
+          className="h-9 w-9 flex bg-greenPrimary rounded-full  justify-center items-center absolute -bottom-3 -right-8 "
+          onPress={pickAndUpload}
+        >
+          <Pencil color="white" strokeWidth="2" size="15" />
+        </Pressable>
+      </View>
       <FormInput name="full_name" title="Full Name" control={control} />
       <FormInput
         name="email"
