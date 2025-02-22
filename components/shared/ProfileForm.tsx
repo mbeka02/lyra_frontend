@@ -79,19 +79,13 @@ export function ProfileForm() {
       // Ensure there's at least one asset
       if (result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-        // Provide defaults if fileName or mimeType are missing
-        const fileName = asset.fileName || "image.jpg";
-        const mimeType = asset.mimeType || "image/jpeg";
-
+        const img = await fetchImageFromUri(asset.uri);
         setImage(asset.uri);
         const formData = new FormData();
-        formData.append("image", {
-          uri: asset.uri,
-          name: fileName,
-          type: mimeType,
-        } as any); // TypeScript fix for FormData
+        formData.append("image", img); // TypeScript fix for FormData
 
         await updateAvatar(formData);
+        queryClient.invalidateQueries({ queryKey: ["userProfile"] });
         toast.success("Image uploaded successfully.");
       } else {
         toast.error("No image selected.");
@@ -100,6 +94,11 @@ export function ProfileForm() {
       console.error("Upload error:", error);
       toast.error("Unable to upload your avatar. Please try again.");
     }
+  };
+  const fetchImageFromUri = async (uri: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
   };
   if (isLoading) {
     return <Loader />;
