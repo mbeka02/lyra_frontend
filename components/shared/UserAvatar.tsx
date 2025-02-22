@@ -4,7 +4,7 @@ import { Text } from "~/components/ui/text";
 
 // import defaultAvatar from "@/assets/images/default-avatar.png";
 interface UserAvatarProps {
-  uri?: string; // Optional profile image URL
+  uri: string; //  profile image URL
   name: string; // User's full name
   size?: number; // Avatar size (optional, default: 40)
 }
@@ -26,8 +26,13 @@ function UserAvatar({ uri, name, size = 40 }: UserAvatarProps) {
   return (
     <Avatar style={{ width: size, height: size }} alt={`${name}'s Avatar`}>
       <AvatarImage source={imageSource} />
-      <AvatarFallback>
-        <Text style={{ fontSize: size / 2 }}>{getInitials(name)}</Text>
+      <AvatarFallback className="rounded-full bg-greenPrimary">
+        <Text
+          className="font-jakarta-light text-white"
+          style={{ fontSize: size / 2 }}
+        >
+          {getInitials(name)}
+        </Text>
       </AvatarFallback>
     </Avatar>
   );

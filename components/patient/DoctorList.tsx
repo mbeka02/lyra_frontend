@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Loader } from "../Loader";
 import { View, FlatList } from "react-native";
 import { Text } from "../ui/text";
+import { DoctorCard } from "./DoctorCard";
 
 export function DoctorList() {
   const [page, setPage] = useState(0);
@@ -23,7 +24,7 @@ export function DoctorList() {
   });
 
   return (
-    <View>
+    <View className="py-2 px-4">
       {isPending ? (
         <Loader />
       ) : isError ? (
@@ -33,13 +34,15 @@ export function DoctorList() {
       ) : (
         <FlatList
           data={data.doctors}
+          className="my-2"
           keyExtractor={(item) => item.doctor_id}
           renderItem={({ item }) => (
-            <View>
-              <Text>{item.full_name}</Text>
-              <Text>{item.description}</Text>
-              <Text>{item.specialization}</Text>
-            </View>
+            <DoctorCard
+              full_name={item.full_name}
+              description={item.description}
+              profile_image_url={item.profile_image_url}
+              specialization={item.specialization}
+            />
           )}
         />
       )}
