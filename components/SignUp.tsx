@@ -1,7 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import validator from "validator";
-import { Input } from "./ui/input";
 import { useForm, Controller } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "./ui/text";
@@ -20,13 +18,7 @@ import {
 import { useAuthentication } from "~/context/AuthContext";
 import FormInput from "./form/FormInput";
 import { Mail } from "lucide-react-native";
-export const signUpSchema = z.object({
-  full_name: z.string().min(2),
-  email: z.string().email("invalid email format"),
-  telephone_number: z.string().refine(validator.isMobilePhone),
-  password: z.string().min(8, "password must be a minimum of 8 characters"),
-  role: z.string(),
-});
+import { signUpSchema } from "~/types/zod";
 type FormData = z.infer<typeof signUpSchema>;
 export function SignUp() {
   const insets = useSafeAreaInsets();
@@ -70,7 +62,7 @@ export function SignUp() {
         control={control}
         render={({ field: { onChange } }) => (
           <Select
-            onValueChange={(value) => onChange(value)}
+            onValueChange={(option) => onChange(option?.value)}
             defaultValue={{ value: "patient", label: "Patient" }}
           >
             <SelectTrigger className="">

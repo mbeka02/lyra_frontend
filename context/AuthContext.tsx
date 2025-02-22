@@ -1,16 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "~/types";
-import { APIError, handleApiError, UserAPIResponse } from "~/services/api";
+import { APIError, handleFetchError, UserAPIResponse } from "~/services/api";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
-import { signUpSchema } from "~/components/SignUp";
-import { loginSchema } from "~/components/Login";
+import { signUpSchema, loginSchema } from "~/types/zod";
 import { toast } from "sonner-native";
-import { TOKEN_KEY } from "~/constants";
+import { clearOnboardingStatus, TOKEN_KEY } from "~/constants";
 
 export enum Role {
-  ADMIN = "admin",
-  USER = "user",
+  SPECIALIST = "specialist",
+  PATIENT = "patient",
 }
 interface AuthProps {
   authState: {
@@ -74,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         body: JSON.stringify(values),
       });
       if (!response.ok) {
-        throw await handleApiError(response);
+        throw await handleFetchError(response);
       }
       const data = await response.json();
       setAuthState({
@@ -105,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         },
       });
       if (!response.ok) {
-        throw await handleApiError(response);
+        throw await handleFetchError(response);
       }
 
       const data = await response.json();
@@ -126,6 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
   const handleLogout = async () => {
+    // await clearOnboardingStatus("antonymbeka@gmail.com");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,
