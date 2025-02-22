@@ -1,17 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  View,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { getUser } from "~/services/user";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { useAuthentication } from "~/context/AuthContext";
 import { Loader } from "~/components/Loader";
+import UserAvatar from "~/components/shared/UserAvatar";
+import { Link } from "expo-router";
 
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
@@ -22,7 +18,7 @@ export default function SettingsScreen() {
   });
 
   const RenderContent = () => {
-    if (isLoading) {
+    if (isLoading || !data) {
       return <Loader />;
     }
 
@@ -51,22 +47,17 @@ export default function SettingsScreen() {
             Account
           </Text>
         </View>
-        <View className="rounded-xl shadow-sm dark:bg-backgroundPrimary bg-gray-50">
-          <TouchableOpacity
-            onPress={() => {
-              // handle onPress
-            }}
-            className="p-3 flex-row items-center"
-          >
-            <Image
-              alt=""
-              source={{
-                uri: data?.profile_image_url,
-              }}
-              className="w-16 h-16 rounded-full mr-3"
+        <Link
+          href="/settings/profile"
+          className="rounded-xl shadow-sm px-2 dark:bg-backgroundPrimary bg-gray-50"
+        >
+          <View className="p-3 w-full flex-row items-center">
+            <UserAvatar
+              uri={data.profile_image_url}
+              name={data.full_name}
+              size={50}
             />
-
-            <View className="mr-auto">
+            <View className="mr-auto ml-4">
               <Text className="text-lg font-jakarta-semibold">
                 {data?.full_name}
               </Text>
@@ -77,8 +68,8 @@ export default function SettingsScreen() {
             </View>
 
             <FeatherIcon color="#bcbcbc" name="chevron-right" size={22} />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </Link>
 
         <View className="py-3">
           <Text className="text-xs font-jakarta-medium my-2 tracking-wider dark:text-gray-300 text-gray-500 uppercase">

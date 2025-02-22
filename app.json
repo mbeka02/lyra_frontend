@@ -49,6 +49,13 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you customize your account details."
+        }
+      ],
+
       "expo-secure-store",
       "expo-font"
     ],
