@@ -1,9 +1,13 @@
 import { SafeAreaView } from "react-native";
-import { Text } from "~/components/ui/text";
+import { DoctorList } from "~/components/patient/DoctorList";
+import { WithRole } from "~/components/WithRole";
+import { Role } from "~/context/AuthContext";
 export default function HomeScreen() {
   return (
     <SafeAreaView>
-      <Text>Home screen</Text>
+      <WithRole role={Role.PATIENT}>
+        <DoctorList />
+      </WithRole>
     </SafeAreaView>
   );
 }
