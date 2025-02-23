@@ -1,37 +1,45 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import React from "react";
+import { TabBar } from "@/components/TabBar";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import HomeScreen from "./home";
+import CalendarScreen from "./calendar";
+import SettingsScreen from "./settings";
 import { ThemeToggle } from "~/components/ThemeToggle";
-import { useAuthentication } from "~/context/AuthContext";
+// ...
 
 export default function TabLayout() {
-  const { authState } = useAuthentication();
+  // const colorScheme = useColorScheme();
 
+  const Tab = createBottomTabNavigator();
   return (
-    <Tabs
+    <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "#24AE7C",
+        // tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerRight: () => <ThemeToggle />,
       }}
+      tabBar={(props) => <TabBar {...props} />}
     >
-      <Tabs.Screen
-        name="home"
+      <Tab.Screen
+        name="Home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="home" color={color} />
-          ),
         }}
-        redirect={authState?.isAuthenticated === null}
+        component={HomeScreen}
       />
-      <Tabs.Screen
-        name="settings"
+      <Tab.Screen
+        name="Calendar"
+        options={{
+          title: "Calendar",
+        }}
+        component={CalendarScreen}
+      />
+      <Tab.Screen
+        name="Settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="cog" color={color} />
-          ),
         }}
+        component={SettingsScreen}
       />
-    </Tabs>
+    </Tab.Navigator>
   );
 }

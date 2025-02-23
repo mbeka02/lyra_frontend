@@ -133,7 +133,7 @@ export function ProfileForm() {
   }
 
   return (
-    <View className="rounded-xl shadow-sm px-4  dark:bg-backgroundPrimary bg-gray-50">
+    <View className="rounded-xl shadow-sm px-4  dark:bg-backgroundPrimary bg-slate-50">
       <View className="relative mx-auto my-6 w-24 h-24">
         <UserAvatar uri={image} name={data.full_name} size={96} />
         <Pressable

@@ -49,7 +49,7 @@ export default function SettingsScreen() {
         </View>
         <Link
           href="/settings/profile"
-          className="rounded-xl shadow-sm px-2 dark:bg-backgroundPrimary bg-gray-50"
+          className="rounded-xl shadow-sm px-2 dark:bg-backgroundPrimary bg-slate-50"
         >
           <View className="p-3 w-full flex-row items-center">
             <UserAvatar
@@ -76,7 +76,7 @@ export default function SettingsScreen() {
             Preferences
           </Text>
 
-          <View className="rounded-xl shadow-sm bg-gray-50 dark:bg-backgroundPrimary overflow-hidden">
+          <View className="rounded-xl shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden">
             <TouchableOpacity className="h-11 px-4 flex-row items-center">
               <Text className="text-base font-jakarta-regular">Language</Text>
               <View className="flex-1" />
@@ -102,7 +102,7 @@ export default function SettingsScreen() {
             Resources
           </Text>
 
-          <View className="rounded-xl shadow-sm bg-gray-50 dark:bg-backgroundPrimary overflow-hidden">
+          <View className="rounded-xl shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden">
             <TouchableOpacity className="h-11 px-4 flex-row items-center">
               <Text className="text-base font-jakarta-regular">Contact Me</Text>
               <View className="flex-1" />
