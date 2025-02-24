@@ -4,7 +4,7 @@ import UserAvatar from "../shared/UserAvatar";
 import { Star, Phone } from "lucide-react-native";
 import { Calendar } from "~/lib/icons/Calendar";
 import { Users } from "~/lib/icons/Users";
-import { Clock } from "~/lib/icons/Clock";
+import { Coins } from "~/lib/icons/Coins";
 import { View } from "react-native";
 import { Button } from "../ui/button";
 interface DoctorCardProps {
@@ -12,6 +12,8 @@ interface DoctorCardProps {
   description: string;
   specialization: string;
   profile_image_url: string;
+  years_of_experience: number;
+  price_per_hour: string;
 }
 
 export function DoctorCard({
@@ -19,6 +21,8 @@ export function DoctorCard({
   description,
   specialization,
   profile_image_url,
+  years_of_experience,
+  price_per_hour,
 }: DoctorCardProps) {
   return (
     <Card className="w-full">
@@ -56,8 +60,9 @@ export function DoctorCard({
                 strokeWidth={1}
               />
               <View>
-                {/*TODO: Add years of experience*/}
-                <Text className="text-sm font-jakarta-medium">8+ years</Text>
+                <Text className="text-sm font-jakarta-medium">
+                  {years_of_experience} years
+                </Text>
                 <Text className="text-xs text-muted-foreground font-jakarta-light">
                   Experience
                 </Text>
@@ -77,12 +82,13 @@ export function DoctorCard({
               </View>
             </View>
             <View className="flex flex-row items-center gap-2">
-              <Clock strokeWidth={1} className=" dark:text-white text-black" />
+              <Coins strokeWidth={1} className=" dark:text-white text-black" />
               <View>
-                {/*TODO: Add response time*/}
-                <Text className="text-sm font-jakarta-medium">15 min</Text>
+                <Text className="text-sm font-jakarta-medium">
+                  ksh {price_per_hour}
+                </Text>
                 <Text className="text-xs text-muted-foreground font-jakarta-light">
-                  Response
+                  Per Hour
                 </Text>
               </View>
             </View>
