@@ -50,7 +50,7 @@ export function DoctorForm() {
     <View className="px-2 mt-1">
       <FormInput
         name="specialization"
-        title="specialization"
+        title="Your Specialization"
         control={control}
         placeholder="enter your specialization area"
       />

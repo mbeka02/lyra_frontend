@@ -38,7 +38,7 @@ export function SignUp() {
       email: "",
       password: "",
       telephone_number: "",
-      role: "",
+      role: "patient",
     },
     resolver: zodResolver(signUpSchema),
   });
@@ -52,7 +52,7 @@ export function SignUp() {
         name="full_name"
         title="Full Name"
         control={control}
-        placeholder="e.g David Njoroge"
+        placeholder="enter your full name"
       />
 
       <Label nativeID="role_label" className="mt-4 mb-2">
@@ -68,7 +68,7 @@ export function SignUp() {
             <SelectTrigger className="">
               <SelectValue
                 className="text-foreground text-sm native:text-lg"
-                placeholder="Select an account type"
+                placeholder="select an account type"
               />
             </SelectTrigger>
             <SelectContent insets={contentInsets} className="">
@@ -77,8 +77,8 @@ export function SignUp() {
                 <SelectItem label="Patient" value="patient">
                   Patient
                 </SelectItem>
-                <SelectItem label="Medical Specialist" value="specialist">
-                  Medical Specilaist
+                <SelectItem label="Doctor" value="specialist">
+                  Doctor
                 </SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -93,7 +93,7 @@ export function SignUp() {
       )}
       <FormInput
         title="Telephone"
-        placeholder="e.g +254XXXXXXXXX"
+        placeholder="enter your mobile number"
         name="telephone_number"
         control={control}
       />
@@ -103,9 +103,14 @@ export function SignUp() {
         name="email"
         icon={Mail}
         iconPosition="left"
-        placeholder="e.g davidnjoroge@example.com"
+        placeholder="enter your email"
       />
-      <FormInput control={control} title="Password" name="password" />
+      <FormInput
+        control={control}
+        placeholder="enter your password"
+        title="Password"
+        name="password"
+      />
 
       <Button
         className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
