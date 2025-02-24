@@ -2,8 +2,8 @@ import { View } from "react-native";
 
 import { Role } from "~/context/AuthContext";
 import { WithRole } from "~/components/WithRole";
-import { PatientForm } from "~/components/onboarding/patient-form";
-import { SpecialistForm } from "~/components/onboarding/specialist-form";
+import { PatientForm } from "~/components/onboarding/PatientForm";
+import { DoctorForm } from "~/components/onboarding/DoctorForm";
 function OnBoardingScreen() {
   return (
     <View className="py-4 px-6 mt-12">
@@ -11,7 +11,7 @@ function OnBoardingScreen() {
         <PatientForm />
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
-        <SpecialistForm />
+        <DoctorForm />
       </WithRole>
     </View>
   );

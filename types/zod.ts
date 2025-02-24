@@ -1,11 +1,18 @@
 import z from "zod";
 import validator from "validator";
 
-export const specialistOnboardingSchema = z.object({
+export const doctorOnboardingSchema = z.object({
   specialization: z.string().min(2, "Specialization is required"),
   license_number: z
     .string()
     .min(5, "License number must be at least 5 characters"),
+  description: z.string().min(20, "The description is too short"),
+  years_of_experience: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().min(0)),
+  price_per_hour: z.string(),
+  county: z.string(),
 });
 
 export const loginSchema = z.object({

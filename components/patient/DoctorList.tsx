@@ -23,7 +23,7 @@ export function DoctorList() {
   });
 
   return (
-    <View className="py-2 px-4">
+    <View className="py-2 px-4 mb-8">
       {isPending ? (
         <Loader />
       ) : isError ? (
@@ -64,7 +64,7 @@ export function DoctorList() {
                   <TouchableOpacity
                     key={direction}
                     onPress={() => setOrder(direction)}
-                    className="bg-white dark:bg-black"
+                    className="bg-slate-50 dark:bg-backgroundPrimary"
                   >
                     {direction === "asc" ? (
                       <ChevronUp
@@ -82,14 +82,15 @@ export function DoctorList() {
           }
         />
       )}
-      <View className="flex flex-row justify-between mt-4">
+      <View className="flex flex-row justify-center gap-4 mt-4">
         <Button
           onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
           disabled={page === 0}
           variant="outline"
           size="icon"
+          className="border-black  dark:border-white"
         >
-          <ChevronLeft className="w-8 h-8 text-input" />
+          <ChevronLeft className="w-8 h-8 text-black dark:text-white" />
         </Button>
         <Button
           onPress={() =>
@@ -98,11 +99,12 @@ export function DoctorList() {
           disabled={isPlaceholderData || !data?.has_more}
           variant="outline"
           size="icon"
+          className="border-black dark:border-white"
         >
-          <ChevronRight className="w-8 h-8 text-input" />
+          <ChevronRight className="w-8 h-8 text-black dark:text-white" />
         </Button>
       </View>
-      {isFetching && <Loader />}
+      {/*isFetching && <Loader />*/}
     </View>
   );
 }
