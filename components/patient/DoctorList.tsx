@@ -46,10 +46,10 @@ export function DoctorList() {
                     onPress={() => setSortBy(criteria)}
                     variant="outline"
                     size="sm"
-                    className={`rounded-xl bg-transparent shadow flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
+                    className={`rounded-xl bg-transparent  flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
                   >
                     {sortBy === criteria && (
-                      <Check className="text-greenPrimary" size={22} />
+                      <Check className=" mt-1 text-greenPrimary" size={22} />
                     )}
                     <Text
                       className={`text-xs font-jakarta-semibold ${sortBy === criteria ? "text-greenPrimary" : ""}`}
@@ -64,10 +64,11 @@ export function DoctorList() {
                   <TouchableOpacity
                     key={direction}
                     onPress={() => setOrder(direction)}
+                    className="bg-white dark:bg-black"
                   >
                     {direction === "asc" ? (
                       <ChevronUp
-                        className={`w-5 h-5 ${order === "asc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
+                        className={`w-5  h-5 ${order === "asc" ? " text-greenPrimary" : "text-black dark:text-white"}`}
                       />
                     ) : (
                       <ChevronDown
