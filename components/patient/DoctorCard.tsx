@@ -25,7 +25,7 @@ export function DoctorCard({
   price_per_hour,
 }: DoctorCardProps) {
   return (
-    <Card className="w-full">
+    <Card className="w-full my-4">
       <CardContent className="p-4">
         <View className="flex items-center flex-row">
           <UserAvatar name={full_name} uri={profile_image_url} size={60} />

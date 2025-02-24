@@ -15,16 +15,9 @@ export function DoctorList() {
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const {
-    isPending,
-    isPlaceholderData,
-    isLoading,
-    isError,
-    error,
-    data,
-    isFetching,
-  } = useQuery({
-    queryKey: ["projects", page],
+
+  const { isPending, isError, data, isFetching, isPlaceholderData } = useQuery({
+    queryKey: ["projects", page, sortBy, order],
     queryFn: () => getAllDoctors(page, sortBy, order),
     placeholderData: keepPreviousData,
   });
@@ -42,89 +35,73 @@ export function DoctorList() {
           data={data.doctors}
           className="my-2"
           keyExtractor={(item) => item.doctor_id}
-          renderItem={({ item }) => (
-            <DoctorCard
-              full_name={item.full_name}
-              description={item.description}
-              profile_image_url={item.profile_image_url}
-              specialization={item.specialization}
-              years_of_experience={item.years_of_experience}
-              price_per_hour={item.price_per_hour}
-            />
-          )}
+          renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
-            <View className="rounded-xl shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-24 py-2 px-4 flex justify-between flex-row items-center">
+            <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-24 py-2 px-4 flex justify-between flex-row items-center">
               <Text className="font-jakarta-semibold mr-3">Sort By</Text>
-              <View className="space-x-2">
-                <Button
-                  onPress={() => setSortBy("price")}
-                  variant="outline"
-                  className={`rounded-xl dark:border-white border-black ${sortBy === "price"
-                      ? "border-greenPrimary bg-greenPrimary/50"
-                      : ""
-                    }`}
-                >
-                  {sortBy === "price" && (
-                    <Check className="w-5 h-5 text-greenPrimary" />
-                  )}
-                  <Text className={`text-sm font-jakarta-semibold `}>
-                    pricing
-                  </Text>
-                </Button>
-                <Button
-                  onPress={() => setSortBy("experience")}
-                  variant="outline"
-                  className={`rounded-xl dark:border-white border-black ${sortBy === "experience"
-                      ? "border-greenPrimary bg-greenPrimary/50"
-                      : ""
-                    }`}
-                >
-                  {sortBy === "experience" && (
-                    <Check className="w-5 h-5 text-greenPrimary" />
-                  )}
-                  <Text className={`text-sm font-jakarta-semibold `}>
-                    experience
-                  </Text>
-                </Button>
+              <View className="flex gap-2 flex-row items-center">
+                {(["price", "experience"] as const).map((criteria) => (
+                  <Button
+                    key={criteria}
+                    onPress={() => setSortBy(criteria)}
+                    variant="outline"
+                    size="sm"
+                    className={`rounded-xl bg-transparent shadow flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
+                  >
+                    {sortBy === criteria && (
+                      <Check className="text-greenPrimary" size={22} />
+                    )}
+                    <Text
+                      className={`text-xs font-jakarta-semibold ${sortBy === criteria ? "text-greenPrimary" : ""}`}
+                    >
+                      {criteria}
+                    </Text>
+                  </Button>
+                ))}
               </View>
               <View className="flex rounded-md shadow-sm justify-center space-x-2">
-                <TouchableOpacity onPress={() => setOrder("asc")}>
-                  <ChevronUp
-                    className={`w-5 h-5 text-black dark:text-white ${order === "asc" ? "text-greenPrimary" : ""}`}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setOrder("desc")}>
-                  <ChevronDown
-                    className={`w-5 h-5 text-black dark:text-white ${order === "desc" ? "text-greenPrimary" : ""}`}
-                  />
-                </TouchableOpacity>
+                {(["asc", "desc"] as const).map((direction) => (
+                  <TouchableOpacity
+                    key={direction}
+                    onPress={() => setOrder(direction)}
+                  >
+                    {direction === "asc" ? (
+                      <ChevronUp
+                        className={`w-5 h-5 ${order === "asc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
+                      />
+                    ) : (
+                      <ChevronDown
+                        className={`w-5 h-5 ${order === "desc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           }
         />
       )}
-      <Button
-        onPress={() => setPage((old) => Math.max(old - 1, 0))}
-        disabled={page === 0}
-        variant="outline"
-        size="icon"
-      >
-        <ChevronLeft className="w-8 h-8 text-input" />
-      </Button>
-      <Button
-        onPress={() => {
-          if (!isPlaceholderData && data?.has_more) {
-            setPage((old) => old + 1);
+      <View className="flex flex-row justify-between mt-4">
+        <Button
+          onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
+          disabled={page === 0}
+          variant="outline"
+          size="icon"
+        >
+          <ChevronLeft className="w-8 h-8 text-input" />
+        </Button>
+        <Button
+          onPress={() =>
+            !isPlaceholderData && data?.has_more && setPage((prev) => prev + 1)
           }
-        }}
-        // Disable the Next Page Button until we know a next page is available
-        disabled={isPlaceholderData || !data?.has_more}
-        variant="outline"
-        size="icon"
-      >
-        <ChevronRight className="w-8 h-8 text-input" />
-      </Button>
-      {/*isFetching ? <Loader /> : null*/}
+          disabled={isPlaceholderData || !data?.has_more}
+          variant="outline"
+          size="icon"
+        >
+          <ChevronRight className="w-8 h-8 text-input" />
+        </Button>
+      </View>
+      {isFetching && <Loader />}
     </View>
   );
 }
