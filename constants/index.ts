@@ -95,7 +95,23 @@ const getAllOnboardingKeys = async (): Promise<string[]> => {
     return [];
   }
 };
-// In your development code
+//WARNING , AVOID USING THIS
+const deleteAllKeys = async (): Promise<void> => {
+  try {
+    const allOnboardingKeys = await getAllOnboardingKeys();
+
+    // Use a for...of loop to handle async operations sequentially
+    for (const key of allOnboardingKeys) {
+      await AsyncStorage.removeItem(key);
+      console.log(`Deleted key: ${key}`);
+    }
+
+    console.log("All onboarding keys deleted successfully");
+  } catch (error) {
+    console.error("Error deleting keys:", error);
+  }
+};
+
 const debugOnboarding = async () => {
   const keys = await getAllOnboardingKeys();
   console.log("All onboarding keys:", keys);
@@ -113,4 +129,5 @@ export {
   checkOnboardingStatus,
   clearOnboardingStatus,
   debugOnboarding,
+  deleteAllKeys,
 };

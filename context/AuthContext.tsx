@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { signUpSchema, loginSchema } from "~/types/zod";
 import { toast } from "sonner-native";
-import { clearOnboardingStatus, TOKEN_KEY } from "~/constants";
+import { TOKEN_KEY } from "~/constants";
 
 export enum Role {
   SPECIALIST = "specialist",
@@ -125,7 +125,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
   const handleLogout = async () => {
-    // await clearOnboardingStatus("antonymbeka@gmail.com");
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
       token: null,

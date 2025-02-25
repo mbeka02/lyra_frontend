@@ -6,6 +6,7 @@ import { Text } from "./ui/text";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DatePicker } from "./DatePicker";
 import {
   Select,
   SelectContent,
@@ -39,6 +40,7 @@ export function SignUp() {
       password: "",
       telephone_number: "",
       role: "patient",
+      date_of_birth: new Date(),
     },
     resolver: zodResolver(signUpSchema),
   });
@@ -54,7 +56,6 @@ export function SignUp() {
         control={control}
         placeholder="enter your full name"
       />
-
       <Label nativeID="role_label" className="mt-4 mb-2">
         Account Type
       </Label>
@@ -97,6 +98,26 @@ export function SignUp() {
         name="telephone_number"
         control={control}
       />
+      <Label nativeID="date_of_birth_label" className="mt-4 mb-2">
+        Date of Birth
+      </Label>
+
+      <Controller
+        control={control}
+        name="date_of_birth"
+        render={({ field }) => (
+          <DatePicker
+            onChange={(date) => field.onChange(date)}
+            currentDate={field.value}
+          />
+        )}
+      />
+      {errors.date_of_birth && (
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.date_of_birth.message}
+        </Text>
+      )}
+
       <FormInput
         control={control}
         title="Email"

@@ -9,7 +9,6 @@ import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { patientOnboardingSchema } from "~/types/zod";
-import { DatePicker } from "../DatePicker";
 import { Label } from "../ui/label";
 import { onboardPatient } from "~/services/onboarding";
 import { toast } from "sonner-native";
@@ -21,7 +20,6 @@ export function PatientForm() {
   const { control, handleSubmit } = useForm({
     defaultValues: {
       allergies: "",
-      date_of_birth: new Date(),
     },
     resolver: zodResolver(patientOnboardingSchema),
   });
@@ -44,19 +42,7 @@ export function PatientForm() {
         control={control}
         placeholder="enter any allergies that you may have"
       />
-      <Label nativeID={`dob_label`} className="mt-4 mb-2">
-        Date
-      </Label>
-      <Controller
-        control={control}
-        name="date_of_birth"
-        render={({ field }) => (
-          <DatePicker
-            onChange={(date) => field.onChange(date)}
-            currentDate={field.value}
-          />
-        )}
-      />
+
       <Button
         className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}

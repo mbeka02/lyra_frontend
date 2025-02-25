@@ -17,7 +17,11 @@ type FormData = z.infer<typeof doctorOnboardingSchema>;
 export function DoctorForm() {
   const router = useRouter();
   const { authState } = useAuthentication();
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       specialization: "",
       license_number: "",
@@ -28,6 +32,8 @@ export function DoctorForm() {
     },
     resolver: zodResolver(doctorOnboardingSchema),
   });
+
+  // console.log("Validation errors:", formState.errors);
   const onSubmit = async (data: FormData) => {
     try {
       await onboardDoctor({
@@ -96,6 +102,12 @@ export function DoctorForm() {
         )}
         name="description"
       />
+      {errors.description && (
+        <Text className="text-red-600 font-jakarta-bold">
+          {errors.description.message}
+        </Text>
+      )}
+
       <Button
         className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
