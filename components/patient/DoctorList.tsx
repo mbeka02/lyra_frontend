@@ -11,14 +11,16 @@ import { ChevronUp } from "~/lib/icons/ChevronUp";
 import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
+import { ComboBox } from "../ComboBox";
 export function DoctorList() {
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-
-  const { isPending, isError, data, isFetching, isPlaceholderData } = useQuery({
-    queryKey: ["projects", page, sortBy, order],
-    queryFn: () => getAllDoctors(page, sortBy, order),
+  const [county, setCounty] = useState<string | null>(null);
+  const [isFocus, setIsFocus] = useState(false);
+  const { isPending, isError, data, isPlaceholderData } = useQuery({
+    queryKey: ["projects", page, sortBy, order, county],
+    queryFn: () => getAllDoctors(page, sortBy, order, county),
     placeholderData: keepPreviousData,
   });
 
@@ -37,48 +39,59 @@ export function DoctorList() {
           keyExtractor={(item) => item.doctor_id}
           renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
-            <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-24 py-2 px-4 flex justify-between flex-row items-center">
-              <Text className="font-jakarta-semibold mr-3">Sort By</Text>
-              <View className="flex gap-2 flex-row items-center">
-                {(["price", "experience"] as const).map((criteria) => (
-                  <Button
-                    key={criteria}
-                    onPress={() => setSortBy(criteria)}
-                    variant="outline"
-                    size="sm"
-                    className={`rounded-xl bg-transparent  flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
-                  >
-                    {sortBy === criteria && (
-                      <Check className=" mt-1 text-greenPrimary" size={22} />
-                    )}
-                    <Text
-                      className={`text-xs font-jakarta-semibold ${sortBy === criteria ? "text-greenPrimary" : ""}`}
+            <>
+              <ComboBox
+                county={county}
+                setIsFocus={setIsFocus}
+                setCounty={setCounty}
+                isFocus={isFocus}
+              />
+              <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 flex justify-between flex-row items-center">
+                <Text className="font-jakarta-semibold mr-3">Sort By</Text>
+                <View className="flex gap-2 flex-row items-center">
+                  {(["price", "experience"] as const).map((criteria) => (
+                    <Button
+                      key={criteria}
+                      onPress={() => setSortBy(criteria)}
+                      variant="outline"
+                      size="sm"
+                      className={`rounded-md px-1 pb-1  bg-transparent  flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
                     >
-                      {criteria}
-                    </Text>
-                  </Button>
-                ))}
+                      {sortBy === criteria && (
+                        <Check
+                          className=" mt-1 mr-1 text-greenPrimary"
+                          size={20}
+                        />
+                      )}
+                      <Text
+                        className={`text-xs font-jakarta-medium ${sortBy === criteria ? "text-greenPrimary" : ""}`}
+                      >
+                        {criteria}
+                      </Text>
+                    </Button>
+                  ))}
+                </View>
+                <View className="flex rounded-md shadow-sm justify-center space-x-2">
+                  {(["asc", "desc"] as const).map((direction) => (
+                    <TouchableOpacity
+                      key={direction}
+                      onPress={() => setOrder(direction)}
+                      className="bg-slate-50 dark:bg-backgroundPrimary"
+                    >
+                      {direction === "asc" ? (
+                        <ChevronUp
+                          className={`w-5  h-5 ${order === "asc" ? " text-greenPrimary" : "text-black dark:text-white"}`}
+                        />
+                      ) : (
+                        <ChevronDown
+                          className={`w-5 h-5 ${order === "desc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-              <View className="flex rounded-md shadow-sm justify-center space-x-2">
-                {(["asc", "desc"] as const).map((direction) => (
-                  <TouchableOpacity
-                    key={direction}
-                    onPress={() => setOrder(direction)}
-                    className="bg-slate-50 dark:bg-backgroundPrimary"
-                  >
-                    {direction === "asc" ? (
-                      <ChevronUp
-                        className={`w-5  h-5 ${order === "asc" ? " text-greenPrimary" : "text-black dark:text-white"}`}
-                      />
-                    ) : (
-                      <ChevronDown
-                        className={`w-5 h-5 ${order === "desc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
-                      />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            </>
           }
         />
       )}

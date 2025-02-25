@@ -14,6 +14,7 @@ interface DoctorCardProps {
   profile_image_url: string;
   years_of_experience: number;
   price_per_hour: string;
+  county: string;
 }
 
 export function DoctorCard({
@@ -23,16 +24,17 @@ export function DoctorCard({
   profile_image_url,
   years_of_experience,
   price_per_hour,
+  county,
 }: DoctorCardProps) {
   return (
-    <Card className="w-full my-4">
+    <Card className="w-full dark:bg-backgroundPrimary bg-slate-50 my-4">
       <CardContent className="p-4">
         <View className="flex items-center flex-row">
           <UserAvatar name={full_name} uri={profile_image_url} size={60} />
           <View className="space-y-1 ml-4">
             <Text className="font-jakarta-semibold text-lg">{full_name}</Text>
             <Text className="text-muted-foreground text-sm">
-              {specialization}
+              {specialization} | {county} county
             </Text>
             <View className="flex flex-row items-center gap-1">
               <Star

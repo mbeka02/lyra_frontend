@@ -18,11 +18,9 @@ const dateSchema = z.union([
     },
     { message: "Invalid date format. Use YYYY-MM-DD." },
   ),
-  z
-    .date()
-    .refine((val) => !isNaN(val.getTime()), {
-      message: "Invalid date object.",
-    }),
+  z.date().refine((val) => !isNaN(val.getTime()), {
+    message: "Invalid date object.",
+  }),
 ]);
 export const doctorOnboardingSchema = z.object({
   specialization: z.string().min(2, "Specialization is required"),
@@ -63,6 +61,11 @@ export const signUpSchema = z.object({
 
 export const patientOnboardingSchema = z.object({
   allergies: z.string().optional(),
+  past_medical_history: z.string().optional(),
+  family_medical_history: z.string().optional(),
+  current_medication: z.string().optional(),
+  insurance_provider: z.string().optional(),
+  insurance_policy_number: z.string().optional(),
   //TODO: Add the other stuff
 });
 

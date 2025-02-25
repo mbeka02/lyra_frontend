@@ -9,7 +9,6 @@ import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { patientOnboardingSchema } from "~/types/zod";
-import { Label } from "../ui/label";
 import { onboardPatient } from "~/services/onboarding";
 import { toast } from "sonner-native";
 
@@ -20,6 +19,11 @@ export function PatientForm() {
   const { control, handleSubmit } = useForm({
     defaultValues: {
       allergies: "",
+      past_medical_history: "",
+      family_medical_history: "",
+      current_medication: "",
+      insurance_provider: "",
+      insurance_policy_number: "",
     },
     resolver: zodResolver(patientOnboardingSchema),
   });
@@ -38,11 +42,42 @@ export function PatientForm() {
     <View className="px-2 mt-1">
       <FormInput
         name="allergies"
-        title="Allergies"
+        title="Allergies (optional)"
         control={control}
         placeholder="enter any allergies that you may have"
       />
+      <FormInput
+        name="past_medical_history"
+        title="Past Medical History (optional)"
+        control={control}
+        placeholder=""
+        className="h-36"
+      />
+      <FormInput
+        name="family_medical_history"
+        title="Family Medical History (optional)"
+        control={control}
+        placeholder=""
+        className="h-36"
+      />
+      <FormInput
+        name="current_medication"
+        title="Current Medication (optional)"
+        control={control}
+        placeholder=""
+      />
+      <FormInput
+        name="insurance_provider"
+        title="Insurance Provider(optional)"
+        control={control}
+        placeholder=""
+      />
 
+      <FormInput
+        name="insurance_policy_number"
+        title="Insurance Policy Number (optional)"
+        control={control}
+      />
       <Button
         className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
         onPress={handleSubmit(onSubmit)}
