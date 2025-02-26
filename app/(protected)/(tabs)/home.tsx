@@ -1,5 +1,5 @@
 import { SafeAreaView, View } from "react-native";
-import AvailabilityForm from "~/components/doctor/AvailabilityFormDraft";
+import { Scheduler } from "~/components/doctor/Scheduler";
 import { DoctorList } from "~/components/patient/DoctorList";
 import { WithRole } from "~/components/WithRole";
 import { Role } from "~/context/AuthContext";
@@ -12,7 +12,9 @@ export default function HomeScreen() {
         </View>
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
-        <AvailabilityForm />
+        <View className="h-[90%]">
+          <Scheduler />
+        </View>
       </WithRole>
     </SafeAreaView>
   );
