@@ -1,20 +1,49 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+// import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useAuthentication } from "~/context/AuthContext";
-import { useColorScheme } from "~/lib/useColorScheme";
-import { Ionicons } from "@expo/vector-icons";
+// import { useColorScheme } from "~/lib/useColorScheme";
+// import { Ionicons } from "@expo/vector-icons";
 
-import { Dimensions, View } from "react-native";
-import { Text } from "~/components/ui/text";
-import { useEffect } from "react";
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
-const { width } = Dimensions.get("window");
+// import { Dimensions, View } from "react-native";
+// import { Text } from "~/components/ui/text";
+// const { width } = Dimensions.get("window");
+import CustomNavBar from "~/components/CustomNavBar";
+
+export default function Tabslayout() {
+  const { authState } = useAuthentication();
+  return (
+    <Tabs
+      tabBar={(props) => <CustomNavBar {...props} />}
+      screenOptions={{
+        headerRight: () => <ThemeToggle />,
+        tabBarShowLabel: false,
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+        }}
+        redirect={authState?.isAuthenticated === null}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "Calendar",
+        }}
+        redirect={authState?.isAuthenticated === null}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+        }}
+      />
+    </Tabs>
+  );
+}
+/*
 interface TabIconProps {
   focused: boolean;
   label: string;
@@ -117,4 +146,4 @@ export default function TabLayout() {
       />
     </Tabs>
   );
-}
+}*/

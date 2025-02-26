@@ -8,6 +8,11 @@ import { Button } from "../ui/button";
 import { Plus } from "~/lib/icons/Plus";
 import { X } from "~/lib/icons/X";
 import { toast } from "sonner-native";
+import Animated, {
+  FadeInDown,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 const weekDays = [
   "Sunday",
   "Monday",
@@ -20,6 +25,12 @@ const weekDays = [
 const _startHour = 8;
 // const _spacing=10;
 // const _borderRadius=16;
+const _damping = 14;
+const _entering = FadeInDown.springify().damping(_damping);
+const _exiting = FadeOut.springify().damping(_damping);
+const _layout = LinearTransition.springify().damping(_damping);
+const AnimatedButton = Animated.createAnimatedComponent(Button);
+
 const HourBlock = ({ block }: { block: number }) => {
   return (
     <View className="flex-1 border border-input border-sm items-center justify-center py-1">
@@ -34,14 +45,25 @@ const DayBlock = () => {
   const [hours, setHours] = useState([_startHour]);
 
   return (
-    <View className="gap-3">
+    <Animated.View
+      className="gap-3"
+      entering={_entering}
+      layout={_layout}
+      exiting={_exiting}
+    >
       {hours.map((hour, index) => (
-        <View key={index} className="flex-row my-1 items-center gap-2">
+        <Animated.View
+          entering={_entering}
+          layout={_layout}
+          exiting={_exiting}
+          key={index}
+          className="flex-row my-1 items-center gap-2"
+        >
           <Text>From:</Text>
           <HourBlock block={hour} />
           <Text>To:</Text>
           <HourBlock block={hour + 1} />
-          <Button
+          <AnimatedButton
             onPress={() => {
               //TODO: ADD LOGIC
               setHours((prev) => [...prev.filter((val) => val !== hour)]);
@@ -52,10 +74,11 @@ const DayBlock = () => {
             variant="outline"
           >
             <X className="text-input" size={14} />
-          </Button>
-        </View>
+          </AnimatedButton>
+        </Animated.View>
       ))}
-      <Button
+      <AnimatedButton
+        layout={_layout}
         onPress={() => {
           //TODO: ADD LOGIC
           if (hours.length === 0) {
@@ -68,24 +91,25 @@ const DayBlock = () => {
         variant="link"
       >
         <Plus className="dark:text-white text-black" size={16} />
-        <Text className="font-jakarta-semibold dark:text-white text-sm">
+        <Text className="font-jakarta-semibold dark:text-white text-xs">
           Add More
         </Text>
-      </Button>
-    </View>
+      </AnimatedButton>
+    </Animated.View>
   );
 };
 const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
   const [isOn, setIsOn] = useState(false);
   const { isDarkColorScheme } = useColorScheme();
   return (
-    <View
+    <Animated.View
       className={`border border-solid border-input rounded-3xl px-4 p-2 ${isOn
           ? "bg-transparent"
           : isDarkColorScheme
             ? "bg-backgroundPrimary"
             : "bg-slate-50"
         }`}
+      layout={_layout}
     >
       <View
         key={day}
@@ -95,7 +119,7 @@ const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
           onPress={() => {
             setIsOn((prev) => !prev);
           }}
-          className="font-jakarta-regular text-sm"
+          className="font-jakarta-semibold text-sm"
         >
           {day}
         </Text>
@@ -107,7 +131,7 @@ const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
         />
       </View>
       {isOn && <DayBlock />}
-    </View>
+    </Animated.View>
   );
 };
 export const Scheduler = () => {
