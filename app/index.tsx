@@ -10,7 +10,7 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { ModalType } from "@/types";
 
-import { AuthModal } from "@/components/AuthModal";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 export default function HomeScreen() {

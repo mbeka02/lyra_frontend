@@ -2,11 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { View } from "react-native";
-import { Text } from "./ui/text";
-import { Label } from "./ui/label";
-import { Button } from "./ui/button";
+import { Text } from "~/components/ui/text";
+import { Label } from "~/components/ui/label";
+import { Button } from "~/components/ui/button";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DatePicker } from "./DatePicker";
+import { DatePicker } from "~/components/DatePicker";
 import {
   Select,
   SelectContent,
@@ -15,9 +15,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "~/components/ui/select";
 import { useAuthentication } from "~/context/AuthContext";
-import FormInput from "./form/FormInput";
+import FormInput from "~/components/form/FormInput";
 import { Mail } from "lucide-react-native";
 import { signUpSchema } from "~/types/zod";
 type FormData = z.infer<typeof signUpSchema>;

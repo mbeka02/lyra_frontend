@@ -1,17 +1,17 @@
 import { getAllDoctors } from "~/services/doctor";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Loader } from "../Loader";
+import { Button } from "~/components/ui/button";
+import { Loader } from "~/components/Loader";
 import { View, FlatList, TouchableOpacity } from "react-native";
-import { Text } from "../ui/text";
+import { Text } from "~/components/ui/text";
 import { DoctorCard } from "./DoctorCard";
 import { Check } from "~/lib/icons/Check";
 import { ChevronUp } from "~/lib/icons/ChevronUp";
 import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
-import { ComboBox } from "../ComboBox";
+import { ComboBox } from "~/components/ComboBox";
 export function DoctorList() {
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);

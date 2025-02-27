@@ -3,7 +3,7 @@ import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { SignUp } from "./SignUp";
 import { Login } from "./Login";
 import { TouchableOpacity } from "react-native";
-import { Text } from "./ui/text";
+import { Text } from "~/components/ui/text";
 import { View } from "react-native";
 interface AuthModalProps {
   authType: ModalType | null;

@@ -1,10 +1,10 @@
 import { View, ScrollView } from "react-native";
-import { Text } from "../ui/text";
+import { Text } from "~/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
-import { Switch } from "../ui/switch";
+import { Switch } from "~/components/ui/switch";
 import { useState } from "react";
 import { useColorScheme } from "~/lib/useColorScheme";
-import { Button } from "../ui/button";
+import { Button } from "~/components/ui/button";
 import { Plus } from "~/lib/icons/Plus";
 import { X } from "~/lib/icons/X";
 import { toast } from "sonner-native";

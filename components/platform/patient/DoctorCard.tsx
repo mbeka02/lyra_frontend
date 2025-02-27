@@ -6,7 +6,7 @@ import { Calendar } from "~/lib/icons/Calendar";
 import { Users } from "~/lib/icons/Users";
 import { Coins } from "~/lib/icons/Coins";
 import { View } from "react-native";
-import { Button } from "../ui/button";
+import { Button } from "~/components/ui/button";
 interface DoctorCardProps {
   full_name: string;
   description: string;

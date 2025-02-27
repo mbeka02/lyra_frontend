@@ -5,10 +5,14 @@ import { WithRole } from "~/components/WithRole";
 import { PatientForm } from "~/components/onboarding/PatientForm";
 import { DoctorForm } from "~/components/onboarding/DoctorForm";
 import { useAuthentication } from "~/context/AuthContext";
+import { Logout } from "~/components/auth/Logout";
 function OnBoardingScreen() {
   const { authState } = useAuthentication();
   return (
     <SafeAreaView className="py-4 px-6 mt-12">
+      <View className="flex-row justify-end mx-6 my-4 p-1 ">
+        <Logout />
+      </View>
       <View className="mt-8 mb-4">
         <Text className="text-2xl font-jakarta-semibold">
           Welcome {authState?.user?.full_name} 👋

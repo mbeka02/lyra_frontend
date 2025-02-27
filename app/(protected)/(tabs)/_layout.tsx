@@ -1,22 +1,22 @@
 // import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { useAuthentication } from "~/context/AuthContext";
-// import { useColorScheme } from "~/lib/useColorScheme";
+import { useColorScheme } from "~/lib/useColorScheme";
 // import { Ionicons } from "@expo/vector-icons";
 
 // import { Dimensions, View } from "react-native";
 // import { Text } from "~/components/ui/text";
 // const { width } = Dimensions.get("window");
 import CustomNavBar from "~/components/CustomNavBar";
-
+import { Logout } from "~/components/auth/Logout";
 export default function Tabslayout() {
+  const { } = useColorScheme();
   const { authState } = useAuthentication();
   return (
     <Tabs
       tabBar={(props) => <CustomNavBar {...props} />}
       screenOptions={{
-        headerRight: () => <ThemeToggle />,
+        headerRight: () => <Logout />,
         tabBarShowLabel: false,
       }}
     >

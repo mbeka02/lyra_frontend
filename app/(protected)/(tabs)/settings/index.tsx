@@ -1,16 +1,26 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { View, ScrollView, Image, TouchableOpacity } from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { getUser } from "~/services/user";
 import FeatherIcon from "react-native-vector-icons/Feather";
 import { useAuthentication } from "~/context/AuthContext";
 import { Loader } from "~/components/Loader";
-import UserAvatar from "~/components/shared/UserAvatar";
+import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { Link } from "expo-router";
-
+import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
+import { useColorScheme } from "~/lib/useColorScheme";
+import { Switch } from "~/components/ui/switch";
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
+  const { isDarkColorScheme, setColorScheme } = useColorScheme();
+
+  function toggleColorScheme() {
+    const newTheme = isDarkColorScheme ? "light" : "dark";
+    setColorScheme(newTheme);
+    setAndroidNavigationBar(newTheme);
+  }
+
   const { onLogout } = useAuthentication();
   const { data, isError, isLoading } = useQuery({
     queryKey: ["user"],
@@ -94,6 +104,15 @@ export default function SettingsScreen() {
               </Text>
               <FeatherIcon color="#bcbcbc" name="chevron-right" size={19} />
             </TouchableOpacity>
+            <View className="h-11 px-4 flex-row items-center border-t border-gray-100 dark:border-gray-600 justify-between">
+              <Text className="text-base font-jakarta-regular">Dark Mode</Text>
+              <Switch
+                checked={isDarkColorScheme}
+                onCheckedChange={toggleColorScheme}
+                nativeID={`dark-mode-toggle`}
+                className={`${isDarkColorScheme ? "bg-greenPrimary" : ""}   `}
+              />
+            </View>
           </View>
         </View>
 
@@ -144,7 +163,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text className="mt-6 mb-6 text-sm font-medium text-center text-gray-500">
-          App Version 0.15
+          App Version 0.2
         </Text>
       </ScrollView>
     );

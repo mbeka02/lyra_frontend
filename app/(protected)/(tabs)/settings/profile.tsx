@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { ProfileForm } from "~/components/shared/ProfileForm";
+import { ProfileForm } from "~/components/platform/shared/ProfileForm";
 import { useNavigation } from "expo-router";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
