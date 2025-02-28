@@ -10,12 +10,16 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mbeka02.lyra"
+      "bundleIdentifier": "com.mbeka02.lyra",
+      "icon": {
+        "dark": "./assets/images/Dark.png",
+        "light": "./assets/images/Light.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#24AE7C"
       },
       "package": "com.mbeka02.lyra"
     },
@@ -46,7 +50,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#24AE7C"
         }
       ],
       [
