@@ -20,7 +20,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   addAvailability,
   getDoctorAvailability,
-  removeAvailability,
+  removeAvailabilityById,
+  removeAvailabilityByDay,
 } from "~/services/availability";
 import { Loader } from "~/components/Loader";
 const weekDays = [
@@ -88,7 +89,7 @@ const DayBlock = ({
 
   // Delete availability mutation
   const { mutate: deleteAvailability } = useMutation({
-    mutationFn: (id: number) => removeAvailability(id),
+    mutationFn: (id: number) => removeAvailabilityById(id),
     onSuccess: () => {
       toast.success("Time slot removed");
     },
@@ -204,17 +205,12 @@ const Day = ({
   const { isDarkColorScheme } = useColorScheme();
   // Toggle day availability
   const { mutate: toggleDayAvailability } = useMutation({
-    mutationFn: async (enabled: boolean) => {
-      if (!enabled) {
-      }
-      // When enabling, we'll add the first slot in the DayBlock component
-      return null;
-    },
+    mutationFn: () => removeAvailabilityByDay(dayIndex),
     onSuccess: () => {
       toast.success(`${day} schedule updated`);
     },
     onError: (error) => {
-      toast.error(`Error updating schedule`);
+      toast.error(`Error removing ${day}'s schedule`);
       // Revert UI state on error
       setIsOn(!isOn);
     },
@@ -237,7 +233,9 @@ const Day = ({
           onPress={() => {
             const newState = !isOn;
             setIsOn(newState);
-            toggleDayAvailability(newState);
+            if (!newState) {
+              toggleDayAvailability();
+            }
           }}
           className="font-jakarta-semibold text-sm"
         >
@@ -247,7 +245,9 @@ const Day = ({
           checked={isOn}
           onCheckedChange={(checked) => {
             setIsOn(checked);
-            toggleDayAvailability(checked);
+            if (!checked) {
+              toggleDayAvailability();
+            }
           }}
           nativeID={`${day}-switch`}
           className={`${isOn ? "bg-greenPrimary" : ""}   `}
@@ -281,7 +281,7 @@ export const Scheduler = () => {
           }
           className="mt-4 font-jakarta-semibold text-white bg-red-600"
         >
-          Retry
+          retry
         </Button>
       </View>
     );
