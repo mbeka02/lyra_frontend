@@ -14,12 +14,13 @@ import Animated, {
   LinearTransition,
 } from "react-native-reanimated";
 import { HourBlock } from "./HourBlock";
-import { Availability } from "~/services/types";
+import { Availability, removeAvailabilityParams } from "~/services/types";
 import { IntervalSelector } from "./IntervalSelector";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   addAvailability,
   getDoctorAvailability,
+  removeAvailability,
 } from "~/services/availability";
 import { Loader } from "~/components/Loader";
 const weekDays = [
@@ -61,6 +62,7 @@ interface TimeSlot {
   start: { hour: number; minutes: number };
   end: { hour: number; minutes: number };
   interval: number;
+  availability_id?: number;
 }
 const DayBlock = ({
   dayOfWeek,
@@ -80,6 +82,18 @@ const DayBlock = ({
     },
     onError: (error) => {
       toast.error(`Error saving schedule`);
+    },
+  });
+  // TODO: Add an update interval mutation
+
+  // Delete availability mutation
+  const { mutate: deleteAvailability } = useMutation({
+    mutationFn: (id: number) => removeAvailability(id),
+    onSuccess: () => {
+      toast.success("Time slot removed");
+    },
+    onError: (error) => {
+      toast.error(`Error removing the time slot`);
     },
   });
   return (
@@ -104,6 +118,7 @@ const DayBlock = ({
           <AnimatedButton
             onPress={() => {
               //TODO: ADD DB LOGIC
+              deleteAvailability(slot.availability_id!);
               //update local state
               setSlots((prev) => prev.filter((_, i) => i !== index));
               toast.info(`removed the slot from you schedule`);
@@ -180,6 +195,7 @@ const Day = ({
       start,
       end,
       interval: a.interval_minutes || 60, // Default to 60 min if not specified
+      availability_id: a.availability_id,
     };
   });
   // check if daily slots already exist
