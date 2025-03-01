@@ -16,7 +16,12 @@ import Animated, {
 import { HourBlock } from "./HourBlock";
 import { Availability } from "~/services/types";
 import { IntervalSelector } from "./IntervalSelector";
-import { addAvailability } from "~/services/availability";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  addAvailability,
+  getDoctorAvailability,
+} from "~/services/availability";
+import { Loader } from "~/components/Loader";
 const weekDays = [
   "Sunday",
   "Monday",
@@ -156,9 +161,48 @@ const DayBlock = ({
     </Animated.View>
   );
 };
-const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
-  const [isOn, setIsOn] = useState(false);
+const Day = ({
+  day,
+  existingAvailability,
+}: {
+  day: (typeof weekDays)[number];
+  existingAvailability?: Availability[];
+}) => {
+  const dayIndex = dayToNumber(day);
+  const dayAvailability =
+    existingAvailability?.filter((a) => a.day_of_week === dayIndex) || [];
+
+  // Convert database times to hour/minute objects for the UI
+  const existingSlots = dayAvailability.map((a) => {
+    const start = parseTimeFromAPI(a.start_time);
+    const end = parseTimeFromAPI(a.end_time);
+    return {
+      start,
+      end,
+      interval: a.interval_minutes || 60, // Default to 60 min if not specified
+    };
+  });
+  // check if daily slots already exist
+  const hasExistingSlots = existingSlots.length > 0;
+  const [isOn, setIsOn] = useState(hasExistingSlots);
   const { isDarkColorScheme } = useColorScheme();
+  // Toggle day availability
+  const { mutate: toggleDayAvailability } = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      if (!enabled) {
+      }
+      // When enabling, we'll add the first slot in the DayBlock component
+      return null;
+    },
+    onSuccess: () => {
+      toast.success(`${day} schedule updated`);
+    },
+    onError: (error) => {
+      toast.error(`Error updating schedule`);
+      // Revert UI state on error
+      setIsOn(!isOn);
+    },
+  });
   return (
     <Animated.View
       className={`border border-solid border-input rounded-3xl px-4 p-2 ${isOn
@@ -175,7 +219,9 @@ const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
       >
         <Text
           onPress={() => {
-            setIsOn((prev) => !prev);
+            const newState = !isOn;
+            setIsOn(newState);
+            toggleDayAvailability(newState);
           }}
           className="font-jakarta-semibold text-sm"
         >
@@ -183,21 +229,52 @@ const Day = ({ day }: { day: (typeof weekDays)[number] }) => {
         </Text>
         <Switch
           checked={isOn}
-          onCheckedChange={setIsOn}
+          onCheckedChange={(checked) => {
+            setIsOn(checked);
+            toggleDayAvailability(checked);
+          }}
           nativeID={`${day}-switch`}
           className={`${isOn ? "bg-greenPrimary" : ""}   `}
         />
       </View>
-      {isOn && <DayBlock />}
+      {isOn && <DayBlock existingSlots={existingSlots} dayOfWeek={dayIndex} />}
     </Animated.View>
   );
 };
 export const Scheduler = () => {
+  // Fetch doctor's availability
+  const {
+    data: availabilityData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["doctorAvailability"],
+    queryFn: getDoctorAvailability,
+  });
+  const queryClient = useQueryClient();
+  if (isLoading) return <Loader />;
+  if (isError) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="font-jakarta-semibold text-red-600">
+          Error: Unable to get your schedule details
+        </Text>
+        <Button
+          onPress={() =>
+            queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] })
+          }
+          className="mt-4 font-jakarta-semibold text-white bg-red-600"
+        >
+          Retry
+        </Button>
+      </View>
+    );
+  }
   return (
     <ScrollView className="py-2  px-4">
       <View className="gap-3">
         {weekDays.map((day) => (
-          <Day day={day} key={day} />
+          <Day day={day} key={day} existingAvailability={availabilityData} />
         ))}
       </View>
     </ScrollView>
