@@ -75,12 +75,18 @@ const DayBlock = ({
   const [slots, setSlots] = useState<TimeSlot[]>(
     existingSlots.length > 0 ? existingSlots : [],
   );
-
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    setSlots(existingSlots);
+    console.log("ran day block effect");
+  }, [existingSlots]);
   // Save availability mutation
   const { mutate: saveAvailability } = useMutation({
     mutationFn: addAvailability,
-    mutationKey: ["doctorAvailability"],
+
     onSuccess: () => {
+      // Add this line to invalidate the query after successful save
+      queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
       toast.success("Schedule saved");
     },
     onError: (error) => {
@@ -92,11 +98,17 @@ const DayBlock = ({
 
   // Delete availability mutation
   const { mutate: deleteAvailability } = useMutation({
-    mutationFn: (id: number) => removeAvailabilityById(id),
-    mutationKey: ["doctorAvailability"],
-    onSuccess: () => {
-      toast.success("Time slot removed");
+    mutationFn: ({ id, index }: { id: number; index: number }) =>
+      removeAvailabilityById(id),
+    onSuccess: (_, { id, index }) => {
+      // Update local state in the onSuccess callback instead
+      setSlots((prev) => prev.filter((_, i) => i !== index));
+      // Invalidate query to refresh data
+      queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
+      //toast
+      toast.success("removed the time slot");
     },
+    // mutationKey: ["doctorAvailability"],
     onError: (error) => {
       console.error(error);
       toast.error(`Error removing the time slot`);
@@ -124,10 +136,11 @@ const DayBlock = ({
           <AnimatedButton
             onPress={() => {
               if (slot.availability_id) {
-                deleteAvailability(slot.availability_id);
+                deleteAvailability({
+                  id: slot.availability_id,
+                  index: index,
+                });
               }
-              //update local state
-              setSlots((prev) => prev.filter((_, i) => i !== index));
             }}
             className="flex-row mx-auto items-center rounded  gap-2"
             size="icon"
@@ -154,8 +167,6 @@ const DayBlock = ({
             end: { hour: newStartHour + 1, minutes: newStartMinutes },
             interval: 60, // Default 60 min
           };
-          //update local state
-          setSlots((prev) => [...prev, newSlot]);
 
           // Save to database
           saveAvailability({
@@ -168,6 +179,9 @@ const DayBlock = ({
             day_of_week: dayOfWeek,
             interval_minutes: newSlot.interval,
           });
+
+          //update local state
+          setSlots((prev) => [...prev, newSlot]);
         }}
         className="flex-row mx-auto items-center rounded  gap-2"
         size="sm"
@@ -189,15 +203,9 @@ const Day = ({
   existingAvailability?: Availability[];
 }) => {
   // const queryClient = useQueryClient();
-  const [availabilityData, setAvailabilityData] = useState<
-    Availability[] | undefined
-  >(undefined);
-  useEffect(() => {
-    setAvailabilityData(existingAvailability);
-  }, [existingAvailability]);
   const dayIndex = dayToNumber(day);
   const dayAvailability =
-    availabilityData?.filter((a) => a.day_of_week === dayIndex) || [];
+    existingAvailability?.filter((a) => a.day_of_week === dayIndex) || [];
 
   // Convert database times to hour/minute objects for the UI
   const existingSlots = dayAvailability.map((a) => {
@@ -214,12 +222,14 @@ const Day = ({
   const hasExistingSlots = existingSlots.length > 0;
   const [isOn, setIsOn] = useState(hasExistingSlots);
   const { isDarkColorScheme } = useColorScheme();
+  const queryClient = useQueryClient();
   // Toggle day availability
   const { mutate: toggleDayAvailability } = useMutation({
     mutationFn: () => removeAvailabilityByDay(dayIndex),
-    mutationKey: ["doctorAvailability"],
     onSuccess: () => {
       toast.success(`${day} schedule has been updated`);
+      // Invalidate query to refresh data
+      queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
     },
     onError: (error) => {
       console.error(error);
