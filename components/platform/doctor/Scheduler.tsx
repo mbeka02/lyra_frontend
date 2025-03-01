@@ -14,7 +14,7 @@ import Animated, {
   LinearTransition,
 } from "react-native-reanimated";
 import { HourBlock } from "./HourBlock";
-import { Availability, removeAvailabilityParams } from "~/services/types";
+import { Availability } from "~/services/types";
 import { IntervalSelector } from "./IntervalSelector";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -67,13 +67,22 @@ interface TimeSlot {
 }
 const DayBlock = ({
   dayOfWeek,
-  existingSlots,
+  existingSlots = [],
 }: {
   dayOfWeek: number;
-  existingSlots: TimeSlot[];
+  existingSlots?: TimeSlot[];
 }) => {
-  const [hours, setHours] = useState([_startHour]);
-  const [slots, setSlots] = useState<TimeSlot[]>(existingSlots);
+  const [slots, setSlots] = useState<TimeSlot[]>(
+    existingSlots.length > 0
+      ? existingSlots
+      : [
+        {
+          start: { hour: _startHour, minutes: 0 },
+          end: { hour: _startHour + 1, minutes: 0 },
+          interval: 60, // Default 60 minutes
+        },
+      ],
+  );
 
   // Save availability mutation
   const { mutate: saveAvailability } = useMutation({
@@ -82,6 +91,7 @@ const DayBlock = ({
       toast.success("Schedule saved");
     },
     onError: (error) => {
+      console.error(error);
       toast.error(`Error saving schedule`);
     },
   });
@@ -94,6 +104,7 @@ const DayBlock = ({
       toast.success("Time slot removed");
     },
     onError: (error) => {
+      console.error(error);
       toast.error(`Error removing the time slot`);
     },
   });
@@ -119,7 +130,9 @@ const DayBlock = ({
           <AnimatedButton
             onPress={() => {
               //TODO: ADD DB LOGIC
-              deleteAvailability(slot.availability_id!);
+              if (slot.availability_id) {
+                deleteAvailability(slot.availability_id);
+              }
               //update local state
               setSlots((prev) => prev.filter((_, i) => i !== index));
               toast.info(`removed the slot from you schedule`);
@@ -210,6 +223,7 @@ const Day = ({
       toast.success(`${day} schedule updated`);
     },
     onError: (error) => {
+      console.error(error);
       toast.error(`Error removing ${day}'s schedule`);
       // Revert UI state on error
       setIsOn(!isOn);
