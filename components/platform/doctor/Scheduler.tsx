@@ -2,7 +2,7 @@ import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Switch } from "~/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { Button } from "~/components/ui/button";
 import { Plus } from "~/lib/icons/Plus";
@@ -73,20 +73,13 @@ const DayBlock = ({
   existingSlots?: TimeSlot[];
 }) => {
   const [slots, setSlots] = useState<TimeSlot[]>(
-    existingSlots.length > 0
-      ? existingSlots
-      : [
-        {
-          start: { hour: _startHour, minutes: 0 },
-          end: { hour: _startHour + 1, minutes: 0 },
-          interval: 60, // Default 60 minutes
-        },
-      ],
+    existingSlots.length > 0 ? existingSlots : [],
   );
 
   // Save availability mutation
   const { mutate: saveAvailability } = useMutation({
     mutationFn: addAvailability,
+    mutationKey: ["doctorAvailability"],
     onSuccess: () => {
       toast.success("Schedule saved");
     },
@@ -100,6 +93,7 @@ const DayBlock = ({
   // Delete availability mutation
   const { mutate: deleteAvailability } = useMutation({
     mutationFn: (id: number) => removeAvailabilityById(id),
+    mutationKey: ["doctorAvailability"],
     onSuccess: () => {
       toast.success("Time slot removed");
     },
@@ -129,13 +123,11 @@ const DayBlock = ({
           <HourBlock hour={slot.end.hour} minutes={slot.end.minutes} />
           <AnimatedButton
             onPress={() => {
-              //TODO: ADD DB LOGIC
               if (slot.availability_id) {
                 deleteAvailability(slot.availability_id);
               }
               //update local state
               setSlots((prev) => prev.filter((_, i) => i !== index));
-              toast.info(`removed the slot from you schedule`);
             }}
             className="flex-row mx-auto items-center rounded  gap-2"
             size="icon"
@@ -165,7 +157,6 @@ const DayBlock = ({
           //update local state
           setSlots((prev) => [...prev, newSlot]);
 
-          //TODO: Test This
           // Save to database
           saveAvailability({
             start_time: formatTimeForAPI(
@@ -197,9 +188,16 @@ const Day = ({
   day: (typeof weekDays)[number];
   existingAvailability?: Availability[];
 }) => {
+  // const queryClient = useQueryClient();
+  const [availabilityData, setAvailabilityData] = useState<
+    Availability[] | undefined
+  >(undefined);
+  useEffect(() => {
+    setAvailabilityData(existingAvailability);
+  }, [existingAvailability]);
   const dayIndex = dayToNumber(day);
   const dayAvailability =
-    existingAvailability?.filter((a) => a.day_of_week === dayIndex) || [];
+    availabilityData?.filter((a) => a.day_of_week === dayIndex) || [];
 
   // Convert database times to hour/minute objects for the UI
   const existingSlots = dayAvailability.map((a) => {
@@ -219,14 +217,16 @@ const Day = ({
   // Toggle day availability
   const { mutate: toggleDayAvailability } = useMutation({
     mutationFn: () => removeAvailabilityByDay(dayIndex),
+    mutationKey: ["doctorAvailability"],
     onSuccess: () => {
-      toast.success(`${day} schedule updated`);
+      toast.success(`${day} schedule has been updated`);
     },
     onError: (error) => {
       console.error(error);
-      toast.error(`Error removing ${day}'s schedule`);
+      toast.error(`error removing ${day}'s schedule`);
       // Revert UI state on error
       setIsOn(!isOn);
+      // queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
     },
   });
   return (

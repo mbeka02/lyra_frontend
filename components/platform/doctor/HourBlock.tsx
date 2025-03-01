@@ -8,7 +8,7 @@ export const HourBlock = ({
   minutes?: number;
 }) => {
   const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-  const period = hour >= 12 ? "AM" : "PM";
+  const period = hour >= 12 ? "PM" : "AM";
   return (
     <View className="flex-1 border border-input border-sm items-center justify-center py-1">
       <Text>
