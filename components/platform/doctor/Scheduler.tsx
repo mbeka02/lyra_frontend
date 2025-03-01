@@ -1,6 +1,6 @@
 import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Switch } from "~/components/ui/switch";
 import { useState } from "react";
 import { useColorScheme } from "~/lib/useColorScheme";
@@ -13,6 +13,10 @@ import Animated, {
   FadeOut,
   LinearTransition,
 } from "react-native-reanimated";
+import { HourBlock } from "./HourBlock";
+import { Availability } from "~/services/types";
+import { IntervalSelector } from "./IntervalSelector";
+import { addAvailability } from "~/services/availability";
 const weekDays = [
   "Sunday",
   "Monday",
@@ -22,6 +26,7 @@ const weekDays = [
   "Friday",
   "Saturday",
 ];
+
 const _startHour = 8;
 // const _spacing=10;
 // const _borderRadius=16;
@@ -30,20 +35,48 @@ const _entering = FadeInDown.springify().damping(_damping);
 const _exiting = FadeOut.springify().damping(_damping);
 const _layout = LinearTransition.springify().damping(_damping);
 const AnimatedButton = Animated.createAnimatedComponent(Button);
-
-const HourBlock = ({ block }: { block: number }) => {
-  return (
-    <View className="flex-1 border border-input border-sm items-center justify-center py-1">
-      <Text>
-        {block > 9 ? block : `0${block}`}:00{" "}
-        {block > 11 && block < 24 ? "PM" : "AM"}
-      </Text>
-    </View>
-  );
+// Format time for API
+const formatTimeForAPI = (hour: number, minutes: number = 0): string => {
+  return `${hour.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
 };
-const DayBlock = () => {
-  const [hours, setHours] = useState([_startHour]);
 
+// Parse time from API
+const parseTimeFromAPI = (
+  timeStr: string,
+): { hour: number; minutes: number } => {
+  const [hour, minutes] = timeStr.split(":").map((part) => parseInt(part, 10));
+  return { hour, minutes };
+};
+// Convert day name to day of week (0-6)
+const dayToNumber = (day: string): number => {
+  return weekDays.indexOf(day);
+};
+
+interface TimeSlot {
+  start: { hour: number; minutes: number };
+  end: { hour: number; minutes: number };
+  interval: number;
+}
+const DayBlock = ({
+  dayOfWeek,
+  existingSlots,
+}: {
+  dayOfWeek: number;
+  existingSlots: TimeSlot[];
+}) => {
+  const [hours, setHours] = useState([_startHour]);
+  const [slots, setSlots] = useState<TimeSlot[]>(existingSlots);
+
+  // Save availability mutation
+  const { mutate: saveAvailability } = useMutation({
+    mutationFn: addAvailability,
+    onSuccess: () => {
+      toast.success("Schedule saved");
+    },
+    onError: (error) => {
+      toast.error(`Error saving schedule`);
+    },
+  });
   return (
     <Animated.View
       className="gap-3"
@@ -51,7 +84,7 @@ const DayBlock = () => {
       layout={_layout}
       exiting={_exiting}
     >
-      {hours.map((hour, index) => (
+      {slots.map((slot, index) => (
         <Animated.View
           entering={_entering}
           layout={_layout}
@@ -60,13 +93,14 @@ const DayBlock = () => {
           className="flex-row my-1 items-center gap-2"
         >
           <Text>From:</Text>
-          <HourBlock block={hour} />
+          <HourBlock hour={slot.start.hour} minutes={slot.start.minutes} />
           <Text>To:</Text>
-          <HourBlock block={hour + 1} />
+          <HourBlock hour={slot.end.hour} minutes={slot.end.minutes} />
           <AnimatedButton
             onPress={() => {
-              //TODO: ADD LOGIC
-              setHours((prev) => [...prev.filter((val) => val !== hour)]);
+              //TODO: ADD DB LOGIC
+              //update local state
+              setSlots((prev) => prev.filter((_, i) => i !== index));
               toast.info(`removed the slot from you schedule`);
             }}
             className="flex-row mx-auto items-center rounded  gap-2"
@@ -80,11 +114,35 @@ const DayBlock = () => {
       <AnimatedButton
         layout={_layout}
         onPress={() => {
-          //TODO: ADD LOGIC
-          if (hours.length === 0) {
-            setHours([_startHour]);
+          let newStartHour = _startHour;
+          let newStartMinutes = 0;
+
+          if (slots.length > 0) {
+            const lastSlot = slots[slots.length - 1];
+            newStartHour = lastSlot.end.hour;
+            newStartMinutes = lastSlot.end.minutes;
           }
-          setHours((prev) => [...prev, prev[prev.length - 1] + 1]);
+
+          const newSlot = {
+            start: { hour: newStartHour, minutes: newStartMinutes },
+            end: { hour: newStartHour + 1, minutes: newStartMinutes },
+            interval: 60, // Default 60 min
+          };
+          //update local state
+          setSlots((prev) => [...prev, newSlot]);
+
+          //TODO: Test This
+          // Save to database
+          saveAvailability({
+            start_time: formatTimeForAPI(
+              newSlot.start.hour,
+              newSlot.start.minutes,
+            ),
+            end_time: formatTimeForAPI(newSlot.end.hour, newSlot.end.minutes),
+            is_recurring: true,
+            day_of_week: dayOfWeek,
+            interval_minutes: newSlot.interval,
+          });
         }}
         className="flex-row mx-auto items-center rounded  gap-2"
         size="sm"

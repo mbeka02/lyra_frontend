@@ -36,7 +36,7 @@ export function DoctorList() {
         <FlatList
           data={data.doctors}
           className="my-2"
-          keyExtractor={(item) => item.doctor_id}
+          keyExtractor={(item) => item.doctor_id.toString()}
           renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
             <>
