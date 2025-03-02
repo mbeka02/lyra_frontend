@@ -72,15 +72,7 @@ const DayBlock = ({
   dayOfWeek: number;
   existingSlots?: TimeSlot[];
 }) => {
-  const [slots, setSlots] = useState<TimeSlot[]>(
-    existingSlots.length > 0 ? existingSlots : [],
-  );
   const queryClient = useQueryClient();
-  useEffect(() => {
-    setSlots(existingSlots);
-    console.log("ran day block effect");
-  }, [existingSlots]);
-  // Save availability mutation
   const { mutate: saveAvailability } = useMutation({
     mutationFn: addAvailability,
 
@@ -89,27 +81,57 @@ const DayBlock = ({
       queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
       toast.success("Schedule saved");
     },
-    onError: (error) => {
+    onMutate: async (Availability) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["doctorAvailability"] });
+      const previousData = queryClient.getQueryData(["doctorAvailability"]);
+      // Create an optimistic slot with a temporary negative id
+      const optimisticSlot = {
+        ...Availability,
+        availability_id: -Date.now(),
+      };
+      // Optimistically update to the new value
+      queryClient.setQueryData(["doctorAvailability"], (oldData: any = []) => {
+        const data = oldData ?? [];
+        return [...data, optimisticSlot];
+      });
+      //return a snapshot of the old data
+      return { previousData };
+    },
+    onError: (error, _, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["doctorAvailability"], context.previousData);
+      }
       console.error(error);
       toast.error(`Error saving schedule`);
     },
   });
   // TODO: Add an update interval mutation
-
   // Delete availability mutation
   const { mutate: deleteAvailability } = useMutation({
-    mutationFn: ({ id, index }: { id: number; index: number }) =>
-      removeAvailabilityById(id),
-    onSuccess: (_, { id, index }) => {
-      // Update local state in the onSuccess callback instead
-      setSlots((prev) => prev.filter((_, i) => i !== index));
+    mutationFn: removeAvailabilityById,
+    onMutate: async (id) => {
+      //cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["doctorAvailability"] });
+      //create a snapshot
+      const previousData = queryClient.getQueryData(["doctorAvailability"]);
+      //filter data
+      queryClient.setQueryData(["doctorAvailability"], (oldData: any = []) => {
+        return oldData.filter((slot: any) => slot.availability_id !== id);
+      });
+      return { previousData };
+    },
+    onSuccess: () => {
       // Invalidate query to refresh data
       queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
       //toast
-      toast.success("removed the time slot");
+      toast.warning("Removed the time slot");
     },
-    // mutationKey: ["doctorAvailability"],
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["doctorAvailability"], context.previousData);
+      }
       console.error(error);
       toast.error(`Error removing the time slot`);
     },
@@ -121,7 +143,7 @@ const DayBlock = ({
       layout={_layout}
       exiting={_exiting}
     >
-      {slots.map((slot, index) => (
+      {existingSlots.map((slot, index) => (
         <Animated.View
           entering={_entering}
           layout={_layout}
@@ -136,10 +158,7 @@ const DayBlock = ({
           <AnimatedButton
             onPress={() => {
               if (slot.availability_id) {
-                deleteAvailability({
-                  id: slot.availability_id,
-                  index: index,
-                });
+                deleteAvailability(slot.availability_id);
               }
             }}
             className="flex-row mx-auto items-center rounded  gap-2"
@@ -155,19 +174,21 @@ const DayBlock = ({
         onPress={() => {
           let newStartHour = _startHour;
           let newStartMinutes = 0;
-
-          if (slots.length > 0) {
-            const lastSlot = slots[slots.length - 1];
+          if (existingSlots.length > 0) {
+            const lastSlot = existingSlots[existingSlots.length - 1];
             newStartHour = lastSlot.end.hour;
             newStartMinutes = lastSlot.end.minutes;
           }
-
+          //return if time is past midnight
+          if (newStartHour === 24) {
+            toast.info(`${weekDays[dayOfWeek]}'s schedule has been filled`);
+            return;
+          }
           const newSlot = {
             start: { hour: newStartHour, minutes: newStartMinutes },
             end: { hour: newStartHour + 1, minutes: newStartMinutes },
             interval: 60, // Default 60 min
           };
-
           // Save to database
           saveAvailability({
             start_time: formatTimeForAPI(
@@ -179,9 +200,6 @@ const DayBlock = ({
             day_of_week: dayOfWeek,
             interval_minutes: newSlot.interval,
           });
-
-          //update local state
-          setSlots((prev) => [...prev, newSlot]);
         }}
         className="flex-row mx-auto items-center rounded  gap-2"
         size="sm"
@@ -189,7 +207,7 @@ const DayBlock = ({
       >
         <Plus className="dark:text-white text-black" size={16} />
         <Text className="font-jakarta-semibold dark:text-white text-xs">
-          Add More
+          Add To Schedule
         </Text>
       </AnimatedButton>
     </Animated.View>
@@ -208,7 +226,7 @@ const Day = ({
     existingAvailability?.filter((a) => a.day_of_week === dayIndex) || [];
 
   // Convert database times to hour/minute objects for the UI
-  const existingSlots = dayAvailability.map((a) => {
+  const existingSlots: TimeSlot[] = dayAvailability.map((a) => {
     const start = parseTimeFromAPI(a.start_time);
     const end = parseTimeFromAPI(a.end_time);
     return {
@@ -239,6 +257,10 @@ const Day = ({
       // queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
     },
   });
+  //keep the toggle in sync with  the latest slots
+  useEffect(() => {
+    setIsOn(hasExistingSlots);
+  }, [hasExistingSlots]);
   return (
     <Animated.View
       className={`border border-solid border-input rounded-3xl px-4 p-2 ${isOn

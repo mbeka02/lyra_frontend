@@ -146,11 +146,16 @@ export default function RootLayout() {
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <InitialLayout />
                 <Toaster
+                  richColors
+                  closeButton
                   theme={isDarkColorScheme ? "dark" : "light"}
                   position="top-center"
+                  duration={35}
                   toastOptions={{
                     style: {
-                      backgroundColor: isDarkColorScheme ? "black" : "white",
+                      backgroundColor: isDarkColorScheme
+                        ? "#131619"
+                        : "#F8FAFC",
                     },
                   }}
                 />
