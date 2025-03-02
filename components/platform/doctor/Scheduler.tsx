@@ -24,6 +24,7 @@ import {
   removeAvailabilityByDay,
 } from "~/services/availability";
 import { Loader } from "~/components/Loader";
+import { SkeletonLoader } from "../shared/SkeletonLoader";
 const weekDays = [
   "Sunday",
   "Monday",
@@ -79,7 +80,7 @@ const DayBlock = ({
     onSuccess: () => {
       // Add this line to invalidate the query after successful save
       queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
-      toast.success("Schedule saved");
+      toast.success("Your schedule has been updated");
     },
     onMutate: async (Availability) => {
       // Cancel any outgoing refetches
@@ -104,7 +105,7 @@ const DayBlock = ({
         queryClient.setQueryData(["doctorAvailability"], context.previousData);
       }
       console.error(error);
-      toast.error(`Error saving schedule`);
+      toast.error(`Error updating your schedule`);
     },
   });
   // TODO: Add an update interval mutation
@@ -126,7 +127,7 @@ const DayBlock = ({
       // Invalidate query to refresh data
       queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
       //toast
-      toast.warning("Removed the time slot");
+      toast.info("Removed the time slot");
     },
     onError: (error, _, context) => {
       if (context?.previousData) {
@@ -181,7 +182,7 @@ const DayBlock = ({
           }
           //return if time is past midnight
           if (newStartHour === 24) {
-            toast.info(`${weekDays[dayOfWeek]}'s schedule has been filled`);
+            toast.warning(`${weekDays[dayOfWeek]}'s schedule has been filled`);
             return;
           }
           const newSlot = {
@@ -251,7 +252,7 @@ const Day = ({
     },
     onError: (error) => {
       console.error(error);
-      toast.error(`error removing ${day}'s schedule`);
+      toast.error(`Error removing ${day}'s schedule`);
       // Revert UI state on error
       setIsOn(!isOn);
       // queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
@@ -314,7 +315,14 @@ export const Scheduler = () => {
     queryFn: getDoctorAvailability,
   });
   const queryClient = useQueryClient();
-  if (isLoading) return <Loader />;
+  if (isLoading)
+    return (
+      <SkeletonLoader
+        count={7}
+        containerStyles="gap-3 py-2 px-4"
+        skeletonStlyes="rounded-3xl px-4 p-2 w-full h-20"
+      />
+    );
   if (isError) {
     return (
       <View className="flex-1 justify-center items-center">
