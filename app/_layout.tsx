@@ -150,7 +150,7 @@ export default function RootLayout() {
                   closeButton
                   theme={isDarkColorScheme ? "dark" : "light"}
                   position="top-center"
-                  duration={35}
+                  visibleToasts={2}
                   toastOptions={{
                     style: {
                       backgroundColor: isDarkColorScheme

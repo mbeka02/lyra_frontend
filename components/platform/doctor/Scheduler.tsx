@@ -2,7 +2,7 @@ import { View, ScrollView } from "react-native";
 import { Text } from "~/components/ui/text";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Switch } from "~/components/ui/switch";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { Button } from "~/components/ui/button";
 import { Plus } from "~/lib/icons/Plus";
@@ -74,7 +74,7 @@ const DayBlock = ({
   existingSlots?: TimeSlot[];
 }) => {
   const queryClient = useQueryClient();
-  const { mutate: saveAvailability } = useMutation({
+  const { mutate: saveAvailability, isPending: isSaving } = useMutation({
     mutationFn: addAvailability,
 
     onSuccess: () => {
@@ -110,7 +110,7 @@ const DayBlock = ({
   });
   // TODO: Add an update interval mutation
   // Delete availability mutation
-  const { mutate: deleteAvailability } = useMutation({
+  const { mutate: deleteAvailability, isPending: isDeleting } = useMutation({
     mutationFn: removeAvailabilityById,
     onMutate: async (id) => {
       //cancel outgoing refetches
@@ -149,6 +149,10 @@ const DayBlock = ({
           entering={_entering}
           layout={_layout}
           exiting={_exiting}
+          // key={
+          //   slot.availability_id ??
+          //   `slot-${slot.start.hour}-${slot.start.minutes}-${index}`
+          // }
           key={index}
           className="flex-row my-1 items-center gap-2"
         >
@@ -165,6 +169,7 @@ const DayBlock = ({
             className="flex-row mx-auto items-center rounded  gap-2"
             size="icon"
             variant="outline"
+            disabled={isDeleting}
           >
             <X className="text-input" size={14} />
           </AnimatedButton>
@@ -181,7 +186,7 @@ const DayBlock = ({
             newStartMinutes = lastSlot.end.minutes;
           }
           //return if time is past midnight
-          if (newStartHour === 24) {
+          if (newStartHour === 23) {
             toast.warning(`${weekDays[dayOfWeek]}'s schedule has been filled`);
             return;
           }
@@ -190,6 +195,14 @@ const DayBlock = ({
             end: { hour: newStartHour + 1, minutes: newStartMinutes },
             interval: 60, // Default 60 min
           };
+          console.log(
+            "start_time=>",
+            formatTimeForAPI(newSlot.start.hour, newSlot.start.minutes),
+          );
+          console.log(
+            "end_time=>",
+            formatTimeForAPI(newSlot.end.hour, newSlot.end.minutes),
+          );
           // Save to database
           saveAvailability({
             start_time: formatTimeForAPI(
@@ -205,6 +218,7 @@ const DayBlock = ({
         className="flex-row mx-auto items-center rounded  gap-2"
         size="sm"
         variant="link"
+        disabled={isSaving}
       >
         <Plus className="dark:text-white text-black" size={16} />
         <Text className="font-jakarta-semibold dark:text-white text-xs">
@@ -221,7 +235,6 @@ const Day = ({
   day: (typeof weekDays)[number];
   existingAvailability?: Availability[];
 }) => {
-  // const queryClient = useQueryClient();
   const dayIndex = dayToNumber(day);
   const dayAvailability =
     existingAvailability?.filter((a) => a.day_of_week === dayIndex) || [];
@@ -243,22 +256,34 @@ const Day = ({
   const { isDarkColorScheme } = useColorScheme();
   const queryClient = useQueryClient();
   // Toggle day availability
-  const { mutate: toggleDayAvailability } = useMutation({
+  const { mutate: toggleDayAvailability, isPending: isToggling } = useMutation({
     mutationFn: () => removeAvailabilityByDay(dayIndex),
+
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["doctorAvailability"] });
+      const previousData = queryClient.getQueryData(["doctorAvailability"]);
+
+      queryClient.setQueryData(["doctorAvailability"], (oldData: any = []) => {
+        return oldData.filter((slot: any) => slot.day_of_week !== dayIndex);
+      });
+
+      return { previousData };
+    },
     onSuccess: () => {
-      toast.success(`${day} schedule has been updated`);
+      toast.success(`${day}'s schedule has been updated`);
       // Invalidate query to refresh data
       queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      // Revert UI state on error
+      if (context?.previousData) {
+        queryClient.setQueryData(["doctorAvailability"], context.previousData);
+      }
       console.error(error);
       toast.error(`Error removing ${day}'s schedule`);
-      // Revert UI state on error
-      setIsOn(!isOn);
-      // queryClient.invalidateQueries({ queryKey: ["doctorAvailability"] });
     },
   });
-  //keep the toggle in sync with  the latest slots
+  // keep the toggle in sync with  the latest slots
   useEffect(() => {
     setIsOn(hasExistingSlots);
   }, [hasExistingSlots]);
@@ -277,13 +302,13 @@ const Day = ({
         className=" flex-row py-2 my-2 justify-between items-center"
       >
         <Text
-          onPress={() => {
-            const newState = !isOn;
-            setIsOn(newState);
-            if (!newState) {
-              toggleDayAvailability();
-            }
-          }}
+          // onPress={() => {
+          //   const newState = !isOn;
+          //   setIsOn(newState);
+          //   if (!newState) {
+          //     toggleDayAvailability();
+          //   }
+          // }}
           className="font-jakarta-semibold text-sm"
         >
           {day}
@@ -292,7 +317,7 @@ const Day = ({
           checked={isOn}
           onCheckedChange={(checked) => {
             setIsOn(checked);
-            if (!checked) {
+            if (!checked && !isToggling) {
               toggleDayAvailability();
             }
           }}
@@ -313,6 +338,8 @@ export const Scheduler = () => {
   } = useQuery({
     queryKey: ["doctorAvailability"],
     queryFn: getDoctorAvailability,
+    //this is a fix for the Hot Reloading bug
+    refetchOnMount: "always",
   });
   const queryClient = useQueryClient();
   if (isLoading)
