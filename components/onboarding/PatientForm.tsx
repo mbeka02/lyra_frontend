@@ -13,8 +13,10 @@ import { onboardPatient } from "~/services/onboarding";
 import { toast } from "sonner-native";
 import Animated, {
   AnimatedProps,
+  FadeInDown,
   FadeInLeft,
   FadeOutLeft,
+  FadeOutUp,
   LinearTransition,
 } from "react-native-reanimated";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -139,13 +141,21 @@ export function PatientForm({
           }}
         >
           {selectedIndex === total ? (
-            <Animated.Text className="font-jakarta-semibold text-white">
+            <Animated.Text
+              key="finish"
+              className="font-jakarta-semibold text-white"
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
+            >
               Finish
             </Animated.Text>
           ) : (
             <Animated.Text
+              key="continue"
               className="font-jakarta-semibold text-white"
               layout={_layoutTransition}
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
             >
               Continue
             </Animated.Text>
