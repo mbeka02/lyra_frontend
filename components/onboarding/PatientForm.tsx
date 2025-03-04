@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
-import { View } from "react-native";
+import { Pressable, PressableProps, View } from "react-native";
 import { Text } from "../ui/text";
 import { Button } from "../ui/button";
 import FormInput from "../form/FormInput";
@@ -11,9 +11,48 @@ import { useRouter } from "expo-router";
 import { patientOnboardingSchema } from "~/types/zod";
 import { onboardPatient } from "~/services/onboarding";
 import { toast } from "sonner-native";
-
+import Animated, {
+  AnimatedProps,
+  FadeInDown,
+  FadeInLeft,
+  FadeOutLeft,
+  FadeOutUp,
+  LinearTransition,
+} from "react-native-reanimated";
+import { Pagination } from "./Pagination";
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// const _spacing=8;
+// const _buttonHeight=42;
+const _layoutTransition = LinearTransition.springify()
+  .damping(80)
+  .stiffness(200);
+function FormButton({
+  children,
+  style,
+  ...rest
+}: AnimatedProps<PressableProps>) {
+  return (
+    <AnimatedPressable
+      {...rest}
+      entering={FadeInLeft.springify().damping(80).stiffness(200)}
+      exiting={FadeOutLeft.springify().damping(80).stiffness(200)}
+      layout={_layoutTransition}
+    >
+      {children}
+    </AnimatedPressable>
+  );
+}
 type FormData = z.infer<typeof patientOnboardingSchema>;
-export function PatientForm() {
+interface PatientFormProps {
+  selectedIndex: number;
+  total: number;
+  onIndexChange: (index: number) => void;
+}
+export function PatientForm({
+  selectedIndex,
+  total,
+  onIndexChange,
+}: PatientFormProps) {
   const router = useRouter();
   const { authState } = useAuthentication();
   const { control, handleSubmit } = useForm({
@@ -40,6 +79,7 @@ export function PatientForm() {
   };
   return (
     <View className="px-2 mt-1">
+      <Pagination total={total} selectedIndex={selectedIndex} />
       <FormInput
         name="allergies"
         title="Allergies (optional)"
@@ -84,6 +124,46 @@ export function PatientForm() {
       >
         <Text className="text-white font-jakarta-semibold ">Submit</Text>
       </Button>
+      <View className="flex-row items-center gap-2">
+        {selectedIndex > 0 && (
+          <FormButton
+            className="dark:bg-white bg-slate-100  flex-1"
+            onPress={() => {
+              onIndexChange(selectedIndex - 1);
+            }}
+          >
+            <Text className="font-jakarta-semibold text-black">Back</Text>
+          </FormButton>
+        )}
+        <FormButton
+          className="bg-greenPrimary flex-1"
+          onPress={() => {
+            if (selectedIndex >= total - 1) return;
+            onIndexChange(selectedIndex + 1);
+          }}
+        >
+          {selectedIndex === total - 1 ? (
+            <Animated.Text
+              key="finish"
+              className="font-jakarta-semibold text-white"
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
+            >
+              Finish
+            </Animated.Text>
+          ) : (
+            <Animated.Text
+              key="continue"
+              className="font-jakarta-semibold text-white"
+              layout={_layoutTransition}
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
+            >
+              Continue
+            </Animated.Text>
+          )}
+        </FormButton>
+      </View>
     </View>
   );
 }
