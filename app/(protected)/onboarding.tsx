@@ -6,8 +6,11 @@ import { PatientForm } from "~/components/onboarding/PatientForm";
 import { DoctorForm } from "~/components/onboarding/DoctorForm";
 import { useAuthentication } from "~/context/AuthContext";
 import { Logout } from "~/components/auth/Logout";
+import { useState } from "react";
 function OnBoardingScreen() {
   const { authState } = useAuthentication();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   return (
     <SafeAreaView className="py-4 px-6 mt-12">
       <View className="flex-row justify-end mx-6 my-4 p-1 ">
@@ -22,7 +25,11 @@ function OnBoardingScreen() {
         </Text>
       </View>
       <WithRole role={Role.PATIENT}>
-        <PatientForm />
+        <PatientForm
+          selectedIndex={selectedIndex}
+          total={3}
+          onIndexChange={(index) => setSelectedIndex(index)}
+        />
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
         <DoctorForm />
