@@ -19,6 +19,7 @@ import Animated, {
   FadeOutUp,
   LinearTransition,
 } from "react-native-reanimated";
+import { Pagination } from "./Pagination";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 // const _spacing=8;
 // const _buttonHeight=42;
@@ -78,6 +79,7 @@ export function PatientForm({
   };
   return (
     <View className="px-2 mt-1">
+      <Pagination total={total} selectedIndex={selectedIndex} />
       <FormInput
         name="allergies"
         title="Allergies (optional)"
@@ -136,11 +138,11 @@ export function PatientForm({
         <FormButton
           className="bg-greenPrimary flex-1"
           onPress={() => {
-            if (selectedIndex === total) return;
+            if (selectedIndex >= total - 1) return;
             onIndexChange(selectedIndex + 1);
           }}
         >
-          {selectedIndex === total ? (
+          {selectedIndex === total - 1 ? (
             <Animated.Text
               key="finish"
               className="font-jakarta-semibold text-white"
