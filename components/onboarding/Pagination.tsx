@@ -8,7 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 const _dotContainer = 24;
 const _dotSize = _dotContainer / 3;
-const _activeDot = "#000";
+const _activeDot = "#ffffff";
 const _inactiveDot = "#aaa";
 export function Pagination({
   selectedIndex,
@@ -24,10 +24,10 @@ export function Pagination({
     }),
   );
   return (
-    <View className="flex-row justify-center items-center">
+    <View className="flex-row mx-auto items-center">
       <PaginationIndicator animation={derivedValue} />
       {Array.from({ length: total }).map((_, i) => (
-        <Dot index={i} animation={derivedValue} />
+        <Dot key={i} index={i} animation={derivedValue} />
       ))}
     </View>
   );

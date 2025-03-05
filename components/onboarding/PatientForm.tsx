@@ -3,7 +3,7 @@ import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, PressableProps, View } from "react-native";
 import { Text } from "../ui/text";
-import { Button } from "../ui/button";
+import { Button, ButtonProps } from "../ui/button";
 import FormInput from "../form/FormInput";
 import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
@@ -20,7 +20,7 @@ import Animated, {
   LinearTransition,
 } from "react-native-reanimated";
 import { Pagination } from "./Pagination";
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedButton = Animated.createAnimatedComponent(Button);
 // const _spacing=8;
 // const _buttonHeight=42;
 const _layoutTransition = LinearTransition.springify()
@@ -28,18 +28,19 @@ const _layoutTransition = LinearTransition.springify()
   .stiffness(200);
 function FormButton({
   children,
-  style,
-  ...rest
-}: AnimatedProps<PressableProps>) {
+  className,
+  onPress,
+}: AnimatedProps<ButtonProps>) {
   return (
-    <AnimatedPressable
-      {...rest}
+    <AnimatedButton
+      className={className}
       entering={FadeInLeft.springify().damping(80).stiffness(200)}
       exiting={FadeOutLeft.springify().damping(80).stiffness(200)}
       layout={_layoutTransition}
+      onPress={onPress}
     >
       {children}
-    </AnimatedPressable>
+    </AnimatedButton>
   );
 }
 type FormData = z.infer<typeof patientOnboardingSchema>;

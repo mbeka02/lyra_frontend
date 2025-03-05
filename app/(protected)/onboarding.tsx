@@ -9,7 +9,7 @@ import { Logout } from "~/components/auth/Logout";
 import { useState } from "react";
 function OnBoardingScreen() {
   const { authState } = useAuthentication();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(1);
 
   return (
     <SafeAreaView className="py-4 px-6 mt-12">
