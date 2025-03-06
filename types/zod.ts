@@ -66,6 +66,14 @@ export const patientOnboardingSchema = z.object({
   current_medication: z.string().optional(),
   insurance_provider: z.string().optional(),
   insurance_policy_number: z.string().optional(),
+  address: z.string().optional(),
+  emergency_contact_name: z.string().optional(),
+  emergency_contact_phone: z
+    .string()
+    .optional()
+    .refine((val) => !val || validator.isMobilePhone(val), {
+      message: "Invalid phone number",
+    }),
   //TODO: Add the other stuff
 });
 
