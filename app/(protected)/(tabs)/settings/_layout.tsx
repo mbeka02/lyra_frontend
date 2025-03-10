@@ -10,7 +10,7 @@ export default function SettingsLayout() {
       }}
       edges={Platform.select({
         ios: ["top", "right", "left"],
-        android: undefined,
+        android: ["top", "right", "left"],
       })}
     >
       <Stack>

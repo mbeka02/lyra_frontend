@@ -24,10 +24,14 @@ export const Logout = () => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          className="web:ring-offset-background border-none bg-transparent web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2"
+          className="web:ring-offset-background border-none bg-transparent web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2 mr-5"
           size="icon"
         >
-          <LogOut size={18} color={isDarkColorScheme ? "white" : "black"} />
+          <LogOut
+            strokeWidth={2}
+            size={18}
+            color={isDarkColorScheme ? "white" : "black"}
+          />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

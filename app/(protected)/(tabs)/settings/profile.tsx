@@ -3,7 +3,6 @@ import { ProfileForm } from "~/components/platform/shared/ProfileForm";
 import { useNavigation } from "expo-router";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
-import { Text } from "~/components/ui/text";
 export default function ProfileScreen() {
   const navigation = useNavigation();
   return (

@@ -69,12 +69,12 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
     switch (name) {
       case "home":
         return <Ionicons name="home" size={26} color={color} />;
-      case "calendar":
-        return <Ionicons name="calendar" size={26} color={color} />;
+      case "search":
+        return <Ionicons name="search" size={26} color={color} />;
       case "settings":
         return <Ionicons name="settings" size={26} color={color} />;
       default:
-        return <Ionicons name="home" size={22} color={color} />;
+        return <Ionicons name="home" size={26} color={color} />;
     }
   }
 };
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     position: "absolute",
-    bottom: 40,
+    bottom: 35,
     backgroundColor: PRIMARY_COLOR,
     width: "60%",
     alignSelf: "center",

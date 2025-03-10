@@ -113,7 +113,7 @@ export function DoctorCard({
                     ksh {price_per_hour}
                   </Text>
                   <Text className="text-xs text-muted-foreground font-jakarta-light">
-                    Per Hour
+                    Per Session
                   </Text>
                 </View>
               </View>

@@ -93,31 +93,34 @@ export function DoctorList() {
               </View>
             </>
           }
+          ListFooterComponent={
+            <View className="flex flex-row justify-center gap-4 mt-4">
+              <Button
+                onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
+                disabled={page === 0}
+                variant="outline"
+                size="icon"
+                className="border-black  dark:border-white"
+              >
+                <ChevronLeft className="w-8 h-8 text-black dark:text-white" />
+              </Button>
+              <Button
+                onPress={() =>
+                  !isPlaceholderData &&
+                  data?.has_more &&
+                  setPage((prev) => prev + 1)
+                }
+                disabled={isPlaceholderData || !data?.has_more}
+                variant="outline"
+                size="icon"
+                className="border-black dark:border-white"
+              >
+                <ChevronRight className="w-8 h-8 text-black dark:text-white" />
+              </Button>
+            </View>
+          }
         />
       )}
-      <View className="flex flex-row justify-center gap-4 mt-4">
-        <Button
-          onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
-          disabled={page === 0}
-          variant="outline"
-          size="icon"
-          className="border-black  dark:border-white"
-        >
-          <ChevronLeft className="w-8 h-8 text-black dark:text-white" />
-        </Button>
-        <Button
-          onPress={() =>
-            !isPlaceholderData && data?.has_more && setPage((prev) => prev + 1)
-          }
-          disabled={isPlaceholderData || !data?.has_more}
-          variant="outline"
-          size="icon"
-          className="border-black dark:border-white"
-        >
-          <ChevronRight className="w-8 h-8 text-black dark:text-white" />
-        </Button>
-      </View>
-      {/*isFetching && <Loader />*/}
     </View>
   );
 }
