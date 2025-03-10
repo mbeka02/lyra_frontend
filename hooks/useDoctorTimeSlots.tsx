@@ -7,6 +7,7 @@ export const useDoctorTimeSlots = (
   doctor_id: number,
   slot_date: Date,
 ) => {
+  console.log(" fn running");
   return useQuery({
     queryKey: ["doctorTimeSlots", doctor_id, day_of_week, slot_date],
     queryFn: () => requestDoctorTimeSlots(day_of_week, doctor_id, slot_date),

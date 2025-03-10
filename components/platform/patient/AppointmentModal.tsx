@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useDoctorTimeSlots } from "~/hooks/useDoctorTimeSlots";
 import { SkeletonLoader } from "../shared/SkeletonLoader";
 import { getDateForDayOfWeek } from "~/utils/dates";
-
+import { useMemo } from "react";
 const days = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
 
 interface DoctorDetailsModalProps {
@@ -47,10 +47,13 @@ export function AppointmentModal({
   // Function to convert string back to number when needed for API calls
   const getDayAsNumber = (day: string) => parseInt(day, 10);
 
+  const slotDate = useMemo(() => {
+    return getDateForDayOfWeek(getDayAsNumber(dayOfTheWeek), true);
+  }, [dayOfTheWeek]); // Only recalculates when `dayOfTheWeek` changes
   const { data: timeSlots, isLoading } = useDoctorTimeSlots(
     getDayAsNumber(dayOfTheWeek),
     doctor_id,
-    getDateForDayOfWeek(getDayAsNumber(dayOfTheWeek), true),
+    slotDate,
   );
 
   if (!isVisible) return null;
