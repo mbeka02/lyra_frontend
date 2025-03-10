@@ -19,7 +19,7 @@ module.exports = {
       colors: {
         greenPrimary: "#24AE7C",
         bluePrimary: "#82DBF7",
-        backgroundPrimary: "#131619",
+        backgroundPrimary: "#121212", //"#131619",
         label: {
           dark: "#ABB8C4",
         },
