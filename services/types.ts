@@ -27,3 +27,8 @@ export type GetDoctorsResponse = {
   doctors: Doctor[];
   has_more: boolean;
 };
+export type AppointmentSlots = {
+  slot_start_time: string;
+  slot_end_time: string;
+  slot_status: string;
+};

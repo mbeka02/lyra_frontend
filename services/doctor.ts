@@ -1,5 +1,5 @@
 import { Api } from "./api";
-import { GetDoctorsResponse } from "./types";
+import { AppointmentSlots, GetDoctorsResponse } from "./types";
 
 export const getAllDoctors = (
   page: number,
@@ -14,4 +14,16 @@ export const getAllDoctors = (
   return Api.get(
     `/user/doctor?page=${page}&county=${county}&sort=${sortBy}&order=${order}`,
   );
+};
+
+export const requestDoctorTimeSlots = (
+  day_of_week: number,
+  doctor_id: number,
+  slot_date: Date,
+): Promise<AppointmentSlots[]> => {
+  return Api.post(`/user/doctor/slots`, {
+    day_of_week,
+    doctor_id,
+    slot_date,
+  });
 };

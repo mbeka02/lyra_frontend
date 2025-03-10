@@ -1,0 +1,15 @@
+import { Role } from "~/context/AuthContext";
+import { WithRole } from "~/components/WithRole";
+import { DoctorList } from "~/components/platform/patient/DoctorList";
+import { View } from "react-native";
+export default function SearchScreen() {
+  return (
+    <View>
+      <WithRole role={Role.PATIENT}>
+        <View className="h-[95%]">
+          <DoctorList />
+        </View>
+      </WithRole>
+    </View>
+  );
+}
