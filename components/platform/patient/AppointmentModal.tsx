@@ -240,6 +240,7 @@ export function AppointmentModal({
           <Button
             disabled={isBooking}
             size="lg"
+            onPress={handleSubmit}
             className="bg-greenPrimary w-full my-4"
           >
             <Text className="font-jakarta-semibold  text-white">
