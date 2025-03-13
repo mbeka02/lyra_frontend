@@ -18,6 +18,8 @@ import { getDateForDayOfWeek } from "~/utils/dates";
 import { useMemo } from "react";
 import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
+import { toast } from "sonner-native";
+import { useBookAppointment } from "~/hooks/useBookAppointment";
 const days = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
 
 interface DoctorDetailsModalProps {
@@ -52,6 +54,11 @@ export function AppointmentModal({
   } = doctor;
   const [dayOfTheWeek, setDayOfTheWeek] = useState("0");
   const [reason, setReason] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{
+    slot_id: number;
+    slot_start_time: string;
+    slot_end_time: string;
+  } | null>(null);
   // Function to convert string back to number when needed for API calls
   const getDayAsNumber = (day: string) => parseInt(day, 10);
 
@@ -63,8 +70,60 @@ export function AppointmentModal({
     doctor_id,
     slotDate,
   );
+  const { mutate: bookAppointment, isPending: isBooking } =
+    useBookAppointment();
   const formatTimeSlot = (time: string): string => {
     return time.split(":").slice(0, 2).join(":");
+  };
+  const handleSubmit = async () => {
+    if (!selectedTimeSlot) {
+      toast.warning("select a time slot");
+      return;
+    }
+    if (reason.trim() === "") {
+      toast.warning("you need to have a reason for the appointment request");
+      return;
+    }
+    // Get the date for the selected day of week (the `true` parameter ensures we get the upcoming day)
+    const appointmentDate = getDateForDayOfWeek(
+      getDayAsNumber(dayOfTheWeek),
+      true,
+    );
+    //create full date time objects
+    const [startHour, startMinute] = selectedTimeSlot.slot_start_time
+      .split(":")
+      .map(Number);
+    const [endHour, endMinute] = selectedTimeSlot.slot_end_time
+      .split(":")
+      .map(Number);
+    // Create start and end timestamps by combining the appointment date with time slots
+    const startTime = new Date(appointmentDate);
+    startTime.setHours(startHour, startMinute, 0, 0);
+
+    const endTime = new Date(appointmentDate);
+    endTime.setHours(endHour, endMinute, 0, 0);
+    //prepare data for submission
+    const appointmentData = {
+      doctor_id: doctor_id,
+      reason: reason.trim(),
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
+      day_of_week: getDayAsNumber(dayOfTheWeek),
+    };
+    console.log("appointment data=>", appointmentData);
+    bookAppointment(appointmentData, {
+      onSuccess: () => {
+        // Show success message
+        toast.success("the appointment has been scheduled");
+        //close the modal
+        onClose();
+      },
+      onError: (error) => {
+        // Show error message
+        toast.error("failed to book appointment");
+        console.error("Failed to book appointment:", error);
+      },
+    });
   };
   if (!isVisible) return null;
 
@@ -142,6 +201,13 @@ export function AppointmentModal({
                         key={idx}
                         disabled={timeslot.slot_status === "booked"}
                         className="border border-input  web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent rounded-sm p-1"
+                        onPress={() =>
+                          setSelectedTimeSlot({
+                            slot_id: idx,
+                            slot_start_time: timeslot.slot_start_time,
+                            slot_end_time: timeslot.slot_end_time,
+                          })
+                        }
                       >
                         <Text className="font-jakarta-medium text-xs">
                           {formatTimeSlot(timeslot.slot_start_time)}-
@@ -171,10 +237,13 @@ export function AppointmentModal({
               aria-labelledby="textareaLabel"
             />
           </View>
-          <Button size="lg" className="bg-greenPrimary w-full my-4">
+          <Button
+            disabled={isBooking}
+            size="lg"
+            className="bg-greenPrimary w-full my-4"
+          >
             <Text className="font-jakarta-semibold  text-white">
-              {" "}
-              Book appointment
+              {isBooking ? "Booking..." : "Book appointment"}
             </Text>
           </Button>
         </View>
