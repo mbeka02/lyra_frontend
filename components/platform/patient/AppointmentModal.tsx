@@ -96,12 +96,13 @@ export function AppointmentModal({
     const [endHour, endMinute] = selectedTimeSlot.slot_end_time
       .split(":")
       .map(Number);
+    // console.log(startHour, startMinute);
     // Create start and end timestamps by combining the appointment date with time slots
     const startTime = new Date(appointmentDate);
-    startTime.setHours(startHour, startMinute, 0, 0);
+    startTime.setUTCHours(startHour, startMinute, 0, 0);
 
     const endTime = new Date(appointmentDate);
-    endTime.setHours(endHour, endMinute, 0, 0);
+    endTime.setUTCHours(endHour, endMinute, 0, 0);
     //prepare data for submission
     const appointmentData = {
       doctor_id: doctor_id,

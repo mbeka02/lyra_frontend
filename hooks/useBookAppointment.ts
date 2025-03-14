@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Api } from "~/services/api"; // Adjust to your API service
+import { Api } from "~/services/api";
 
 interface AppointmentData {
   doctor_id: number;

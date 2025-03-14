@@ -23,7 +23,7 @@ export const getDateForDayOfWeek = (
       daysToAdd = dayOfWeekIndex - currentDayOfWeek;
     } else {
       // If selected day is earlier in the week, get next week's date
-      daysToAdd = 7 - (currentDayOfWeek - dayOfWeekIndex);
+      daysToAdd = 7 - (currentDayOfWeek - dayOfWeekIndex) + 1;
     }
   } else {
     // If we want the most recent day (including today if it's the same day)
