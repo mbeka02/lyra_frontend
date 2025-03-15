@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -11,7 +11,6 @@ import { Button } from "~/components/ui/button";
 import { X } from "lucide-react-native";
 import { Calendar } from "~/lib/icons/Calendar";
 import { Clock } from "~/lib/icons/Clock";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useDoctorTimeSlots } from "~/hooks/useDoctorTimeSlots";
 import { SkeletonLoader } from "../shared/SkeletonLoader";
 import { getDateForDayOfWeek } from "~/utils/dates";
@@ -20,6 +19,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
 import { toast } from "sonner-native";
 import { useBookAppointment } from "~/hooks/useBookAppointment";
+import { useQueryClient } from "@tanstack/react-query";
 const days = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
 
 interface DoctorDetailsModalProps {
@@ -27,12 +27,6 @@ interface DoctorDetailsModalProps {
   onClose: () => void;
   doctor: {
     full_name: string;
-    description: string;
-    specialization: string;
-    profile_image_url: string;
-    years_of_experience: number;
-    price_per_hour: string;
-    county: string;
     doctor_id: number;
   };
 }
@@ -42,33 +36,55 @@ export function AppointmentModal({
   onClose,
   doctor,
 }: DoctorDetailsModalProps) {
-  const {
-    full_name,
-    description,
-    specialization,
-    profile_image_url,
-    years_of_experience,
-    price_per_hour,
-    county,
-    doctor_id,
-  } = doctor;
-  const [dayOfTheWeek, setDayOfTheWeek] = useState("0");
+  const { full_name, doctor_id } = doctor;
+  // Generate dates array for the next 7 days
+  const [dateOptions, setDateOptions] = useState<
+    Array<{
+      day: string;
+      date: number;
+      dayIndex: number;
+      fullDate: Date;
+    }>
+  >([]);
+  const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [reason, setReason] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<{
     slot_id: number;
     slot_start_time: string;
     slot_end_time: string;
   } | null>(null);
-  // Function to convert string back to number when needed for API calls
-  const getDayAsNumber = (day: string) => parseInt(day, 10);
+  const queryClient = useQueryClient();
+  //populate the date options
+  useEffect(() => {
+    const today = new Date();
+    const currentDayIndex = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-  const slotDate = useMemo(() => {
-    return getDateForDayOfWeek(getDayAsNumber(dayOfTheWeek), true);
-  }, [dayOfTheWeek]); // Only recalculates when `dayOfTheWeek` changes
+    const nextSevenDays = Array.from({ length: 7 }, (_, i) => {
+      const dayIndex = (currentDayIndex + i) % 7;
+      const fullDate = getDateForDayOfWeek(dayIndex, true);
+
+      return {
+        day: days[dayIndex],
+        date: fullDate.getDate(),
+        dayIndex: dayIndex,
+        fullDate: fullDate,
+      };
+    });
+
+    setDateOptions(nextSevenDays);
+  }, []);
+  // Function to convert string back to number when needed for API calls
+  // const getDayAsNumber = (day: string) => parseInt(day, 10);
+
+  const selectedDate = useMemo(() => {
+    return (
+      dateOptions[selectedDateIndex] || { dayIndex: 0, fullDate: new Date() }
+    );
+  }, [selectedDateIndex, dateOptions]); // Only recalculates when the date index or options change
   const { data: timeSlots, isLoading } = useDoctorTimeSlots(
-    getDayAsNumber(dayOfTheWeek),
+    selectedDate.dayIndex,
     doctor_id,
-    slotDate,
+    selectedDate.fullDate,
   );
   const { mutate: bookAppointment, isPending: isBooking } =
     useBookAppointment();
@@ -84,11 +100,8 @@ export function AppointmentModal({
       toast.warning("you need to have a reason for the appointment request");
       return;
     }
-    // Get the date for the selected day of week (the `true` parameter ensures we get the upcoming day)
-    const appointmentDate = getDateForDayOfWeek(
-      getDayAsNumber(dayOfTheWeek),
-      true,
-    );
+    // Get the appointment date
+    const appointmentDate = selectedDate.fullDate;
     //create full date time objects
     const [startHour, startMinute] = selectedTimeSlot.slot_start_time
       .split(":")
@@ -109,13 +122,23 @@ export function AppointmentModal({
       reason: reason.trim(),
       start_time: startTime.toISOString(),
       end_time: endTime.toISOString(),
-      day_of_week: getDayAsNumber(dayOfTheWeek),
+      day_of_week: selectedDate.dayIndex,
     };
-    console.log("appointment data=>", appointmentData);
     bookAppointment(appointmentData, {
       onSuccess: () => {
         // Show success message
         toast.success("the appointment has been scheduled");
+        //refetch available time slots
+        queryClient.invalidateQueries({
+          queryKey: [
+            "doctorTimeSlots",
+            doctor_id,
+            selectedDate.dayIndex,
+            selectedDate.fullDate,
+          ],
+        });
+        //reset text area
+        setReason("");
         //close the modal
         onClose();
       },
@@ -130,13 +153,13 @@ export function AppointmentModal({
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={isVisible}
       onRequestClose={onClose}
     >
       <View className="flex-1 items-center bg-black/50">
-        <View className="w-11/12 mt-24 bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-6 max-h-5/6 ">
+        <View className="w-11/12 mt-24 bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-6 max-h-5/6">
           <View className="flex-row justify-between items-center">
             <View className="flex-row gap-4 items-center">
               <Calendar
@@ -155,78 +178,101 @@ export function AppointmentModal({
             Schedule a virtual consultation with Dr. {full_name}
           </Text>
 
-          {/* Display availability slots */}
-          <Tabs
-            className="w-full"
-            value={dayOfTheWeek}
-            onValueChange={setDayOfTheWeek}
-          >
-            <View className="pt-2 w-full">
-              <TabsList className="flex-row bg-transparent flex-wrap  mb-6">
-                {days.map((day, index) => (
-                  <TabsTrigger
+          {/* Date Selector */}
+          <View className="pt-2 mb-6">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingVertical: 8 }}
+            >
+              <View className="flex-row justify-between">
+                {dateOptions.map((item, index) => (
+                  <TouchableOpacity
                     key={index}
-                    value={index.toString()}
-                    className={`py-2 w-12 px-1 rounded-sm ${dayOfTheWeek === index.toString() ? "bg-greenPrimary" : "bg-transparent "}`}
+                    onPress={() => setSelectedDateIndex(index)}
+                    className={`w-12 h-14 mx-2 rounded-sm border-input border justify-center items-center ${selectedDateIndex === index
+                        ? "bg-greenPrimary"
+                        : "bg-transparent"
+                      }`}
                   >
                     <Text
-                      className={`text-sm font-jakarta-medium ${dayOfTheWeek === index.toString() ? "text-white" : ""}`}
+                      className={`text-xs font-jakarta-medium ${selectedDateIndex === index
+                          ? "text-white"
+                          : "text-gray-500"
+                        }`}
                     >
-                      {day}
+                      {item.day}
                     </Text>
-                  </TabsTrigger>
+                    <Text
+                      className={`text-base font-jakarta-semibold ${selectedDateIndex === index
+                          ? "text-white"
+                          : "text-gray-800 dark:text-gray-200"
+                        }`}
+                    >
+                      {item.date}
+                    </Text>
+                  </TouchableOpacity>
                 ))}
-              </TabsList>
+              </View>
+            </ScrollView>
+          </View>
+
+          {/* Time Slots */}
+          <View className="mb-4">
+            <View className="flex-row gap-2 items-center mb-4">
+              <Clock className="w-2 h-2 text-muted-foreground" size={20} />
+              <Text className="font-jakarta-regular text-muted-foreground text-sm">
+                Available time slots for {selectedDate.day}
+              </Text>
             </View>
 
-            {/* Now each day has its own TabsContent */}
-            {days.map((day, index) => (
-              <TabsContent key={index} value={index.toString()}>
-                <View className="flex-row gap-2 items-center mb-4">
-                  <Clock className="w-2 h-2 text-muted-foreground" size={20} />
-                  <Text className="font-jakarta-regular  text-muted-foreground text-sm">
-                    Available time slots for {day}
-                  </Text>
-                </View>
-
-                {isLoading ? (
-                  <SkeletonLoader
-                    count={2}
-                    containerStyles="gap-2 flex-row mb-8 flex-wrap px-1"
-                    skeletonStlyes="rounded-sm px-4 p-2 w-full h-8 w-28"
-                  />
-                ) : timeSlots && timeSlots.length > 0 ? (
-                  <View className=" mb-1 flex-row flex-wrap gap-2">
-                    {timeSlots.map((timeslot, idx) => (
-                      <Pressable
-                        key={idx}
-                        disabled={timeslot.slot_status === "booked"}
-                        className="border border-input  web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent rounded-sm p-1"
-                        onPress={() =>
-                          setSelectedTimeSlot({
-                            slot_id: idx,
-                            slot_start_time: timeslot.slot_start_time,
-                            slot_end_time: timeslot.slot_end_time,
-                          })
-                        }
-                      >
-                        <Text className="font-jakarta-medium text-xs">
-                          {formatTimeSlot(timeslot.slot_start_time)}-
-                          {formatTimeSlot(timeslot.slot_end_time)}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                ) : (
-                  <View className="py-1 items-center ">
-                    <Text className="text-muted-foreground">
-                      No time slots available for this day
+            {isLoading ? (
+              <SkeletonLoader
+                count={2}
+                containerStyles="gap-2 flex-row mb-8 flex-wrap px-1"
+                skeletonStlyes="rounded-sm px-4 p-2 w-full h-8 w-28"
+              />
+            ) : timeSlots && timeSlots.length > 0 ? (
+              <View className="mb-1 flex-row flex-wrap gap-2">
+                {timeSlots.map((timeslot, idx) => (
+                  <Pressable
+                    key={idx}
+                    disabled={timeslot.slot_status === "booked"}
+                    className={`border border-input rounded-sm p-1 ${selectedTimeSlot?.slot_id === idx
+                        ? "bg-greenPrimary"
+                        : "bg-transparent"
+                      } ${timeslot.slot_status === "booked"
+                        ? "opacity-40"
+                        : "opacity-100"
+                      }`}
+                    onPress={() =>
+                      setSelectedTimeSlot({
+                        slot_id: idx,
+                        slot_start_time: timeslot.slot_start_time,
+                        slot_end_time: timeslot.slot_end_time,
+                      })
+                    }
+                  >
+                    <Text
+                      className={`font-jakarta-medium text-xs ${selectedTimeSlot?.slot_id === idx ? "text-white" : ""
+                        }`}
+                    >
+                      {formatTimeSlot(timeslot.slot_start_time)}-
+                      {formatTimeSlot(timeslot.slot_end_time)}
                     </Text>
-                  </View>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <View className="py-1 items-center">
+                <Text className="text-muted-foreground">
+                  No time slots available for this day
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Reason input */}
           <View>
             <Label className="mt-4 mb-2" nativeID="reason_label">
               Reason
@@ -234,17 +280,19 @@ export function AppointmentModal({
             <Textarea
               value={reason}
               onChangeText={setReason}
-              placeholder="enter a reason for the appointment..."
+              placeholder="Enter a reason for the appointment..."
               aria-labelledby="textareaLabel"
             />
           </View>
+
+          {/* Submit button */}
           <Button
             disabled={isBooking}
             size="lg"
             onPress={handleSubmit}
             className="bg-greenPrimary w-full my-4"
           >
-            <Text className="font-jakarta-semibold  text-white">
+            <Text className="font-jakarta-semibold text-white">
               {isBooking ? "Booking..." : "Book appointment"}
             </Text>
           </Button>
