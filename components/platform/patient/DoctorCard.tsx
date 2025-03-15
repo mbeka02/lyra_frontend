@@ -37,12 +37,6 @@ export function DoctorCard({
   const closeModal = () => setModalVisible(false);
   const doctorData = {
     full_name,
-    description,
-    specialization,
-    profile_image_url,
-    years_of_experience,
-    price_per_hour,
-    county,
     doctor_id,
   };
   return (
