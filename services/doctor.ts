@@ -9,10 +9,10 @@ export const getAllDoctors = (
 ): Promise<GetDoctorsResponse> => {
   //YEAH THIS SUCKS
   if (county === null || county === "") {
-    return Api.get(`/user/doctor?page=${page}&sort=${sortBy}&order=${order}`);
+    return Api.get(`/doctors?page=${page}&sort=${sortBy}&order=${order}`);
   }
   return Api.get(
-    `/user/doctor?page=${page}&county=${county}&sort=${sortBy}&order=${order}`,
+    `/doctors?page=${page}&county=${county}&sort=${sortBy}&order=${order}`,
   );
 };
 
@@ -21,7 +21,7 @@ export const requestDoctorTimeSlots = (
   doctor_id: number,
   slot_date: Date,
 ): Promise<AppointmentSlots[]> => {
-  return Api.post(`/user/doctor/slots`, {
+  return Api.post(`/doctors/availability/slots`, {
     day_of_week,
     doctor_id,
     slot_date,

@@ -14,7 +14,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { TOKEN_KEY } from "~/constants";
 const url = process.env.EXPO_PUBLIC_DEV_URL;
 
-const Api: AxiosInstance = axios.create({ baseURL: url });
+const Api: AxiosInstance = axios.create({ baseURL: url + "/api/v1" });
 
 Api.interceptors.request.use(async (config) => {
   const data = await SecureStore.getItemAsync(TOKEN_KEY);
