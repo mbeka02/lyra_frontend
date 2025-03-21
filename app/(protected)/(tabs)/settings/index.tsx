@@ -163,7 +163,7 @@ export default function SettingsScreen() {
         </View>
 
         <Text className="mt-6 mb-6 text-sm font-medium text-center text-gray-500">
-          App Version 0.2
+          App Version 0.3
         </Text>
       </ScrollView>
     );

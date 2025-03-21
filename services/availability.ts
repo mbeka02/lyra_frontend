@@ -1,17 +1,17 @@
 import { Api } from "./api";
 import { Availability } from "./types";
 export const addAvailability = (data: Availability) => {
-  return Api.post("/user/doctor/availability", data);
+  return Api.post("/doctors/availability", data);
 };
 
 export const getDoctorAvailability = (): Promise<Availability[]> => {
-  return Api.get("/user/doctor/availability");
+  return Api.get("/doctors/availability");
 };
 
 export const removeAvailabilityById = (availabilityId: number) => {
-  return Api.delete(`/user/doctor/availability/id/${availabilityId}`);
+  return Api.delete(`/doctors/availability/id/${availabilityId}`);
 };
 
 export const removeAvailabilityByDay = (dayIndex: number) => {
-  return Api.delete(`/user/doctor/availability/day/${dayIndex}`);
+  return Api.delete(`/doctors/availability/day/${dayIndex}`);
 };
