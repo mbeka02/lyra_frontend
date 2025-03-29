@@ -38,6 +38,7 @@ export function DoctorCard({
   const doctorData = {
     full_name,
     doctor_id,
+    price_per_hour,
   };
   return (
     <>

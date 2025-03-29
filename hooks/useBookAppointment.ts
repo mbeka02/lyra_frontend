@@ -7,12 +7,21 @@ interface AppointmentData {
   start_time: string;
   end_time: string;
   day_of_week: number;
+  amount: string;
 }
-
+interface BookingResponse {
+  status: boolean;
+  message: string;
+  data: {
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+  };
+}
 export const useBookAppointment = () => {
   return useMutation({
-    mutationFn: (data: AppointmentData) => {
-      return Api.post("/user/appointment", data);
+    mutationFn: (data: AppointmentData): Promise<BookingResponse> => {
+      return Api.post("/appointments", data);
     },
   });
 };
