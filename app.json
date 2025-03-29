@@ -21,6 +21,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#24AE7C"
       },
+
       "package": "com.mbeka02.lyra"
     },
     "web": {
