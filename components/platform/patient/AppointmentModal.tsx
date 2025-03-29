@@ -20,6 +20,7 @@ import { Label } from "~/components/ui/label";
 import { toast } from "sonner-native";
 import { useBookAppointment } from "~/hooks/useBookAppointment";
 import { useQueryClient } from "@tanstack/react-query";
+import * as Linking from "expo-linking";
 const days = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
 
 interface DoctorDetailsModalProps {
@@ -28,6 +29,7 @@ interface DoctorDetailsModalProps {
   doctor: {
     full_name: string;
     doctor_id: number;
+    price_per_hour: string;
   };
 }
 
@@ -36,7 +38,7 @@ export function AppointmentModal({
   onClose,
   doctor,
 }: DoctorDetailsModalProps) {
-  const { full_name, doctor_id } = doctor;
+  const { full_name, doctor_id, price_per_hour } = doctor;
   // Generate dates array for the next 7 days
   const [dateOptions, setDateOptions] = useState<
     Array<{
@@ -117,17 +119,47 @@ export function AppointmentModal({
     const endTime = new Date(appointmentDate);
     endTime.setUTCHours(endHour, endMinute, 0, 0);
     //prepare data for submission
+
+    const totalCost = (
+      price_per_hour: string,
+      start_time: Date,
+      end_time: Date,
+    ): string => {
+      const price = parseFloat(price_per_hour);
+      // Calculate the difference in milliseconds, then convert to hours (including fractions)
+      const diffMs = end_time.getTime() - start_time.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+      const cost = price * diffHours;
+      return cost.toFixed(2); // Format cost to two decimals
+    };
     const appointmentData = {
       doctor_id: doctor_id,
       reason: reason.trim(),
       start_time: startTime.toISOString(),
       end_time: endTime.toISOString(),
       day_of_week: selectedDate.dayIndex,
+      amount: totalCost(price_per_hour, startTime, endTime),
     };
     bookAppointment(appointmentData, {
-      onSuccess: () => {
-        // Show success message
-        toast.success("the appointment has been scheduled");
+      onSuccess: async (response) => {
+        // Show redirect message
+        toast.info("redirecting to payment gateway...");
+        try {
+          const paymentURL = response.data.authorization_url;
+          const supported = await Linking.canOpenURL(paymentURL);
+          if (!supported) {
+            toast.error(
+              " unable to redirect to the payment gateway, kindly contact support ",
+            );
+            return;
+          }
+          await Linking.openURL(paymentURL);
+        } catch (error) {
+          toast.error(
+            "unable to redirect to the payment gateway, kindly contact support",
+          );
+          console.error(error);
+        }
         //refetch available time slots
         queryClient.invalidateQueries({
           queryKey: [
@@ -139,8 +171,6 @@ export function AppointmentModal({
         });
         //reset text area
         setReason("");
-        //close the modal
-        onClose();
       },
       onError: (error) => {
         // Show error message
