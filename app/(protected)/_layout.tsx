@@ -14,6 +14,12 @@ export default function ProtectedLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="payment"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
