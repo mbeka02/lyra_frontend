@@ -142,7 +142,10 @@ export function AppointmentModal({
     };
     bookAppointment(appointmentData, {
       onSuccess: async (response) => {
+        //close modal
+        onClose();
         // Show redirect message
+
         toast.info("redirecting to payment gateway...");
         try {
           const paymentURL = response.data.authorization_url;
