@@ -28,7 +28,6 @@ export default function Tabslayout() {
         options={{
           title: "Home",
         }}
-        redirect={authState?.isAuthenticated === null}
       />
       <Tabs.Screen
         name="search"

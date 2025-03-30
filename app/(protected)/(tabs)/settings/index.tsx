@@ -27,30 +27,28 @@ export default function SettingsScreen() {
     queryFn: getUser,
   });
 
-  const RenderContent = () => {
-    if (isLoading || !data) {
-      return <Loader />;
-    }
+  if (isLoading || !data) {
+    return <Loader />;
+  }
 
-    if (isError) {
-      return (
-        <View className="flex-1 justify-center items-center">
-          <Text className="font-jakarta-semibold text-red-600">
-            Error: Unable to display page details
-          </Text>
-          <Button
-            onPress={() =>
-              queryClient.invalidateQueries({ queryKey: ["user"] })
-            }
-            className="mt-4 font-jakarta-semibold text-white bg-red-600"
-          >
-            Retry
-          </Button>
-        </View>
-      );
-    }
-
+  if (isError) {
     return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="font-jakarta-semibold text-red-600">
+          Error: Unable to display page details
+        </Text>
+        <Button
+          onPress={() => queryClient.invalidateQueries({ queryKey: ["user"] })}
+          className="mt-4 font-jakarta-semibold text-white bg-red-600"
+        >
+          Retry
+        </Button>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1">
       <ScrollView className="py-4 px-6">
         <View className="py-3 pt-1">
           <Text className="text-xs font-jakarta-medium my-2 tracking-wider dark:text-gray-300 text-gray-500 uppercase">
@@ -166,8 +164,6 @@ export default function SettingsScreen() {
           App Version 0.3
         </Text>
       </ScrollView>
-    );
-  };
-
-  return <View className="flex-1">{<RenderContent />}</View>;
+    </View>
+  );
 }
