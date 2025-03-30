@@ -86,11 +86,15 @@ export function DoctorList() {
   return (
     <View className="py-2 px-4 mb-8">
       {isPending ? (
-        <Loader />
+        <View className="flex h-full items-center justify-center">
+          <Loader />
+        </View>
       ) : isError ? (
-        <Text className="font-jakarta-regular font-semibold text-red-600">
-          Error loading doctors
-        </Text>
+        <View className="  h-full">
+          <Text className="font-jakarta-semibold text-xl mx-auto my-auto text-red-600">
+            Error loading page info
+          </Text>
+        </View>
       ) : (
         <FlatList
           data={data.doctors}
@@ -107,8 +111,8 @@ export function DoctorList() {
               />
               <Button size="icon" variant="ghost" onPress={toggleModal}>
                 <Filter
-                  className="w-5 h-5 text-black dark:text-gray-300"
-                  strokeWidth={1.75}
+                  className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                  strokeWidth={1.5}
                 />
               </Button>
             </View>
