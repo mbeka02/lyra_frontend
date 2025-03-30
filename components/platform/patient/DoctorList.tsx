@@ -1,28 +1,87 @@
-import { getAllDoctors } from "~/services/doctor";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { View, FlatList } from "react-native";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getAllDoctors } from "~/services/doctor";
 import { Button } from "~/components/ui/button";
 import { Loader } from "~/components/Loader";
-import { View, FlatList, TouchableOpacity } from "react-native";
 import { Text } from "~/components/ui/text";
 import { DoctorCard } from "./DoctorCard";
-import { Check } from "~/lib/icons/Check";
-import { ChevronUp } from "~/lib/icons/ChevronUp";
-import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
+import { Filter } from "~/lib/icons/Filter";
 import { ComboBox } from "~/components/ComboBox";
+import { FiltersModal } from "./FiltersModal";
+
+type SortOption = "experience" | "price" | null;
+type OrderOption = "asc" | "desc";
+
+interface FilterState {
+  sortBy: SortOption;
+  order: OrderOption;
+  county: string | null;
+  minPrice: string;
+  maxPrice: string;
+  minExperience: string;
+  maxExperience: string;
+}
+
+const initialFilters: FilterState = {
+  sortBy: "experience",
+  order: "asc",
+  county: null,
+  minPrice: "",
+  maxPrice: "",
+  minExperience: "",
+  maxExperience: "",
+};
+
 export function DoctorList() {
   const [page, setPage] = useState(0);
-  const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [county, setCounty] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [isFocus, setIsFocus] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const { isPending, isError, data, isPlaceholderData } = useQuery({
-    queryKey: ["projects", page, sortBy, order, county],
-    queryFn: () => getAllDoctors(page, sortBy, order, county),
+    queryKey: [
+      "doctors",
+      page,
+      filters.sortBy,
+      filters.order,
+      filters.county,
+      filters.minExperience,
+      filters.maxExperience,
+      filters.minPrice,
+      filters.maxPrice,
+    ],
+    queryFn: () =>
+      getAllDoctors(
+        page,
+        filters.sortBy,
+        filters.order,
+        filters.county,
+        filters.minExperience,
+        filters.maxExperience,
+        filters.minPrice,
+        filters.maxPrice,
+      ),
     placeholderData: keepPreviousData,
   });
+
+  const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 0));
+  const handleNextPage = () => {
+    if (!isPlaceholderData && data?.has_more) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const handleFilterChange = <T extends keyof FilterState>(
+    key: T,
+    value: FilterState[T],
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const toggleModal = () => setModalVisible(!modalVisible);
 
   return (
     <View className="py-2 px-4 mb-8">
@@ -30,7 +89,7 @@ export function DoctorList() {
         <Loader />
       ) : isError ? (
         <Text className="font-jakarta-regular font-semibold text-red-600">
-          Error
+          Error loading doctors
         </Text>
       ) : (
         <FlatList
@@ -39,77 +98,34 @@ export function DoctorList() {
           keyExtractor={(item) => item.doctor_id.toString()}
           renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
-            <>
+            <View className="flex-row p-4 my-2 mt-4 dark:bg-backgroundPrimary bg-slate-50 rounded-xl shadow-sm items-center justify-between w-full">
               <ComboBox
-                county={county}
+                county={filters.county}
                 setIsFocus={setIsFocus}
-                setCounty={setCounty}
+                setCounty={(value) => handleFilterChange("county", value)}
                 isFocus={isFocus}
               />
-              <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 flex justify-between flex-row items-center">
-                <Text className="font-jakarta-semibold mr-3">Sort By</Text>
-                <View className="flex gap-2 flex-row items-center">
-                  {(["price", "experience"] as const).map((criteria) => (
-                    <Button
-                      key={criteria}
-                      onPress={() => setSortBy(criteria)}
-                      variant="outline"
-                      size="sm"
-                      className={`rounded-md px-1 pb-1  bg-transparent  flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
-                    >
-                      {sortBy === criteria && (
-                        <Check
-                          className=" mt-1 mr-1 text-greenPrimary"
-                          size={20}
-                        />
-                      )}
-                      <Text
-                        className={`text-xs font-jakarta-medium ${sortBy === criteria ? "text-greenPrimary" : ""}`}
-                      >
-                        {criteria}
-                      </Text>
-                    </Button>
-                  ))}
-                </View>
-                <View className="flex rounded-md shadow-sm justify-center space-x-2">
-                  {(["asc", "desc"] as const).map((direction) => (
-                    <TouchableOpacity
-                      key={direction}
-                      onPress={() => setOrder(direction)}
-                      className="bg-slate-50 dark:bg-backgroundPrimary"
-                    >
-                      {direction === "asc" ? (
-                        <ChevronUp
-                          className={`w-5  h-5 ${order === "asc" ? " text-greenPrimary" : "text-black dark:text-white"}`}
-                        />
-                      ) : (
-                        <ChevronDown
-                          className={`w-5 h-5 ${order === "desc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            </>
+              <Button size="icon" variant="ghost" onPress={toggleModal}>
+                <Filter
+                  className="w-5 h-5 text-black dark:text-gray-300"
+                  strokeWidth={1.75}
+                />
+              </Button>
+            </View>
           }
           ListFooterComponent={
             <View className="flex flex-row justify-center gap-4 mt-4">
               <Button
-                onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
+                onPress={handlePreviousPage}
                 disabled={page === 0}
                 variant="outline"
                 size="icon"
-                className="border-black  dark:border-white"
+                className="border-black dark:border-white"
               >
                 <ChevronLeft className="w-8 h-8 text-black dark:text-white" />
               </Button>
               <Button
-                onPress={() =>
-                  !isPlaceholderData &&
-                  data?.has_more &&
-                  setPage((prev) => prev + 1)
-                }
+                onPress={handleNextPage}
                 disabled={isPlaceholderData || !data?.has_more}
                 variant="outline"
                 size="icon"
@@ -121,6 +137,18 @@ export function DoctorList() {
           }
         />
       )}
+
+      <FiltersModal
+        {...filters}
+        setSortBy={(value) => handleFilterChange("sortBy", value)}
+        setOrder={(value) => handleFilterChange("order", value)}
+        setMinPrice={(value) => handleFilterChange("minPrice", value)}
+        setMaxPrice={(value) => handleFilterChange("maxPrice", value)}
+        setMinExperience={(value) => handleFilterChange("minExperience", value)}
+        setMaxExperience={(value) => handleFilterChange("maxExperience", value)}
+        isVisible={modalVisible}
+        onClose={toggleModal}
+      />
     </View>
   );
 }

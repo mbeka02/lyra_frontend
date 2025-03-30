@@ -7,7 +7,7 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { counties } from "~/constants/counties";
 interface ComboBoxProps {
   county: string | null;
-  setCounty: Dispatch<SetStateAction<string | null>>;
+  setCounty: (val: string | null) => void;
   isFocus: boolean;
   setIsFocus: Dispatch<SetStateAction<boolean>>;
 }
@@ -26,7 +26,7 @@ export const ComboBox = ({
   const RenderLabelComponent = () =>
     county || isFocus ? (
       <Text
-        className={`absolute bg-slate-50 dark:bg-backgroundPrimary top-1 left-6 px-2 text-sm z-50 font-jakarta-semibold ${isFocus ? "text-greenPrimary" : ""
+        className={`absolute  -top-4 dark:bg-backgroundPrimary bg-slate-50 left-4 p-1 px-2 text-sm z-50 font-jakarta-semibold ${isFocus ? "text-greenPrimary" : ""
           }`}
       >
         County
@@ -34,7 +34,7 @@ export const ComboBox = ({
     ) : null;
 
   return (
-    <View className="bg-slate-50 h-24 p-4 dark:bg-backgroundPrimary rounded-xl my-2">
+    <View className=" w-3/4   ">
       <RenderLabelComponent />
       <Dropdown
         style={[styles.dropdown, isFocus && { borderColor: "#24AE7C" }]}
@@ -53,16 +53,17 @@ export const ComboBox = ({
         ]}
         inputSearchStyle={{
           height: 40,
-          fontSize: 12,
-          borderRadius: 8,
-          fontFamily: "Jakarta-Sans-Regular",
+          fontSize: 14,
+          borderRadius: 5,
+          borderColor: "gray",
+          fontFamily: "Jakarta-Sans-SemiBold",
           color: isDarkColorScheme ? "white" : "black",
         }}
         iconStyle={styles.iconStyle}
         data={counties}
         search
         containerStyle={{
-          backgroundColor: isDarkColorScheme ? "#131619" : "#F8FAFC",
+          backgroundColor: isDarkColorScheme ? "#121212" : "#F8FAFC",
           borderRadius: 8,
           // marginTop: 12,
         }}
