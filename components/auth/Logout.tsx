@@ -20,6 +20,8 @@ import { LogOut } from "lucide-react-native";
 export const Logout = () => {
   const { onLogout } = useAuthentication();
   const { isDarkColorScheme } = useColorScheme();
+  if (!onLogout) return null;
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

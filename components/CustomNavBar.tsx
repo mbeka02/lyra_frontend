@@ -1,70 +1,81 @@
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import {
+  BottomTabBarProps,
+  BottomTabNavigationEventMap,
+} from "@react-navigation/bottom-tabs";
 import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  NavigationRoute,
+  NavigationListBase,
+  ParamListBase,
+  TabNavigationState,
+  NavigationHelpers,
+} from "@react-navigation/native";
 
 const PRIMARY_COLOR = "#24AE7C";
 const SECONDARY_COLOR = "#ffffff";
 const TAB_ITEM_SIZE = 42;
-
-const CustomTabBar: React.FC<BottomTabBarProps> = ({
+const TabItem = ({
+  route,
   state,
-  descriptors,
+  index,
   navigation,
+}: {
+  route: NavigationRoute<ParamListBase, string>;
+  index: number;
+  state: TabNavigationState<ParamListBase>;
+  navigation: NavigationHelpers<ParamListBase, BottomTabNavigationEventMap>;
 }) => {
-  return (
-    <View style={styles.container}>
-      {state.routes.map((route, index) => {
-        if (["_sitemap", "+not-found"].includes(route.name)) {
-          return null;
-        }
+  // Skip hidden routes
+  if (["_sitemap", "+not-found"].includes(route.name)) {
+    return null;
+  }
 
-        const isFocused = state.index === index;
+  const isFocused = state.index === index;
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
-          });
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
-
-        const rTabItemViewStyle = useAnimatedStyle(() => {
-          return {
-            transform: [{ scale: withTiming(isFocused ? 1 : 0) }],
-            opacity: withTiming(isFocused ? 1 : 0),
-          };
-        }, [isFocused]);
-
-        const rIconStyle = useAnimatedStyle(() => {
-          return {
-            transform: [{ scale: withTiming(isFocused ? 1.1 : 1) }],
-          };
-        }, [isFocused]);
-
-        return (
-          <TouchableOpacity
-            key={route.key}
-            onPress={onPress}
-            style={styles.tabItem}
-          >
-            <Animated.View style={[rTabItemViewStyle, styles.tabItemView]} />
-            <Animated.View style={rIconStyle}>
-              {getIcon(route.name, isFocused ? PRIMARY_COLOR : SECONDARY_COLOR)}
-            </Animated.View>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+  const rTabItemViewStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ scale: withTiming(isFocused ? 1 : 0) }],
+      opacity: withTiming(isFocused ? 1 : 0),
+    }),
+    [isFocused],
   );
 
+  const rIconStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ scale: withTiming(isFocused ? 1.1 : 1) }],
+    }),
+    [isFocused],
+  );
+
+  const onPress = () => {
+    const event = navigation.emit({
+      type: "tabPress",
+      target: route.key,
+      canPreventDefault: true,
+    });
+
+    if (!isFocused && !event.defaultPrevented) {
+      navigation.navigate(route.name);
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.tabItem}
+      accessibilityRole="button"
+    >
+      <Animated.View style={[rTabItemViewStyle, styles.tabItemView]} />
+      <Animated.View style={rIconStyle}>
+        {getIcon(route.name, isFocused ? PRIMARY_COLOR : SECONDARY_COLOR)}
+      </Animated.View>
+    </TouchableOpacity>
+  );
   function getIcon(name: string, color: string) {
     switch (name) {
       case "home":
@@ -77,6 +88,26 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
         return <Ionicons name="home" size={26} color={color} />;
     }
   }
+};
+const CustomTabBar: React.FC<BottomTabBarProps> = ({
+  state,
+  descriptors,
+  navigation,
+}) => {
+  return (
+    <View style={styles.container}>
+      {state.routes.map((route, index) => (
+        <TabItem
+          key={route.key}
+          route={route}
+          state={state}
+          index={index}
+          navigation={navigation}
+        />
+      ))}
+      ;
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
