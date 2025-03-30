@@ -10,12 +10,10 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import {
   NavigationRoute,
-  NavigationListBase,
   ParamListBase,
   TabNavigationState,
   NavigationHelpers,
 } from "@react-navigation/native";
-
 const PRIMARY_COLOR = "#24AE7C";
 const SECONDARY_COLOR = "#ffffff";
 const TAB_ITEM_SIZE = 42;
@@ -63,7 +61,6 @@ const TabItem = ({
       navigation.navigate(route.name);
     }
   };
-
   return (
     <TouchableOpacity
       onPress={onPress}
