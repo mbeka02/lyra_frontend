@@ -16,12 +16,18 @@ import { ComboBox } from "~/components/ComboBox";
 import { FiltersModal } from "./FiltersModal";
 export function DoctorList() {
   const [page, setPage] = useState(0);
-  const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);
+  const [sortBy, setSortBy] = useState<"experience" | "price" | null>(
+    "experience",
+  );
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [county, setCounty] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minExperience, setMinExperience] = useState("");
+  const [maxExperience, setMaxExperience] = useState("");
 
+  const [modalVisible, setModalVisible] = useState(false);
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
@@ -66,6 +72,14 @@ export function DoctorList() {
                 setOrder={setOrder}
                 isVisible={modalVisible}
                 onClose={closeModal}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                setMinPrice={setMinPrice}
+                setMaxPrice={setMaxPrice}
+                minExperience={minExperience}
+                maxExperience={maxExperience}
+                setMinExperience={setMinExperience}
+                setMaxExperience={setMaxExperience}
               />
               <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 hidden justify-between flex-row items-center">
                 <Text className="font-jakarta-semibold mr-3">Sort By</Text>
