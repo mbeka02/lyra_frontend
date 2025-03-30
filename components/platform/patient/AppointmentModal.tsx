@@ -13,7 +13,7 @@ import { Calendar } from "~/lib/icons/Calendar";
 import { Clock } from "~/lib/icons/Clock";
 import { useDoctorTimeSlots } from "~/hooks/useDoctorTimeSlots";
 import { SkeletonLoader } from "../shared/SkeletonLoader";
-import { getDateForDayOfWeek } from "~/utils/dates";
+import { getDateForDayOfWeek, getUTCDateForDayOfWeek } from "~/utils/dates";
 import { useMemo } from "react";
 import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
@@ -63,7 +63,7 @@ export function AppointmentModal({
 
     const nextSevenDays = Array.from({ length: 7 }, (_, i) => {
       const dayIndex = (currentDayIndex + i) % 7;
-      const fullDate = getDateForDayOfWeek(dayIndex, true);
+      const fullDate = getUTCDateForDayOfWeek(dayIndex, true);
 
       return {
         day: days[dayIndex],

@@ -1,32 +1,55 @@
 // PaymentResultScreen.tsx
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Alert, View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useEffect } from "react";
 import { Text } from "~/components/ui/text";
+import { CheckCircle, Hourglass, XCircle } from "lucide-react-native";
+
 export default function PaymentResultScreen() {
   const { status, reference } = useLocalSearchParams();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "success") {
-      Alert.alert(
-        "Payment Successful",
-        `Your appointment (ref: ${reference}) has been scheduled!`,
-      );
-    } else if (status === "pending") {
-      Alert.alert("Payment Pending", "Your payment is still processing.");
-    } else if (status === "failed") {
-      Alert.alert("Payment Failed", "Please try again.");
-    }
+  // Icon and message mapping
+  const statusData: Record<string, { icon: JSX.Element; message: string }> = {
+    success: {
+      icon: <CheckCircle size={80} color="green" />,
+      message: `Payment Successful!\nYour appointment (ref: ${reference}) has been scheduled.`,
+    },
+    pending: {
+      icon: <Hourglass size={80} color="orange" />,
+      message: "Payment Pending.\nYour payment is still processing.",
+    },
+    failed: {
+      icon: <XCircle size={80} color="red" />,
+      message: "Payment Failed.\nPlease try again.",
+    },
+  };
 
-    setTimeout(() => {
+  const { icon, message } =
+    statusData[status as keyof typeof statusData] || statusData.failed;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
       router.push("/home");
-    }, 3000);
-  }, [status, reference, router]);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [router]);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Processing payment status...</Text>
+    <View style={styles.container}>
+      {icon}
+      <Text className="font-jakarta-semibold text-lg mt-8 text-center">
+        {message}
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+});
