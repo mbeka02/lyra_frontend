@@ -38,7 +38,9 @@ export default function PaymentResultScreen() {
   return (
     <View style={styles.container}>
       {icon}
-      <Text className="font-jakarta-semibold text-lg mt-8">{message}</Text>
+      <Text className="font-jakarta-semibold text-lg mt-8 text-center">
+        {message}
+      </Text>
     </View>
   );
 }
