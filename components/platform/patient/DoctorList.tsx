@@ -1,9 +1,9 @@
-import { getAllDoctors } from "~/services/doctor";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { View, FlatList } from "react-native";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getAllDoctors } from "~/services/doctor";
 import { Button } from "~/components/ui/button";
 import { Loader } from "~/components/Loader";
-import { View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { DoctorCard } from "./DoctorCard";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
@@ -12,12 +12,10 @@ import { Filter } from "~/lib/icons/Filter";
 import { ComboBox } from "~/components/ComboBox";
 import { FiltersModal } from "./FiltersModal";
 
-// Define types for filter options
 type SortOption = "experience" | "price" | null;
 type OrderOption = "asc" | "desc";
 
-// Define the filters type
-type FilterState = {
+interface FilterState {
   sortBy: SortOption;
   order: OrderOption;
   county: string | null;
@@ -25,43 +23,35 @@ type FilterState = {
   maxPrice: string;
   minExperience: string;
   maxExperience: string;
+}
+
+const initialFilters: FilterState = {
+  sortBy: "experience",
+  order: "asc",
+  county: null,
+  minPrice: "",
+  maxPrice: "",
+  minExperience: "",
+  maxExperience: "",
 };
 
 export function DoctorList() {
-  // Pagination state
   const [page, setPage] = useState(0);
-
-  // Filter states
-  const [filters, setFilters] = useState<FilterState>({
-    sortBy: "experience",
-    order: "asc",
-    county: null,
-    minPrice: "",
-    maxPrice: "",
-    minExperience: "",
-    maxExperience: "",
-  });
-
-  // UI states
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [isFocus, setIsFocus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Modal handlers
-  const openModal = () => setModalVisible(true);
-  const closeModal = () => setModalVisible(false);
-
-  // Query data
   const { isPending, isError, data, isPlaceholderData } = useQuery({
     queryKey: [
       "doctors",
       page,
+      filters.sortBy,
+      filters.order,
       filters.county,
       filters.minExperience,
       filters.maxExperience,
       filters.minPrice,
       filters.maxPrice,
-      filters.sortBy,
-      filters.order,
     ],
     queryFn: () =>
       getAllDoctors(
@@ -77,7 +67,6 @@ export function DoctorList() {
     placeholderData: keepPreviousData,
   });
 
-  // Pagination handlers
   const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 0));
   const handleNextPage = () => {
     if (!isPlaceholderData && data?.has_more) {
@@ -85,34 +74,14 @@ export function DoctorList() {
     }
   };
 
-  // Custom handlers for each filter to address type issues
-  const handleCountyChange = (value: string | null) => {
-    setFilters((prev) => ({ ...prev, county: value }));
+  const handleFilterChange = <T extends keyof FilterState>(
+    key: T,
+    value: FilterState[T],
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSortByChange = (value: SortOption) => {
-    setFilters((prev) => ({ ...prev, sortBy: value }));
-  };
-
-  const handleOrderChange = (value: OrderOption) => {
-    setFilters((prev) => ({ ...prev, order: value }));
-  };
-
-  const handleMinPriceChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, minPrice: value }));
-  };
-
-  const handleMaxPriceChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, maxPrice: value }));
-  };
-
-  const handleMinExperienceChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, minExperience: value }));
-  };
-
-  const handleMaxExperienceChange = (value: string) => {
-    setFilters((prev) => ({ ...prev, maxExperience: value }));
-  };
+  const toggleModal = () => setModalVisible(!modalVisible);
 
   return (
     <View className="py-2 px-4 mb-8">
@@ -133,32 +102,15 @@ export function DoctorList() {
               <ComboBox
                 county={filters.county}
                 setIsFocus={setIsFocus}
-                setCounty={handleCountyChange}
+                setCounty={(value) => handleFilterChange("county", value)}
                 isFocus={isFocus}
               />
-              <Button size="icon" variant="ghost" onPress={openModal}>
+              <Button size="icon" variant="ghost" onPress={toggleModal}>
                 <Filter
                   className="w-5 h-5 text-black dark:text-gray-300"
                   strokeWidth={1.75}
                 />
               </Button>
-
-              <FiltersModal
-                sortBy={filters.sortBy}
-                setSortBy={handleSortByChange}
-                order={filters.order}
-                setOrder={handleOrderChange}
-                isVisible={modalVisible}
-                onClose={closeModal}
-                minPrice={filters.minPrice}
-                maxPrice={filters.maxPrice}
-                setMinPrice={handleMinPriceChange}
-                setMaxPrice={handleMaxPriceChange}
-                minExperience={filters.minExperience}
-                maxExperience={filters.maxExperience}
-                setMinExperience={handleMinExperienceChange}
-                setMaxExperience={handleMaxExperienceChange}
-              />
             </View>
           }
           ListFooterComponent={
@@ -185,6 +137,18 @@ export function DoctorList() {
           }
         />
       )}
+
+      <FiltersModal
+        {...filters}
+        setSortBy={(value) => handleFilterChange("sortBy", value)}
+        setOrder={(value) => handleFilterChange("order", value)}
+        setMinPrice={(value) => handleFilterChange("minPrice", value)}
+        setMaxPrice={(value) => handleFilterChange("maxPrice", value)}
+        setMinExperience={(value) => handleFilterChange("minExperience", value)}
+        setMaxExperience={(value) => handleFilterChange("maxExperience", value)}
+        isVisible={modalVisible}
+        onClose={toggleModal}
+      />
     </View>
   );
 }
