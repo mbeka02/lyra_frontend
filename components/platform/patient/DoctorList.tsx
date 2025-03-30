@@ -11,13 +11,20 @@ import { ChevronUp } from "~/lib/icons/ChevronUp";
 import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
+import { Filter } from "~/lib/icons/Filter";
 import { ComboBox } from "~/components/ComboBox";
+import { FiltersModal } from "./FiltersModal";
 export function DoctorList() {
   const [page, setPage] = useState(0);
   const [sortBy, setSortBy] = useState<"experience" | "price" | null>(null);
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [county, setCounty] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openModal = () => setModalVisible(true);
+  const closeModal = () => setModalVisible(false);
+
   const { isPending, isError, data, isPlaceholderData } = useQuery({
     queryKey: ["projects", page, sortBy, order, county],
     queryFn: () => getAllDoctors(page, sortBy, order, county),
@@ -39,14 +46,28 @@ export function DoctorList() {
           keyExtractor={(item) => item.doctor_id.toString()}
           renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
-            <>
+            <View className="flex-row p-4 my-2 mt-4 dark:bg-backgroundPrimary bg-slate-50 rounded-xl shadow-sm  items-center justify-between w-full">
               <ComboBox
                 county={county}
                 setIsFocus={setIsFocus}
                 setCounty={setCounty}
                 isFocus={isFocus}
               />
-              <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 flex justify-between flex-row items-center">
+              <Button size="icon" variant="ghost" onPress={openModal}>
+                <Filter
+                  className="w-5 h-5 text-black dark:text-gray-300"
+                  strokeWidth={1.75}
+                />
+              </Button>
+              <FiltersModal
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                order={order}
+                setOrder={setOrder}
+                isVisible={modalVisible}
+                onClose={closeModal}
+              />
+              <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 hidden justify-between flex-row items-center">
                 <Text className="font-jakarta-semibold mr-3">Sort By</Text>
                 <View className="flex gap-2 flex-row items-center">
                   {(["price", "experience"] as const).map((criteria) => (
@@ -91,7 +112,7 @@ export function DoctorList() {
                   ))}
                 </View>
               </View>
-            </>
+            </View>
           }
           ListFooterComponent={
             <View className="flex flex-row justify-center gap-4 mt-4">
