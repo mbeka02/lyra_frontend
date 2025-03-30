@@ -3,39 +3,116 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Loader } from "~/components/Loader";
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList } from "react-native";
 import { Text } from "~/components/ui/text";
 import { DoctorCard } from "./DoctorCard";
-import { Check } from "~/lib/icons/Check";
-import { ChevronUp } from "~/lib/icons/ChevronUp";
-import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronLeft } from "~/lib/icons/ChevronLeft";
 import { ChevronRight } from "~/lib/icons/ChevronRight";
 import { Filter } from "~/lib/icons/Filter";
 import { ComboBox } from "~/components/ComboBox";
 import { FiltersModal } from "./FiltersModal";
-export function DoctorList() {
-  const [page, setPage] = useState(0);
-  const [sortBy, setSortBy] = useState<"experience" | "price" | null>(
-    "experience",
-  );
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [county, setCounty] = useState<string | null>(null);
-  const [isFocus, setIsFocus] = useState(false);
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [minExperience, setMinExperience] = useState("");
-  const [maxExperience, setMaxExperience] = useState("");
 
+// Define types for filter options
+type SortOption = "experience" | "price" | null;
+type OrderOption = "asc" | "desc";
+
+// Define the filters type
+type FilterState = {
+  sortBy: SortOption;
+  order: OrderOption;
+  county: string | null;
+  minPrice: string;
+  maxPrice: string;
+  minExperience: string;
+  maxExperience: string;
+};
+
+export function DoctorList() {
+  // Pagination state
+  const [page, setPage] = useState(0);
+
+  // Filter states
+  const [filters, setFilters] = useState<FilterState>({
+    sortBy: "experience",
+    order: "asc",
+    county: null,
+    minPrice: "",
+    maxPrice: "",
+    minExperience: "",
+    maxExperience: "",
+  });
+
+  // UI states
+  const [isFocus, setIsFocus] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Modal handlers
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
+  // Query data
   const { isPending, isError, data, isPlaceholderData } = useQuery({
-    queryKey: ["projects", page, sortBy, order, county],
-    queryFn: () => getAllDoctors(page, sortBy, order, county),
+    queryKey: [
+      "doctors",
+      page,
+      filters.county,
+      filters.minExperience,
+      filters.maxExperience,
+      filters.minPrice,
+      filters.maxPrice,
+      filters.sortBy,
+      filters.order,
+    ],
+    queryFn: () =>
+      getAllDoctors(
+        page,
+        filters.sortBy,
+        filters.order,
+        filters.county,
+        filters.minExperience,
+        filters.maxExperience,
+        filters.minPrice,
+        filters.maxPrice,
+      ),
     placeholderData: keepPreviousData,
   });
+
+  // Pagination handlers
+  const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 0));
+  const handleNextPage = () => {
+    if (!isPlaceholderData && data?.has_more) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  // Custom handlers for each filter to address type issues
+  const handleCountyChange = (value: string | null) => {
+    setFilters((prev) => ({ ...prev, county: value }));
+  };
+
+  const handleSortByChange = (value: SortOption) => {
+    setFilters((prev) => ({ ...prev, sortBy: value }));
+  };
+
+  const handleOrderChange = (value: OrderOption) => {
+    setFilters((prev) => ({ ...prev, order: value }));
+  };
+
+  const handleMinPriceChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, minPrice: value }));
+  };
+
+  const handleMaxPriceChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, maxPrice: value }));
+  };
+
+  const handleMinExperienceChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, minExperience: value }));
+  };
+
+  const handleMaxExperienceChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, maxExperience: value }));
+  };
 
   return (
     <View className="py-2 px-4 mb-8">
@@ -43,7 +120,7 @@ export function DoctorList() {
         <Loader />
       ) : isError ? (
         <Text className="font-jakarta-regular font-semibold text-red-600">
-          Error
+          Error loading doctors
         </Text>
       ) : (
         <FlatList
@@ -52,11 +129,11 @@ export function DoctorList() {
           keyExtractor={(item) => item.doctor_id.toString()}
           renderItem={({ item }) => <DoctorCard {...item} />}
           ListHeaderComponent={
-            <View className="flex-row p-4 my-2 mt-4 dark:bg-backgroundPrimary bg-slate-50 rounded-xl shadow-sm  items-center justify-between w-full">
+            <View className="flex-row p-4 my-2 mt-4 dark:bg-backgroundPrimary bg-slate-50 rounded-xl shadow-sm items-center justify-between w-full">
               <ComboBox
-                county={county}
+                county={filters.county}
                 setIsFocus={setIsFocus}
-                setCounty={setCounty}
+                setCounty={handleCountyChange}
                 isFocus={isFocus}
               />
               <Button size="icon" variant="ghost" onPress={openModal}>
@@ -65,86 +142,38 @@ export function DoctorList() {
                   strokeWidth={1.75}
                 />
               </Button>
+
               <FiltersModal
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                order={order}
-                setOrder={setOrder}
+                sortBy={filters.sortBy}
+                setSortBy={handleSortByChange}
+                order={filters.order}
+                setOrder={handleOrderChange}
                 isVisible={modalVisible}
                 onClose={closeModal}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                setMinPrice={setMinPrice}
-                setMaxPrice={setMaxPrice}
-                minExperience={minExperience}
-                maxExperience={maxExperience}
-                setMinExperience={setMinExperience}
-                setMaxExperience={setMaxExperience}
+                minPrice={filters.minPrice}
+                maxPrice={filters.maxPrice}
+                setMinPrice={handleMinPriceChange}
+                setMaxPrice={handleMaxPriceChange}
+                minExperience={filters.minExperience}
+                maxExperience={filters.maxExperience}
+                setMinExperience={handleMinExperienceChange}
+                setMaxExperience={handleMaxExperienceChange}
               />
-              <View className="rounded-xl my-2 shadow-sm bg-slate-50 dark:bg-backgroundPrimary overflow-hidden h-20 py-2 px-4 hidden justify-between flex-row items-center">
-                <Text className="font-jakarta-semibold mr-3">Sort By</Text>
-                <View className="flex gap-2 flex-row items-center">
-                  {(["price", "experience"] as const).map((criteria) => (
-                    <Button
-                      key={criteria}
-                      onPress={() => setSortBy(criteria)}
-                      variant="outline"
-                      size="sm"
-                      className={`rounded-md px-1 pb-1  bg-transparent  flex flex-row items-center ${sortBy === criteria ? "border-greenPrimary bg-greenPrimary/20" : ""}`}
-                    >
-                      {sortBy === criteria && (
-                        <Check
-                          className=" mt-1 mr-1 text-greenPrimary"
-                          size={20}
-                        />
-                      )}
-                      <Text
-                        className={`text-xs font-jakarta-medium ${sortBy === criteria ? "text-greenPrimary" : ""}`}
-                      >
-                        {criteria}
-                      </Text>
-                    </Button>
-                  ))}
-                </View>
-                <View className="flex rounded-md shadow-sm justify-center space-x-2">
-                  {(["asc", "desc"] as const).map((direction) => (
-                    <TouchableOpacity
-                      key={direction}
-                      onPress={() => setOrder(direction)}
-                      className="bg-slate-50 dark:bg-backgroundPrimary"
-                    >
-                      {direction === "asc" ? (
-                        <ChevronUp
-                          className={`w-5  h-5 ${order === "asc" ? " text-greenPrimary" : "text-black dark:text-white"}`}
-                        />
-                      ) : (
-                        <ChevronDown
-                          className={`w-5 h-5 ${order === "desc" ? "text-greenPrimary" : "text-black dark:text-white"}`}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
             </View>
           }
           ListFooterComponent={
             <View className="flex flex-row justify-center gap-4 mt-4">
               <Button
-                onPress={() => setPage((prev) => Math.max(prev - 1, 0))}
+                onPress={handlePreviousPage}
                 disabled={page === 0}
                 variant="outline"
                 size="icon"
-                className="border-black  dark:border-white"
+                className="border-black dark:border-white"
               >
                 <ChevronLeft className="w-8 h-8 text-black dark:text-white" />
               </Button>
               <Button
-                onPress={() =>
-                  !isPlaceholderData &&
-                  data?.has_more &&
-                  setPage((prev) => prev + 1)
-                }
+                onPress={handleNextPage}
                 disabled={isPlaceholderData || !data?.has_more}
                 variant="outline"
                 size="icon"

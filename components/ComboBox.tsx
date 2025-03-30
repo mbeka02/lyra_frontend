@@ -7,7 +7,7 @@ import { useColorScheme } from "~/lib/useColorScheme";
 import { counties } from "~/constants/counties";
 interface ComboBoxProps {
   county: string | null;
-  setCounty: Dispatch<SetStateAction<string | null>>;
+  setCounty: (val: string | null) => void;
   isFocus: boolean;
   setIsFocus: Dispatch<SetStateAction<boolean>>;
 }
