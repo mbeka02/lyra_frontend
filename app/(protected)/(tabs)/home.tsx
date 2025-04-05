@@ -9,16 +9,18 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { Clock, Video, ArrowRight } from "lucide-react-native";
+import { Video, ArrowRight } from "lucide-react-native";
 import { useAuthentication } from "~/context/AuthContext";
+import { Button } from "~/components/ui/button";
+import { Clock } from "~/lib/icons/Clock";
 export default function HomeScreen() {
   const { authState } = useAuthentication();
   return (
     <SafeAreaView>
       <WithRole role={Role.PATIENT}>
-        <ScrollView>
-          <View className="bg-slate-50 dark:bg-backgroundPrimary p-7">
-            <Text className="font-jakarta-semibold text-base">
+        <ScrollView className="px-8 ">
+          <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary p-7 rounded-xl">
+            <Text className="font-jakarta-regular text-base">
               Good morning,
             </Text>
             <Text className="font-jakarta-semibold text-lg mt-2 text-greenPrimary">
@@ -26,41 +28,58 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          <View style={styles.upcomingAppointment}>
-            <View style={styles.appointmentHeader}>
-              <Clock size={24} color="#0891b2" />
-              <Text style={styles.appointmentTitle}>Upcoming Appointment</Text>
+          <View className="mb-4  bg-slate-50 dark:bg-backgroundPrimary shadow-sm elevation-sm p-5 rounded-xl">
+            <View className="flex-row items-center mb-4">
+              <Clock size={22} className="text-black dark:text-white mt-1" />
+              <Text className="ml-2 font-jakarta-semibold text-lg">
+                Upcoming Appointment
+              </Text>
             </View>
-            <View style={styles.appointmentContent}>
-              <Text style={styles.doctorName}>Dr. Michael Brown</Text>
-              <Text style={styles.specialty}>Cardiologist</Text>
-              <Text style={styles.time}>Today at 2:30 PM</Text>
-              <Pressable style={styles.joinButton}>
-                <Video size={20} color="#fff" />
-                <Text style={styles.joinButtonText}>Join Video Call</Text>
-              </Pressable>
+            <View className="ml-6">
+              <Text className="font-jakarta-regular text-base">
+                Dr. Michael Brown
+              </Text>
+              <Text className="font-jakarta-bold mt-1 text-sm ">
+                Cardiologist
+              </Text>
+              <Text className="mt-2 text-greenPrimary font-jakarta-medium ">
+                2:30 PM
+              </Text>
+              <Button className="bg-greenPrimary my-4 flex-row gap-2 w-36 items-center justify-center">
+                <Video size={20} color="#ffffff" strokeWidth={2} />
+                <Text className="font-jakarta-semibold text-white  ">
+                  Join Call
+                </Text>
+              </Button>
             </View>
           </View>
 
-          <View style={styles.quickActions}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.actionGrid}>
+          <View className="mb-4">
+            <Text className="font-jakarta-semibold text-xl mb-1">
+              Quick Actions
+            </Text>
+            <View className="gap-4 flex-row flex-wrap">
               {[
                 "Book Appointment",
                 "Medical Records",
                 "Prescriptions",
                 "Lab Results",
               ].map((action, index) => (
-                <Pressable key={index} style={styles.actionCard}>
-                  <Text style={styles.actionText}>{action}</Text>
-                  <ArrowRight size={20} color="#64748b" />
+                <Pressable
+                  key={index}
+                  className="rounded-xl shadow elevation-sm bg-slate-50 dark:bg-backgroundPrimary flex flex-row items-center justify-between min-w-[45%] px-2 p-1"
+                >
+                  <Text className="font-jakarta-regular text-sm">{action}</Text>
+                  <ArrowRight size={20} color="#24AE7C" />
                 </Pressable>
               ))}
             </View>
           </View>
 
-          <View style={styles.recentActivity}>
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View>
+            <Text className="font-jakarta-semibold text-xl mb-1">
+              Recent Activity
+            </Text>
             {[
               {
                 title: "Video Consultation",
@@ -78,10 +97,19 @@ export default function HomeScreen() {
                 date: "1 week ago",
               },
             ].map((activity, index) => (
-              <View key={index} style={styles.activityItem}>
-                <Text style={styles.activityTitle}>{activity.title}</Text>
-                <Text style={styles.activityDoctor}>{activity.doctor}</Text>
-                <Text style={styles.activityDate}>{activity.date}</Text>
+              <View
+                key={index}
+                className="bg-slate-50 dark:bg-backgroundPrimary p-4 rounded-xl mb-3"
+              >
+                <Text className="font-jakarta-regular text-base">
+                  {activity.title}
+                </Text>
+                <Text className="font-jakarta-semibold text-sm mt-1">
+                  {activity.doctor}
+                </Text>
+                <Text className="font-jakarta-medium text-xs text-secondary-foreground mt-1">
+                  {activity.date}
+                </Text>
               </View>
             ))}
           </View>
