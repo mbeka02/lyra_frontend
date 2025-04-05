@@ -10,14 +10,20 @@ import {
   Pressable,
 } from "react-native";
 import { Clock, Video, ArrowRight } from "lucide-react-native";
+import { useAuthentication } from "~/context/AuthContext";
 export default function HomeScreen() {
+  const { authState } = useAuthentication();
   return (
     <SafeAreaView>
       <WithRole role={Role.PATIENT}>
         <ScrollView>
-          <View style={styles.header}>
-            <Text style={styles.greeting}>Good morning,</Text>
-            <Text style={styles.name}>Sarah Johnson</Text>
+          <View className="bg-slate-50 dark:bg-backgroundPrimary p-7">
+            <Text className="font-jakarta-semibold text-base">
+              Good morning,
+            </Text>
+            <Text className="font-jakarta-semibold text-lg mt-2 text-greenPrimary">
+              {authState?.user?.full_name ?? "user"}
+            </Text>
           </View>
 
           <View style={styles.upcomingAppointment}>
