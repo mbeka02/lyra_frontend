@@ -1,205 +1,105 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { Calendar as CalendarIcon, Clock, Video } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Text } from "~/components/ui/text";
+import { Button } from "~/components/ui/button";
 
 export default function AppointmentsScreen() {
+  const router = useRouter();
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <CalendarIcon size={24} color="#0891b2" />
-        <Text style={styles.headerTitle}>Your Appointments</Text>
-      </View>
+    <View className="h-[90%]">
+      <ScrollView className="flex-1 ">
+        <View className="flex-row items-center p-6 bg-white border-b border-slate-200">
+          <CalendarIcon size={24} color="#24AE7C" />
+          <Text className="font-jakarta-semibold text-xl  ml-3">
+            Your Appointments
+          </Text>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today</Text>
-        <View style={styles.appointmentCard}>
-          <View style={styles.timeContainer}>
-            <Clock size={20} color="#0891b2" />
-            <Text style={styles.time}>2:30 PM</Text>
-          </View>
-          <View style={styles.appointmentDetails}>
-            <Text style={styles.doctorName}>Dr. Michael Brown</Text>
-            <Text style={styles.specialty}>Cardiologist</Text>
-            <Pressable style={styles.joinButton}>
-              <Video size={20} color="#fff" />
-              <Text style={styles.joinButtonText}>Join Video Call</Text>
-            </Pressable>
+        <View className="p-4">
+          <Text className="font-jakarta-semibold text-lg text-slate-900 mb-4">
+            Today
+          </Text>
+          <View className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-5 mb-4 flex-row shadow-sm">
+            <View className="items-center mr-5">
+              <Clock size={20} color="#24AE7C" />
+              <Text className="font-jakarta-semibold text-sm text-greenPrimary mt-1">
+                2:30 PM
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="font-jakarta-regular text-base ">
+                Dr. Michael Brown
+              </Text>
+              <Text className="text-sm font-jakarta-bold mt-0.5">
+                Cardiologist
+              </Text>
+              <Button className="bg-greenPrimary my-4 flex-row gap-2 w-36 items-center justify-center">
+                <Video size={20} color="#ffffff" strokeWidth={2} />
+                <Text className="font-jakarta-semibold text-white  ">
+                  Join Call
+                </Text>
+              </Button>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Upcoming</Text>
-        {[
-          {
-            doctor: "Dr. Sarah Wilson",
-            specialty: "Dermatologist",
-            date: "Tomorrow",
-            time: "10:00 AM",
-          },
-          {
-            doctor: "Dr. James Martin",
-            specialty: "General Physician",
-            date: "May 15",
-            time: "3:45 PM",
-          },
-          {
-            doctor: "Dr. Emily Chen",
-            specialty: "Neurologist",
-            date: "May 18",
-            time: "1:15 PM",
-          },
-        ].map((appointment, index) => (
-          <View key={index} style={styles.appointmentCard}>
-            <View style={styles.timeContainer}>
-              <Clock size={20} color="#0891b2" />
-              <Text style={styles.time}>{appointment.time}</Text>
-              <Text style={styles.date}>{appointment.date}</Text>
-            </View>
-            <View style={styles.appointmentDetails}>
-              <Text style={styles.doctorName}>{appointment.doctor}</Text>
-              <Text style={styles.specialty}>{appointment.specialty}</Text>
-              <View style={styles.actions}>
-                <Pressable style={styles.rescheduleButton}>
-                  <Text style={styles.rescheduleText}>Reschedule</Text>
-                </Pressable>
-                <Pressable style={styles.cancelButton}>
-                  <Text style={styles.cancelText}>Cancel</Text>
-                </Pressable>
+        <View className="p-4">
+          <Text className="font-jakarta-semibold text-lg  mb-4">Upcoming</Text>
+          {[
+            {
+              doctor: "Dr. Sarah Wilson",
+              specialty: "Dermatologist",
+              date: "Tomorrow",
+              time: "10:00 AM",
+            },
+            {
+              doctor: "Dr. James Martin",
+              specialty: "General Physician",
+              date: "May 15",
+              time: "3:45 PM",
+            },
+            {
+              doctor: "Dr. Emily Chen",
+              specialty: "Neurologist",
+              date: "May 18",
+              time: "1:15 PM",
+            },
+          ].map((appointment, index) => (
+            <View
+              key={index}
+              className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-5 mb-4 flex-row shadow-sm"
+            >
+              <View className="items-center mr-5">
+                <Clock size={20} color="#24AE7C" />
+                <Text className="font-jakarta-semibold text-sm text-greenPrimary mt-1">
+                  {appointment.time}
+                </Text>
+                <Text className="text-xs font-jakarta-regular  mt-0.5">
+                  {appointment.date}
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text className="font-jakarta-regular text-base">
+                  {appointment.doctor}
+                </Text>
+                <Text className="text-sm font-jakarta-bold mt-0.5">
+                  {appointment.specialty}
+                </Text>
               </View>
             </View>
-          </View>
-        ))}
-      </View>
+          ))}
+        </View>
 
-      <Pressable style={styles.newAppointmentButton}>
-        <Text style={styles.newAppointmentText}>Book New Appointment</Text>
-      </Pressable>
-    </ScrollView>
+        <Pressable
+          onPress={() => router.push("/search")}
+          className="m-4 bg-backgroundPrimary p-4 rounded-xl items-center"
+        >
+          <Text className="font-jakarta-semibold text-white text-base">
+            Book New Appointment
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 24,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  headerTitle: {
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    fontSize: 20,
-    color: "#0f172a",
-    marginLeft: 12,
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 18,
-    color: "#0f172a",
-    marginBottom: 16,
-  },
-  appointmentCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    flexDirection: "row",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 15,
-    elevation: 2,
-  },
-  timeContainer: {
-    alignItems: "center",
-    marginRight: 20,
-  },
-  time: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: "#0891b2",
-    marginTop: 4,
-  },
-  date: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  appointmentDetails: {
-    flex: 1,
-  },
-  doctorName: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 16,
-    color: "#0f172a",
-  },
-  specialty: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  joinButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#0891b2",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 12,
-    alignSelf: "flex-start",
-  },
-  joinButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    color: "#fff",
-    marginLeft: 8,
-  },
-  actions: {
-    flexDirection: "row",
-    marginTop: 12,
-    gap: 8,
-  },
-  rescheduleButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: "#e0f2fe",
-  },
-  rescheduleText: {
-    fontFamily: "Inter_600SemiBold",
-    color: "#0891b2",
-    fontSize: 14,
-  },
-  cancelButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: "#fee2e2",
-  },
-  cancelText: {
-    fontFamily: "Inter_600SemiBold",
-    color: "#ef4444",
-    fontSize: 14,
-  },
-  newAppointmentButton: {
-    margin: 16,
-    backgroundColor: "#0891b2",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  newAppointmentText: {
-    fontFamily: "Inter_600SemiBold",
-    color: "#fff",
-    fontSize: 16,
-  },
-});
