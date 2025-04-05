@@ -71,7 +71,7 @@ export default function LandingPage() {
     <BottomSheetModalProvider>
       <View className="flex-1">
         <ScrollView className="h-full bg-white dark:bg-black">
-          <View className="relative h-[450px]">
+          <View className="relative h-[550px]">
             <Image
               source={{
                 uri: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?q=80&w=2070",
@@ -90,7 +90,7 @@ export default function LandingPage() {
               <View className="w-full flex items-center">
                 <Button
                   size="lg"
-                  className=" bg-greenPrimary mb-4 rounded-xl flex-row gap-1  items-center w-2/3 h-24"
+                  className=" bg-greenPrimary mb-4 rounded-md flex-row gap-1  items-center w-2/3 h-24"
                   onPress={() => showModal(ModalType.SignUp)}
                 >
                   <Text className="text-white font-jakarta-semibold text-xl">
@@ -99,7 +99,7 @@ export default function LandingPage() {
                 </Button>
                 <Button
                   size="lg"
-                  className=" bg-greenPrimary mb-4 rounded-xl flex-row gap-1  items-center w-2/3  h-24"
+                  className=" bg-greenPrimary mb-4 rounded-md flex-row gap-1  items-center w-2/3  h-24"
                   onPress={() => showModal(ModalType.Login)}
                 >
                   <Text className={`text-white font-jakarta-semibold text-xl`}>
