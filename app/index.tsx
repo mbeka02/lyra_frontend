@@ -142,145 +142,180 @@ import {
   Calendar,
   MessageSquare,
 } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import * as WebBrowser from "expo-web-browser";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetBackdrop,
+} from "@gorhom/bottom-sheet";
+import { useCallback, useRef, useState } from "react";
+import { ModalType } from "@/types";
+
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
-  return (
-    <View style={styles.container}>
-      <ScrollView className="h-full">
-        <View className="relative h-[500px]">
-          <Image
-            source={{
-              uri: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?q=80&w=2070",
-            }}
-            className="w-full h-full absolute"
-          />
-          <View style={styles.overlay} />
-          <View className="flex-1 px-5 justify-center items-center border-2 border-solid border-red-400">
-            <Text className="font-jakarta-bold text-5xl">Welcome to Lyra</Text>
-            <Text style={styles.subtitle}>
-              Schedule your first appointment with a healthcare professional
-              today!
-            </Text>
-            <Link href="/" asChild>
-              <Pressable style={styles.button}>
-                <Text style={styles.buttonText}>Get Started</Text>
-                <ArrowRight size={20} color="#fff" style={styles.buttonIcon} />
-              </Pressable>
-            </Link>
-          </View>
-        </View>
+  const { top } = useSafeAreaInsets();
+  const { showActionSheetWithOptions } = useActionSheet();
+  // const snapPoints = useMemo(() => ["33%"], []);
+  const [authType, setAuthType] = useState<ModalType | null>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const openLink = async () => {
+    WebBrowser.openBrowserAsync("https://mbeka-dev.vercel.app/#contact");
+  };
 
-        <View style={styles.features}>
-          <View style={styles.feature}>
-            <Stethoscope size={32} color="#0891b2" />
-            <Text style={styles.featureTitle}>Expert Doctors</Text>
-            <Text style={styles.featureText}>
-              Connect with board-certified physicians across multiple
-              specialties
-            </Text>
+  const openActionSheet = async () => {
+    const options = ["View support docs", "Contact us", "Cancel"];
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: `Can't log in or sign up?`,
+      },
+      (selectedIndex: any) => {
+        switch (selectedIndex) {
+          case 1:
+            // Support
+            break;
+
+          case cancelButtonIndex:
+          // Canceled
+        }
+      },
+    );
+  };
+
+  const showModal = async (type: ModalType) => {
+    setAuthType(type);
+    bottomSheetModalRef.current?.present();
+  };
+
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        opacity={0.6}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        {...props}
+        onPress={() => bottomSheetModalRef.current?.close()}
+      />
+    ),
+    [],
+  );
+
+  return (
+    <BottomSheetModalProvider>
+      <View className="flex-1">
+        <ScrollView className="h-full">
+          <View className="relative h-[450px]">
+            <Image
+              source={{
+                uri: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?q=80&w=2070",
+              }}
+              className="w-full h-full absolute"
+            />
+            <View style={styles.overlay} />
+            <View className="flex-1 px-5 justify-center items-center">
+              <Text className="font-jakarta-bold text-5xl">
+                Welcome to Lyra
+              </Text>
+              <Text className="font-jakarta-regular text-lg text-center max-w-sm mb-8">
+                Schedule your first appointment with a healthcare professional
+                today!
+              </Text>
+              <View className="w-full flex items-center">
+                <Button
+                  size="lg"
+                  className=" bg-greenPrimary mb-2 rounded-xl flex-row gap-1  items-center w-56 h-24"
+                  onPress={() => showModal(ModalType.SignUp)}
+                >
+                  <Text className="text-white font-jakarta-semibold text-xl">
+                    Get Started
+                  </Text>
+                  <ArrowRight
+                    style={styles.buttonIcon}
+                    size={22}
+                    color="#ffffff"
+                  />
+                </Button>
+                <Button
+                  size="lg"
+                  className=" bg-greenPrimary mb-2 rounded-xl w-56 h-24"
+                  onPress={() => showModal(ModalType.Login)}
+                >
+                  <Text className={`text-white font-jakarta-semibold text-xl`}>
+                    Login
+                  </Text>
+                </Button>
+
+                <Text
+                  className=" text-sm underline font-jakarta-medium text-center"
+                  onPress={openActionSheet}
+                >
+                  Can't log in or sign up?
+                </Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.feature}>
-            <Calendar size={32} color="#0891b2" />
-            <Text style={styles.featureTitle}>Easy Scheduling</Text>
-            <Text style={styles.featureText}>
-              Book appointments at your convenience, 24/7
-            </Text>
+
+          <View className="p-7 gap-7 flex-row justify-around flex-wrap">
+            <View className="flex-1 min-w-[280px] p-6 rounded-xl items-center bg-slate-50 dark:bg-backgroundPrimary">
+              <Stethoscope size={32} color="#24AE7C" />
+              <Text className="font-jakarta-semibold text-xl mt-4 mb-2">
+                Expert Doctors
+              </Text>
+              <Text className="font-jakarta-regular text-center text-base">
+                Connect with board-certified physicians across multiple
+                specialties
+              </Text>
+            </View>
+            <View className=" flex-1 min-w-[280px] p-6 rounded-xl items-center bg-slate-50 dark:bg-backgroundPrimary">
+              <Calendar size={32} color="#24AE7C" />
+              <Text className="font-jakarta-semibold text-xl mt-4 mb-2">
+                Easy Scheduling
+              </Text>
+              <Text className="font-jakarta-regular text-center text-base">
+                Book appointments at your convenience, 24/7
+              </Text>
+            </View>
+            <View className="flex-1 min-w-[280px] p-6 rounded-xl items-center bg-slate-50 dark:bg-backgroundPrimary">
+              <MessageSquare size={32} color="#24AE7C" />
+              <Text className="font-jakarta-semibold text-xl mt-4 mb-2">
+                Secure Messaging
+              </Text>
+              <Text className="font-jakarta-regular text-center text-base">
+                Private and encrypted communication with your healthcare
+                providers
+              </Text>
+            </View>
           </View>
-          <View style={styles.feature}>
-            <MessageSquare size={32} color="#0891b2" />
-            <Text style={styles.featureTitle}>Secure Messaging</Text>
-            <Text style={styles.featureText}>
-              Private and encrypted communication with your healthcare providers
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        handleComponent={null}
+        backdropComponent={renderBackdrop}
+        enableOverDrag={false}
+        enablePanDownToClose
+      >
+        <AuthModal authType={authType} />
+      </BottomSheetModal>
+    </BottomSheetModalProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  hero: {
-    height: 500,
-    position: "relative",
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-  },
-  content: {
-    padding: 24,
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    fontSize: 48,
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 18,
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 32,
-    maxWidth: 400,
-  },
-  button: {
-    backgroundColor: "#0891b2",
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  buttonText: {
-    fontFamily: "Inter_600SemiBold",
-    color: "#fff",
-    fontSize: 18,
-    marginRight: 8,
+    // backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   buttonIcon: {
     marginLeft: 4,
-  },
-  features: {
-    padding: 24,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    flexWrap: "wrap",
-    gap: 24,
-  },
-  feature: {
-    flex: 1,
-    minWidth: 280,
-    backgroundColor: "#f8fafc",
-    padding: 24,
-    borderRadius: 16,
-    alignItems: "center",
-  },
-  featureTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 20,
-    color: "#0f172a",
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  featureText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
+    marginTop: 4,
   },
 });
