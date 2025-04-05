@@ -15,7 +15,7 @@ function handleGreeting(): string {
   } else if (hour >= 12 && hour < 16) {
     greeting = "🌤️ Good Afternoon";
   } else if (hour >= 16 && hour < 21) {
-    greeting = "🌆 Good Evening";
+    greeting = "☁️  Good Evening";
   } else {
     greeting = "🌙 It's getting late";
   }
