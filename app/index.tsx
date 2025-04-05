@@ -1,12 +1,7 @@
 import { View, StyleSheet, Image, ScrollView } from "react-native";
 // import { Link } from "expo-router";
 import { Text } from "~/components/ui/text";
-import {
-  ArrowRight,
-  Stethoscope,
-  Calendar,
-  MessageSquare,
-} from "lucide-react-native";
+import { Stethoscope, Calendar, MessageSquare } from "lucide-react-native";
 // import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 // import * as WebBrowser from "expo-web-browser";
@@ -85,7 +80,7 @@ export default function LandingPage() {
             />
             <View style={styles.overlay} />
             <View className="flex-1 px-5 justify-center items-center">
-              <Text className="font-jakarta-bold text-5xl text-white">
+              <Text className="font-jakarta-bold mt-20 text-5xl text-white">
                 Welcome to Lyra
               </Text>
               <Text className="font-jakarta-regular text-slate-50 text-lg text-center max-w-sm mb-8">
@@ -95,21 +90,16 @@ export default function LandingPage() {
               <View className="w-full flex items-center">
                 <Button
                   size="lg"
-                  className=" bg-greenPrimary mb-2 rounded-xl flex-row gap-1  items-center w-56 h-24"
+                  className=" bg-greenPrimary mb-4 rounded-xl flex-row gap-1  items-center w-2/3 h-24"
                   onPress={() => showModal(ModalType.SignUp)}
                 >
                   <Text className="text-white font-jakarta-semibold text-xl">
                     Get Started
                   </Text>
-                  <ArrowRight
-                    style={styles.buttonIcon}
-                    size={22}
-                    color="#ffffff"
-                  />
                 </Button>
                 <Button
                   size="lg"
-                  className=" bg-greenPrimary mb-2 rounded-xl w-56 h-24"
+                  className=" bg-greenPrimary mb-4 rounded-xl flex-row gap-1  items-center w-2/3  h-24"
                   onPress={() => showModal(ModalType.Login)}
                 >
                   <Text className={`text-white font-jakarta-semibold text-xl`}>
