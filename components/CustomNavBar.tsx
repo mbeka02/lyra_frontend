@@ -79,8 +79,11 @@ const TabItem = ({
         return <Ionicons name="home" size={26} color={color} />;
       case "search":
         return <Ionicons name="search" size={26} color={color} />;
+      case "appointments":
+        return <Ionicons name="calendar" size={26} color={color} />;
       case "settings":
         return <Ionicons name="settings" size={26} color={color} />;
+
       default:
         return <Ionicons name="home" size={26} color={color} />;
     }
