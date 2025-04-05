@@ -179,10 +179,10 @@ export default function AppointmentsScreen() {
         {Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
             ([date, dateAppointments]) => (
-              <View key={date} className="mb-6">
+              <View key={date} className="mb-6 mx-4">
                 <View className="flex-row items-center mb-3">
                   <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></View>
-                  <Text className="text-md font-semibold text-gray-700">
+                  <Text className="text-sm font-jakarta-regular ">
                     {formatDisplayDate(date)}
                   </Text>
                 </View>
@@ -214,7 +214,7 @@ export default function AppointmentsScreen() {
                         ></View>
 
                         <View
-                          className="p-4 bg-white border-l-4 border-r border-b rounded-b-xl"
+                          className="p-4 dark:bg-backgroundPrimary bg-slate-50 border-l-4 border-r border-b rounded-b-xl"
                           style={{
                             borderLeftColor:
                               appointment.status === "in_progress"
@@ -227,7 +227,7 @@ export default function AppointmentsScreen() {
                           <View className="flex-row items-start gap-3">
                             {/* Doctor Avatar with specialty icon */}
                             <View className="relative">
-                              <View className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
+                              <View className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
                                 <UserAvatar
                                   uri={appointment.doctor_profile_image_url}
                                 />
@@ -235,38 +235,38 @@ export default function AppointmentsScreen() {
 
                               {/* Specialty icon badge */}
                               <View className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-sm items-center justify-center border border-gray-100">
-                                <View className="text-emerald-600">
-                                  <Heart
-                                    size={16}
-                                    className="text-greenPrimary h-4 w-4"
-                                  />
-                                </View>
+                                <Heart
+                                  size={16}
+                                  color="#24AE7C"
+                                  className="text-greenPrimary h-4 w-4"
+                                />
                               </View>
                             </View>
 
                             {/* Appointment Details */}
                             <View className="flex-1">
-                              <Text className="font-semibold text-gray-900">
+                              <Text className="font-jakarta-regular">
                                 {appointment.doctor_name}
                               </Text>
                               <View className="flex-row items-center">
                                 {appointment.specialization && (
-                                  <View className="mr-1 text-emerald-600">
+                                  <View className="mr-1 ">
                                     <Heart
                                       size={16}
+                                      color="#24AE7C"
                                       className="text-greenPrimary h-4 w-4"
                                     />
                                   </View>
                                 )}
-                                <Text className="text-sm text-gray-500">
+                                <Text className="text-sm font-jakarta-semibold">
                                   {appointment.specialization}
                                 </Text>
                               </View>
 
                               <View className="mt-2 flex-row flex-wrap items-center gap-x-4 gap-y-2">
-                                <View className="flex-row items-center text-gray-600 bg-gray-50 px-2 py-1 rounded-md">
+                                <View className="flex-row items-center  px-2 py-1 rounded-md">
                                   <Clock className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                                  <Text className="text-sm">
+                                  <Text className=" font-jakarta-regular text-sm">
                                     {formatAppointmentTime(
                                       appointment.start_time,
                                       appointment.end_time,
@@ -282,10 +282,12 @@ export default function AppointmentsScreen() {
                                 {/* Status Badge - Only show if not cancelled */}
                                 {appointment.status !== "cancelled" && (
                                   <View
-                                    className={`flex-row items-center gap-1 px-2 py-1 rounded-md ${statusDetails.bgColor} ${statusDetails.textColor}`}
+                                    className={`flex-row items-center gap-1 px-2 py-1 rounded-md ${statusDetails.bgColor}`}
                                   >
                                     {statusDetails.icon}
-                                    <Text className="text-xs font-medium">
+                                    <Text
+                                      className={`text-xs  ${statusDetails.textColor} font-jakarta-semibold`}
+                                    >
                                       {statusDetails.label}
                                     </Text>
                                   </View>
@@ -296,8 +298,8 @@ export default function AppointmentsScreen() {
 
                           {/* Notes if available */}
                           {appointment.notes && (
-                            <View className="mt-3 bg-gray-50 p-2 rounded-md border border-gray-100">
-                              <Text className="text-xs text-gray-500 italic">
+                            <View className="mt-3 bg-transparent p-2 rounded-md ">
+                              <Text className="text-xs font-jakarta-regular italic">
                                 {appointment.notes}
                               </Text>
                             </View>
@@ -345,86 +347,8 @@ export default function AppointmentsScreen() {
             <Text className="text-gray-500 text-center max-w-xs px-4">
               You don't have any appointments scheduled at the moment.
             </Text>
-            <TouchableOpacity className="mt-4 px-4 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full">
-              <Text className="text-white font-medium text-sm">
-                Book an Appointment
-              </Text>
-            </TouchableOpacity>
           </View>
         )}
-        <View className="p-4">
-          <Text className="font-jakarta-semibold text-lg  mb-4">Today</Text>
-          <View className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-5 mb-4 flex-row shadow-sm">
-            <View className="items-center mr-5">
-              <Clock size={20} color="#24AE7C" />
-              <Text className="font-jakarta-semibold text-sm text-greenPrimary mt-1">
-                2:30 PM
-              </Text>
-            </View>
-            <View className="flex-1">
-              <Text className="font-jakarta-regular text-base ">
-                Dr. Michael Brown
-              </Text>
-              <Text className="text-sm font-jakarta-bold mt-0.5">
-                Cardiologist
-              </Text>
-              <Button className="bg-greenPrimary my-4 flex-row gap-2 w-36 items-center justify-center">
-                <Video size={20} color="#ffffff" strokeWidth={2} />
-                <Text className="font-jakarta-semibold text-white  ">
-                  Join Call
-                </Text>
-              </Button>
-            </View>
-          </View>
-        </View>
-
-        <View className="p-4">
-          <Text className="font-jakarta-semibold text-lg  mb-4">Upcoming</Text>
-          {[
-            {
-              doctor: "Dr. Sarah Wilson",
-              specialty: "Dermatologist",
-              date: "Tomorrow",
-              time: "10:00 AM",
-            },
-            {
-              doctor: "Dr. James Martin",
-              specialty: "General Physician",
-              date: "May 15",
-              time: "3:45 PM",
-            },
-            {
-              doctor: "Dr. Emily Chen",
-              specialty: "Neurologist",
-              date: "May 18",
-              time: "1:15 PM",
-            },
-          ].map((appointment, index) => (
-            <View
-              key={index}
-              className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-5 mb-4 flex-row shadow-sm"
-            >
-              <View className="items-center mr-5">
-                <Clock size={20} color="#24AE7C" />
-                <Text className="font-jakarta-semibold text-sm text-greenPrimary mt-1">
-                  {appointment.time}
-                </Text>
-                <Text className="text-xs font-jakarta-regular  mt-0.5">
-                  {appointment.date}
-                </Text>
-              </View>
-              <View className="flex-1">
-                <Text className="font-jakarta-regular text-base">
-                  {appointment.doctor}
-                </Text>
-                <Text className="text-sm font-jakarta-bold mt-0.5">
-                  {appointment.specialty}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
         <Pressable
           onPress={() => router.push("/search")}
           className="m-4 bg-greenPrimary p-4 rounded-xl items-center"
