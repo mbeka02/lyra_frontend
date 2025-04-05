@@ -37,6 +37,12 @@ export default function Tabslayout() {
         redirect={authState?.user?.role !== Role.PATIENT}
       />
       <Tabs.Screen
+        name="appointments"
+        options={{
+          title: "Appointments",
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
