@@ -4,6 +4,7 @@ import { Video, ArrowRight } from "lucide-react-native";
 import { useAuthentication } from "~/context/AuthContext";
 import { Button } from "~/components/ui/button";
 import { Clock } from "~/lib/icons/Clock";
+import { Href, useRouter } from "expo-router";
 
 function handleGreeting(): string {
   const hour = new Date().getHours();
@@ -24,11 +25,38 @@ function handleGreeting(): string {
 export function PatientDashboard() {
   const { authState } = useAuthentication();
   const greeting = handleGreeting();
+  const actions = [
+    {
+      name: "Book Appointment",
+      link: "/search",
+    },
+    {
+      name: "View Appointments",
+      link: "/appointments",
+    },
+    {
+      name: "Medical Records",
+      link: "/records",
+    },
+    {
+      name: "Prescriptions",
+      link: "/prescriptions",
+    },
+    {
+      name: "Profile",
+      link: "/settings/profile",
+    },
+    {
+      name: "Settings",
+      link: "/settings",
+    },
+  ];
+  const router = useRouter();
   return (
     <ScrollView className="px-8 ">
-      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary p-7 rounded-xl">
-        <Text className="font-jakarta-regular text-base">{greeting}</Text>
-        <Text className="font-jakarta-semibold text-lg mt-2 text-greenPrimary">
+      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl">
+        <Text className="font-jakarta-regular text-lg">{greeting}</Text>
+        <Text className="font-jakarta-semibold text-xl mt-2 text-greenPrimary">
           {authState?.user?.full_name ?? "user"}
         </Text>
       </View>
@@ -62,17 +90,15 @@ export function PatientDashboard() {
           Quick Actions
         </Text>
         <View className="gap-4 flex-row flex-wrap">
-          {[
-            "Book Appointment",
-            "Medical Records",
-            "Prescriptions",
-            "Lab Results",
-          ].map((action, index) => (
+          {actions.map((action, index) => (
             <Pressable
               key={index}
-              className="rounded-xl shadow elevation-sm bg-slate-50 dark:bg-backgroundPrimary flex flex-row items-center justify-between min-w-[45%] px-2 p-1"
+              onPress={() => router.push(action.link as Href)}
+              className="rounded-md shadow elevation-sm bg-slate-50 dark:bg-backgroundPrimary flex flex-row items-center justify-between min-w-[45%] px-2 p-1"
             >
-              <Text className="font-jakarta-regular text-sm">{action}</Text>
+              <Text className="font-jakarta-regular text-sm">
+                {action.name}
+              </Text>
               <ArrowRight size={20} color="#24AE7C" />
             </Pressable>
           ))}
