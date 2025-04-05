@@ -1,13 +1,15 @@
-import { SafeAreaView, View } from "react-native";
 import { Scheduler } from "~/components/platform/doctor/Scheduler";
 import { WithRole } from "~/components/WithRole";
 import { Role } from "~/context/AuthContext";
-import { Text } from "~/components/ui/text";
+import { SafeAreaView, View } from "react-native";
+import { PatientDashboard } from "~/components/platform/patient/PatientDashBoard";
 export default function HomeScreen() {
   return (
     <SafeAreaView>
       <WithRole role={Role.PATIENT}>
-        <Text className="m-auto font-jakarta-regular">Patient Home Screen</Text>
+        <View className="h-[90%]">
+          <PatientDashboard />
+        </View>
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
         <View className="h-[90%]">
