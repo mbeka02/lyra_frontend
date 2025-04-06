@@ -15,6 +15,8 @@ import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { useQuery } from "@tanstack/react-query";
 import { getPatientAppointments } from "~/services/appointments";
 import { useState } from "react";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { LinearGradient } from "expo-linear-gradient";
 /*
 interface Appointment {
   appointment_id: string;
@@ -125,13 +127,30 @@ export default function AppointmentsScreen() {
   return (
     <View className="h-[90%]">
       <ScrollView className="flex-1 ">
-        <View className="text-2xl font-bold mb-6 text-gray-800 relative">
-          <Text className="bg-clip-text text-transparent bg-gradient-to-r from-greenPrimary to-bluePrimary">
-            Your Appointments
-          </Text>
-          <View className="absolute -bottom-2 left-0 w-20 h-1 bg-gradient-to-r from-greenPrimary to-bluePrimary rounded-full"></View>
+        <View className="mb-6 mx-6 mt-4">
+          <MaskedView
+            maskElement={
+              <Text className="text-2xl font-jakarta-semibold">
+                Your Appointments
+              </Text>
+            }
+          >
+            <LinearGradient
+              colors={["#4ade80", "#3b82f6"]} // greenPrimary to bluePrimary
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              className=" h-8 w-full"
+            />
+          </MaskedView>
+          <View className="mt-2 w-1/3 h-1   rounded-full overflow-hidden">
+            <LinearGradient
+              colors={["#4ade80", "#3b82f6"]} // greenPrimary to bluePrimary
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              className="h-full w-full"
+            />
+          </View>
         </View>
-
         {groupedAppointments && Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
             ([date, dateAppointments]) => (
@@ -207,7 +226,7 @@ export default function AppointmentsScreen() {
                               <View className="mt-2 flex-row flex-wrap items-center gap-x-2 gap-y-2">
                                 <View className="flex-row items-center   py-1 rounded-md">
                                   <Clock
-                                    size={18}
+                                    size={16}
                                     className={`w-2 h-2  mr-2  ${statusDetails.textColor} `}
                                   />
                                   <Text className=" font-jakarta-regular text-xs">
@@ -248,21 +267,19 @@ export default function AppointmentsScreen() {
                           {isJoinable(appointment.current_status) && (
                             <View className="mt-3 flex-row justify-end">
                               <View
-                                className={`flex-row items-center ${appointment.current_status === "in_progress"
-                                    ? "text-emerald-600"
-                                    : "text-indigo-600"
-                                  } font-medium bg-gradient-to-r ${appointment.current_status === "in_progress"
-                                    ? "from-emerald-50 to-emerald-100"
-                                    : "from-indigo-50 to-indigo-100"
-                                  } px-3 py-1.5 rounded-full`}
+                                className={`flex-row items-center px-3 py-1.5 rounded-full ${statusDetails.bgColor}`}
                               >
-                                <Video className="w-4 h-4 mr-1.5" />
-                                <Text className="text-sm">
+                                <Video
+                                  className={`w-4 h-4 mr-1.5 ${statusDetails.textColor}`}
+                                />
+                                <Text
+                                  className={`text-sm font-jakarta-semibold ${statusDetails.textColor}`}
+                                >
                                   {appointment.current_status === "in_progress"
                                     ? "Join Now"
                                     : "Join Meeting"}
                                 </Text>
-                                <ArrowRight className="w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
+                                <ArrowRight className=" hidden w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
                               </View>
                             </View>
                           )}
