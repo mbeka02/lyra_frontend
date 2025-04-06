@@ -17,6 +17,7 @@ import { getPatientAppointments } from "~/services/appointments";
 import { useState } from "react";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
+import { GradientText } from "~/components/GradientText";
 /*
 interface Appointment {
   appointment_id: string;
@@ -128,28 +129,7 @@ export default function AppointmentsScreen() {
     <View className="h-[90%]">
       <ScrollView className="flex-1 ">
         <View className="mb-6 mx-6 mt-4">
-          <MaskedView
-            maskElement={
-              <Text className="text-2xl font-jakarta-semibold">
-                Your Appointments
-              </Text>
-            }
-          >
-            <LinearGradient
-              colors={["#4ade80", "#3b82f6"]} // greenPrimary to bluePrimary
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              className=" h-8 w-full"
-            />
-          </MaskedView>
-          <View className="mt-2 w-1/3 h-1   rounded-full overflow-hidden">
-            <LinearGradient
-              colors={["#4ade80", "#3b82f6"]} // greenPrimary to bluePrimary
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              className="h-full w-full"
-            />
-          </View>
+          <GradientText isUnderlined={true} text="Your Appointments" />
         </View>
         {groupedAppointments && Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
