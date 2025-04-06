@@ -92,7 +92,7 @@ export function DoctorList() {
       ) : isError ? (
         <View className="  h-full">
           <Text className="font-jakarta-semibold text-xl mx-auto my-auto text-red-600">
-            Error loading page info
+            Error: Unable to load page info
           </Text>
         </View>
       ) : (

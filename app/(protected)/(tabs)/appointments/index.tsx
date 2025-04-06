@@ -15,9 +15,9 @@ import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { useQuery } from "@tanstack/react-query";
 import { getPatientAppointments } from "~/services/appointments";
 import { useState } from "react";
-import MaskedView from "@react-native-masked-view/masked-view";
-import { LinearGradient } from "expo-linear-gradient";
 import { GradientText } from "~/components/GradientText";
+import { SkeletonLoader } from "~/components/platform/shared/SkeletonLoader";
+import { Button } from "~/components/ui/button";
 /*
 interface Appointment {
   appointment_id: string;
@@ -125,6 +125,25 @@ export default function AppointmentsScreen() {
     const date = parseISO(dateString);
     return format(date, "EEEE, MMMM d, yyyy");
   };
+
+  if (isLoading)
+    return (
+      <SkeletonLoader
+        count={3}
+        containerStyles="gap-4 py-2 px-6"
+        skeletonStlyes="rounded-xl px-4 p-2 w-full h-32"
+      />
+    );
+  if (isError) {
+    return (
+      <View className="  h-full">
+        <Text className="font-jakarta-semibold  text-xl mx-auto my-auto text-red-600">
+          Error: Unable to load page info
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View className="h-[90%]">
       <ScrollView className="flex-1 ">

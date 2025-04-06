@@ -82,7 +82,7 @@ export function PatientDashboard() {
         </Text>
       </View>
 
-      <View className="mb-4  bg-slate-50 dark:bg-backgroundPrimary shadow-sm elevation-sm p-5 rounded-xl">
+      <View className="mb-4 hidden  bg-slate-50 dark:bg-backgroundPrimary shadow-sm elevation-sm p-5 rounded-xl">
         <View className="flex-row items-center mb-4">
           <Clock size={22} className="text-black dark:text-white mt-1" />
           <Text className="ml-2 font-jakarta-semibold text-lg">
