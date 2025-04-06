@@ -174,9 +174,10 @@ export default function AppointmentsScreen() {
                           <View className="flex-row items-start gap-3">
                             {/* Doctor Avatar with specialty icon */}
                             <View className="relative">
-                              <View className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden  shadow-sm">
+                              <View className="w-20 h-20  rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden  shadow-sm">
                                 <UserAvatar
                                   uri={appointment.doctor_profile_image_url}
+                                  size={70}
                                 />
                               </View>
 
@@ -194,11 +195,11 @@ export default function AppointmentsScreen() {
 
                             {/* Appointment Details */}
                             <View className="flex-1">
-                              <Text className="font-jakarta-regular">
+                              <Text className="font-jakarta-regular text-lg">
                                 {appointment.doctor_name}
                               </Text>
                               <View className="flex-row items-center">
-                                <Text className="text-sm font-jakarta-semibold">
+                                <Text className="text-xs font-jakarta-regular">
                                   {appointment.specialization}
                                 </Text>
                               </View>
