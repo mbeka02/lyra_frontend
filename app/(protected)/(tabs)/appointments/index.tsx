@@ -10,14 +10,12 @@ import { Clock } from "~/lib/icons/Clock";
 import { useRouter } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { format, parseISO } from "date-fns";
-
+import { AppointmentStatus, PatientAppointment } from "~/services/types";
 import UserAvatar from "~/components/platform/shared/UserAvatar";
-type AppointmentStatus =
-  | "pending_payment"
-  | "scheduled"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+import { useQuery } from "@tanstack/react-query";
+import { getPatientAppointments } from "~/services/appointments";
+import { useState } from "react";
+/*
 interface Appointment {
   appointment_id: string;
   doctor_name: string;
@@ -29,9 +27,20 @@ interface Appointment {
   status: AppointmentStatus;
   meetingUrl?: string;
   notes?: string;
-}
+}*/
 export default function AppointmentsScreen() {
   const router = useRouter();
+  const [interval, setInterval] = useState(21);
+  const [status, setStatus] = useState("");
+  const {
+    data: appointments,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["patient-appointments"],
+    queryFn: () => getPatientAppointments(status, interval),
+    refetchInterval: 12000,
+  });
   const getStatusDetails = (status: AppointmentStatus) => {
     switch (status) {
       case "scheduled":
@@ -81,85 +90,25 @@ export default function AppointmentsScreen() {
         };
     }
   };
-  const appointments = [
-    {
-      appointment_id: "apt-2023-0001",
-      doctor_name: "Dr. Sarah Johnson",
-      specialization: "Cardiologist",
-      doctor_profile_image_url: "",
-      start_time: "2025-04-15T09:30:00",
-      end_time: "2025-04-15T10:00:00",
-      duration: "30 minutes",
-      status: "scheduled",
-      meetingUrl: "https://meet.example.com/dr-johnson/apt-0001",
-      notes: "Follow-up appointment for heart condition",
-    },
-    {
-      appointment_id: "apt-2023-0002",
-      doctor_name: "Dr. Michael Chen",
-      specialization: "Dermatologist",
-      doctor_profile_image_url: "",
-      start_time: "2025-04-16T14:00:00",
-      end_time: "2025-04-16T14:30:00",
-      duration: "30 minutes",
-      status: "confirmed",
-      meetingUrl: "https://meet.example.com/dr-chen/apt-0002",
-      notes: "Annual skin checkup",
-    },
-    {
-      appointment_id: "apt-2023-0003",
-      doctor_name: "Dr. Amanda Rodriguez",
-      specialization: "Neurologist",
-      doctor_profile_image_url: "",
-      start_time: "2025-04-17T11:15:00",
-      end_time: "2025-04-17T12:00:00",
-      duration: "45 minutes",
-      status: "completed",
-      notes: "Headache diagnosis and treatment plan",
-    },
-    {
-      appointment_id: "apt-2023-0004",
-      doctor_name: "Dr. Robert Williams",
-      specialization: "Orthopedic Surgeon",
-      doctor_profile_image_url: "",
-      start_time: "2025-04-20T16:30:00",
-      end_time: "2025-04-20T17:00:00",
-      status: "cancelled",
-    },
-    {
-      appointment_id: "apt-2023-0005",
-      doctor_name: "Dr. Emily Parker",
-      specialization: "Pediatrician",
-      doctor_profile_image_url: "",
-      start_time: "2025-04-22T10:00:00",
-      end_time: "2025-04-22T10:45:00",
-      duration: "45 minutes",
-      status: "pending",
-      meetingUrl: "https://meet.example.com/dr-parker/apt-0005",
-    },
-  ];
-  // Check if appointment is joinable (upcoming or in-progress)
   const isJoinable = (status: AppointmentStatus) => {
     return status === "scheduled" || status === "in_progress";
   };
   // Group appointments by date
-  const groupedAppointments = appointments.reduce(
-    (groups: Record<string, Appointment[]>, appointment) => {
+  const groupedAppointments = appointments?.reduce(
+    (groups: Record<string, PatientAppointment[]>, appointment) => {
       // Extract date from start_time
       const dateObj = parseISO(appointment.start_time);
       const formattedDate = format(dateObj, "yyyy-MM-dd");
       if (!groups[formattedDate]) {
         groups[formattedDate] = [];
       }
-      const groupedAppointment: Appointment = {
-        ...appointment,
-        status: appointment.status as AppointmentStatus,
-      };
-      groups[formattedDate].push(groupedAppointment);
+
+      groups[formattedDate].push(appointment);
       return groups;
     },
     {},
   );
+
   // Format time from ISO string
   const formatAppointmentTime = (startTime: string, endTime: string) => {
     const start = parseISO(startTime);
@@ -182,7 +131,7 @@ export default function AppointmentsScreen() {
           <View className="absolute -bottom-2 left-0 w-20 h-1 bg-gradient-to-r from-greenPrimary to-bluePrimary rounded-full"></View>
         </View>
 
-        {Object.keys(groupedAppointments).length > 0 ? (
+        {groupedAppointments && Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
             ([date, dateAppointments]) => (
               <View key={date} className="mb-6 mx-8">
@@ -194,25 +143,26 @@ export default function AppointmentsScreen() {
                 </View>
 
                 <View className="space-y-4">
-                  {dateAppointments.map((appointment: Appointment) => {
-                    const statusDetails = getStatusDetails(appointment.status);
+                  {dateAppointments.map((appointment: PatientAppointment) => {
+                    const statusDetails = getStatusDetails(
+                      appointment.current_status,
+                    );
 
                     return (
                       <TouchableOpacity
                         key={appointment.appointment_id}
-                        className={`rounded-xl overflow-hidden shadow-sm ${isJoinable(appointment.status)
+                        className={`rounded-xl overflow-hidden shadow-sm ${isJoinable(appointment.current_status)
                             ? "active:scale-98"
                             : ""
                           }`}
                         onPress={() => {
-                          if (
-                            isJoinable(appointment.status) &&
-                            appointment.meetingUrl
-                          ) {
+                          if (isJoinable(appointment.current_status)) {
                             console.log("...joining");
                           }
                         }}
-                        activeOpacity={isJoinable(appointment.status) ? 0.7 : 1}
+                        activeOpacity={
+                          isJoinable(appointment.current_status) ? 0.7 : 1
+                        }
                       >
                         {/* Status indicator strip */}
                         <View
@@ -264,11 +214,6 @@ export default function AppointmentsScreen() {
                                       appointment.end_time,
                                     )}
                                   </Text>
-                                  {appointment.duration && (
-                                    <Text className="text-xs text-gray-500 ml-1">
-                                      ({appointment.duration})
-                                    </Text>
-                                  )}
                                 </View>
 
                                 {/* Status Badge*/}
@@ -298,28 +243,27 @@ export default function AppointmentsScreen() {
                           )}
 
                           {/* Join Meeting Button - Only for upcoming or in-progress */}
-                          {isJoinable(appointment.status) &&
-                            appointment.meetingUrl && (
-                              <View className="mt-3 flex-row justify-end">
-                                <View
-                                  className={`flex-row items-center ${appointment.status === "in_progress"
-                                      ? "text-emerald-600"
-                                      : "text-indigo-600"
-                                    } font-medium bg-gradient-to-r ${appointment.status === "in_progress"
-                                      ? "from-emerald-50 to-emerald-100"
-                                      : "from-indigo-50 to-indigo-100"
-                                    } px-3 py-1.5 rounded-full`}
-                                >
-                                  <Video className="w-4 h-4 mr-1.5" />
-                                  <Text className="text-sm">
-                                    {appointment.status === "in_progress"
-                                      ? "Join Now"
-                                      : "Join Meeting"}
-                                  </Text>
-                                  <ArrowRight className="w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
-                                </View>
+                          {isJoinable(appointment.current_status) && (
+                            <View className="mt-3 flex-row justify-end">
+                              <View
+                                className={`flex-row items-center ${appointment.current_status === "in_progress"
+                                    ? "text-emerald-600"
+                                    : "text-indigo-600"
+                                  } font-medium bg-gradient-to-r ${appointment.current_status === "in_progress"
+                                    ? "from-emerald-50 to-emerald-100"
+                                    : "from-indigo-50 to-indigo-100"
+                                  } px-3 py-1.5 rounded-full`}
+                              >
+                                <Video className="w-4 h-4 mr-1.5" />
+                                <Text className="text-sm">
+                                  {appointment.current_status === "in_progress"
+                                    ? "Join Now"
+                                    : "Join Meeting"}
+                                </Text>
+                                <ArrowRight className="w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
                               </View>
-                            )}
+                            </View>
+                          )}
                         </View>
                       </TouchableOpacity>
                     );
