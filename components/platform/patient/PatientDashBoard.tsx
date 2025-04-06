@@ -1,14 +1,15 @@
 import { Text } from "~/components/ui/text";
-import { View, ScrollView, Pressable } from "react-native";
-import { Video, ArrowRight } from "lucide-react-native";
+import { View, ScrollView } from "react-native";
 import { useAuthentication } from "~/context/AuthContext";
-import { Button } from "~/components/ui/button";
-import { Clock } from "~/lib/icons/Clock";
-import { Href, useRouter } from "expo-router";
 import { GradientText } from "~/components/GradientText";
 import { useEffect, useState } from "react";
 import QuickActionButton from "~/components/QuickActionButton";
-import { Calendar, MessageSquare, Pill, FileText } from "lucide-react-native";
+import {
+  Calendar,
+  Pill,
+  FileText,
+  BriefcaseMedical,
+} from "lucide-react-native";
 type QuickAction = {
   id: string;
   title: string;
@@ -32,12 +33,43 @@ function handleGreeting(): string {
 
   return greeting;
 }
+const GreetingsSection = () => {
+  const { authState } = useAuthentication();
+  const greeting = handleGreeting();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  // Update time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl ">
+      <Text className="font-jakarta-bold text-2xl">{greeting},</Text>
+
+      <GradientText
+        isUnderlined={false}
+        text={authState?.user?.full_name ?? "user"}
+      />
+      <Text className="text-sm font-jakarta-regular text-gray-500 mt-1">
+        {currentTime.toLocaleDateString("en-KE", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        })}
+      </Text>
+    </View>
+  );
+};
+
 const QuickActionsSection = () => {
   const quickActions: QuickAction[] = [
     {
       id: "booking",
       title: "Booking",
-      icon: <Calendar size={20} color="white" />,
+      icon: <BriefcaseMedical size={20} color="white" />,
       gradientColors: ["#6366f1", "#3b82f6"],
       route: "/search",
     },
@@ -63,7 +95,6 @@ const QuickActionsSection = () => {
       route: "/records",
     },
   ];
-
   return (
     <View className="mb-4">
       <Text className="font-jakarta-semibold text-xl mb-2 mx-2">
@@ -91,36 +122,9 @@ const QuickActionsSection = () => {
 };
 
 export function PatientDashboard() {
-  const { authState } = useAuthentication();
-  const greeting = handleGreeting();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const router = useRouter();
-  // Update time every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <ScrollView className="px-8 ">
-      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl ">
-        <Text className="font-jakarta-bold text-2xl">{greeting},</Text>
-
-        <GradientText
-          isUnderlined={false}
-          text={authState?.user?.full_name ?? "user"}
-        />
-        <Text className="text-sm font-jakarta-regular text-gray-500 mt-1">
-          {currentTime.toLocaleDateString("en-KE", {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          })}
-        </Text>
-      </View>
+      <GreetingsSection />
       <QuickActionsSection />
       <View>
         <Text className="font-jakarta-semibold text-xl mb-1">
