@@ -15,6 +15,9 @@ import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { useQuery } from "@tanstack/react-query";
 import { getPatientAppointments } from "~/services/appointments";
 import { useState } from "react";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { LinearGradient } from "expo-linear-gradient";
+import { GradientText } from "~/components/GradientText";
 /*
 interface Appointment {
   appointment_id: string;
@@ -113,7 +116,8 @@ export default function AppointmentsScreen() {
   const formatAppointmentTime = (startTime: string, endTime: string) => {
     const start = parseISO(startTime);
     const end = parseISO(endTime);
-    return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+    // return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+    return `${format(start, "h:mm a")}`;
   };
 
   // Format date for display
@@ -124,17 +128,13 @@ export default function AppointmentsScreen() {
   return (
     <View className="h-[90%]">
       <ScrollView className="flex-1 ">
-        <View className="text-2xl font-bold mb-6 text-gray-800 relative">
-          <Text className="bg-clip-text text-transparent bg-gradient-to-r from-greenPrimary to-bluePrimary">
-            Your Appointments
-          </Text>
-          <View className="absolute -bottom-2 left-0 w-20 h-1 bg-gradient-to-r from-greenPrimary to-bluePrimary rounded-full"></View>
+        <View className="mb-6 mx-6 mt-4">
+          <GradientText isUnderlined={true} text="Your Appointments" />
         </View>
-
         {groupedAppointments && Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
             ([date, dateAppointments]) => (
-              <View key={date} className="mb-6 mx-8">
+              <View key={date} className="mb-6 mx-6 ">
                 <View className="flex-row items-center mb-3">
                   <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></View>
                   <Text className="text-sm font-jakarta-regular ">
@@ -151,7 +151,7 @@ export default function AppointmentsScreen() {
                     return (
                       <TouchableOpacity
                         key={appointment.appointment_id}
-                        className={`rounded-xl overflow-hidden shadow-sm ${isJoinable(appointment.current_status)
+                        className={`rounded-xl mb-4 overflow-hidden shadow-sm ${isJoinable(appointment.current_status)
                             ? "active:scale-98"
                             : ""
                           }`}
@@ -173,9 +173,10 @@ export default function AppointmentsScreen() {
                           <View className="flex-row items-start gap-3">
                             {/* Doctor Avatar with specialty icon */}
                             <View className="relative">
-                              <View className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden  shadow-sm">
+                              <View className="w-20 h-20  rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden  shadow-sm">
                                 <UserAvatar
                                   uri={appointment.doctor_profile_image_url}
+                                  size={70}
                                 />
                               </View>
 
@@ -193,11 +194,11 @@ export default function AppointmentsScreen() {
 
                             {/* Appointment Details */}
                             <View className="flex-1">
-                              <Text className="font-jakarta-regular">
+                              <Text className="font-jakarta-regular text-lg">
                                 {appointment.doctor_name}
                               </Text>
                               <View className="flex-row items-center">
-                                <Text className="text-sm font-jakarta-semibold">
+                                <Text className="text-xs font-jakarta-regular">
                                   {appointment.specialization}
                                 </Text>
                               </View>
@@ -205,7 +206,7 @@ export default function AppointmentsScreen() {
                               <View className="mt-2 flex-row flex-wrap items-center gap-x-2 gap-y-2">
                                 <View className="flex-row items-center   py-1 rounded-md">
                                   <Clock
-                                    size={18}
+                                    size={16}
                                     className={`w-2 h-2  mr-2  ${statusDetails.textColor} `}
                                   />
                                   <Text className=" font-jakarta-regular text-xs">
@@ -234,10 +235,10 @@ export default function AppointmentsScreen() {
                           </View>
 
                           {/* Notes if available */}
-                          {appointment.notes && (
+                          {appointment.notes.Valid && (
                             <View className="mt-3 bg-slate-100 dark:bg-black/10 p-2 rounded-md ">
                               <Text className="text-xs font-jakarta-regular italic">
-                                {appointment.notes}
+                                {appointment.notes.String}
                               </Text>
                             </View>
                           )}
@@ -246,21 +247,19 @@ export default function AppointmentsScreen() {
                           {isJoinable(appointment.current_status) && (
                             <View className="mt-3 flex-row justify-end">
                               <View
-                                className={`flex-row items-center ${appointment.current_status === "in_progress"
-                                    ? "text-emerald-600"
-                                    : "text-indigo-600"
-                                  } font-medium bg-gradient-to-r ${appointment.current_status === "in_progress"
-                                    ? "from-emerald-50 to-emerald-100"
-                                    : "from-indigo-50 to-indigo-100"
-                                  } px-3 py-1.5 rounded-full`}
+                                className={`flex-row items-center px-3 py-1.5 rounded-full ${statusDetails.bgColor}`}
                               >
-                                <Video className="w-4 h-4 mr-1.5" />
-                                <Text className="text-sm">
+                                <Video
+                                  className={`w-4 h-4 mr-1.5 ${statusDetails.textColor}`}
+                                />
+                                <Text
+                                  className={`text-sm font-jakarta-semibold ${statusDetails.textColor}`}
+                                >
                                   {appointment.current_status === "in_progress"
                                     ? "Join Now"
                                     : "Join Meeting"}
                                 </Text>
-                                <ArrowRight className="w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
+                                <ArrowRight className=" hidden w-3.5 text-black dark:text-white h-3.5 ml-1.5" />
                               </View>
                             </View>
                           )}
@@ -273,21 +272,21 @@ export default function AppointmentsScreen() {
             ),
           )
         ) : (
-          <View className="items-center py-12 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-            <View className="w-16 h-16 mb-4 rounded-full bg-gray-200 items-center justify-center">
-              <Calendar className="w-8 h-8 text-gray-400" />
+          <View className="items-center py-12">
+            <View className="w-16 h-16 mb-4 rounded-full bg-greenPrimary items-center justify-center">
+              <Calendar className="w-8 h-8 text-white" />
             </View>
-            <Text className="text-lg font-medium text-gray-700 mb-1">
+            <Text className="text-lg font-jakarta-medium  mb-1">
               No Appointments
             </Text>
-            <Text className="text-gray-500 text-center max-w-xs px-4">
+            <Text className="text-gray-500 font-jakarta-regular text-center max-w-xs px-4">
               You don't have any appointments scheduled at the moment.
             </Text>
           </View>
         )}
         <Pressable
           onPress={() => router.push("/search")}
-          className="m-4 bg-greenPrimary p-4 rounded-xl items-center"
+          className="m-4 mx-6 bg-greenPrimary p-4 rounded-xl items-center"
         >
           <Text className="font-jakarta-semibold text-white text-base">
             Book New Appointment

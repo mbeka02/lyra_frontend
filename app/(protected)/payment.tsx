@@ -30,7 +30,7 @@ export default function PaymentResultScreen() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push("/home");
+      router.push("/appointments");
     }, 5000);
     return () => clearTimeout(timer);
   }, [router]);

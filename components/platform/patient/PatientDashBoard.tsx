@@ -5,19 +5,21 @@ import { useAuthentication } from "~/context/AuthContext";
 import { Button } from "~/components/ui/button";
 import { Clock } from "~/lib/icons/Clock";
 import { Href, useRouter } from "expo-router";
+import { GradientText } from "~/components/GradientText";
+import { useEffect, useState } from "react";
 
 function handleGreeting(): string {
   const hour = new Date().getHours();
   let greeting: string;
 
   if (hour >= 3 && hour < 12) {
-    greeting = "☀️  Good Morning";
+    greeting = "Good Morning";
   } else if (hour >= 12 && hour < 16) {
-    greeting = "🌤️ Good Afternoon";
+    greeting = "Good Afternoon";
   } else if (hour >= 16 && hour < 21) {
-    greeting = "☁️  Good Evening";
+    greeting = "Good Evening";
   } else {
-    greeting = "🌙 It's getting late";
+    greeting = "Greetings";
   }
 
   return greeting;
@@ -25,6 +27,7 @@ function handleGreeting(): string {
 export function PatientDashboard() {
   const { authState } = useAuthentication();
   const greeting = handleGreeting();
+  const [currentTime, setCurrentTime] = useState(new Date());
   const actions = [
     {
       name: "Book Appointment",
@@ -52,12 +55,30 @@ export function PatientDashboard() {
     },
   ];
   const router = useRouter();
+  // Update time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ScrollView className="px-8 ">
-      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl">
-        <Text className="font-jakarta-regular text-lg">{greeting}</Text>
-        <Text className="font-jakarta-semibold text-xl mt-2 text-greenPrimary">
-          {authState?.user?.full_name ?? "user"}
+      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl ">
+        <Text className="font-jakarta-bold text-2xl">{greeting},</Text>
+
+        <GradientText
+          isUnderlined={false}
+          text={authState?.user?.full_name ?? "user"}
+        />
+        <Text className="text-sm font-jakarta-regular text-gray-500 mt-1">
+          {currentTime.toLocaleDateString("en-KE", {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+          })}
         </Text>
       </View>
 
