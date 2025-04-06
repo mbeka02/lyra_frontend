@@ -113,7 +113,8 @@ export default function AppointmentsScreen() {
   const formatAppointmentTime = (startTime: string, endTime: string) => {
     const start = parseISO(startTime);
     const end = parseISO(endTime);
-    return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+    // return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+    return `${format(start, "h:mm a")}`;
   };
 
   // Format date for display
@@ -134,7 +135,7 @@ export default function AppointmentsScreen() {
         {groupedAppointments && Object.keys(groupedAppointments).length > 0 ? (
           Object.entries(groupedAppointments).map(
             ([date, dateAppointments]) => (
-              <View key={date} className="mb-6 mx-8">
+              <View key={date} className="mb-6 mx-6 ">
                 <View className="flex-row items-center mb-3">
                   <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></View>
                   <Text className="text-sm font-jakarta-regular ">
@@ -151,7 +152,7 @@ export default function AppointmentsScreen() {
                     return (
                       <TouchableOpacity
                         key={appointment.appointment_id}
-                        className={`rounded-xl overflow-hidden shadow-sm ${isJoinable(appointment.current_status)
+                        className={`rounded-xl mb-4 overflow-hidden shadow-sm ${isJoinable(appointment.current_status)
                             ? "active:scale-98"
                             : ""
                           }`}
@@ -234,10 +235,10 @@ export default function AppointmentsScreen() {
                           </View>
 
                           {/* Notes if available */}
-                          {appointment.notes && (
+                          {appointment.notes.Valid && (
                             <View className="mt-3 bg-slate-100 dark:bg-black/10 p-2 rounded-md ">
                               <Text className="text-xs font-jakarta-regular italic">
-                                {appointment.notes}
+                                {appointment.notes.String}
                               </Text>
                             </View>
                           )}
@@ -273,21 +274,21 @@ export default function AppointmentsScreen() {
             ),
           )
         ) : (
-          <View className="items-center py-12 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-            <View className="w-16 h-16 mb-4 rounded-full bg-gray-200 items-center justify-center">
-              <Calendar className="w-8 h-8 text-gray-400" />
+          <View className="items-center py-12">
+            <View className="w-16 h-16 mb-4 rounded-full bg-greenPrimary items-center justify-center">
+              <Calendar className="w-8 h-8 text-white" />
             </View>
-            <Text className="text-lg font-medium text-gray-700 mb-1">
+            <Text className="text-lg font-jakarta-medium  mb-1">
               No Appointments
             </Text>
-            <Text className="text-gray-500 text-center max-w-xs px-4">
+            <Text className="text-gray-500 font-jakarta-regular text-center max-w-xs px-4">
               You don't have any appointments scheduled at the moment.
             </Text>
           </View>
         )}
         <Pressable
           onPress={() => router.push("/search")}
-          className="m-4 bg-greenPrimary p-4 rounded-xl items-center"
+          className="m-4 mx-6 bg-greenPrimary p-4 rounded-xl items-center"
         >
           <Text className="font-jakarta-semibold text-white text-base">
             Book New Appointment

@@ -45,7 +45,10 @@ export type PatientAppointment = {
   doctor_id: number;
   current_status: AppointmentStatus; // Adjust based on your `AppointmentStatus` enum
   reason: string;
-  notes: string | null;
+  notes: {
+    String: string;
+    Valid: boolean;
+  };
   start_time: string; // ISO date string
   end_time: string; // ISO date string
   created_at: string; // ISO date string
