@@ -21,8 +21,10 @@
     "@hookform/resolvers": "^3.10.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/datetimepicker": "8.2.0",
+    "@react-native-masked-view/masked-view": "0.3.2",
     "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
+    "@react-navigation/drawer": "^7.3.8",
     "@react-navigation/native": "^7.0.14",
     "@rn-primitives/alert-dialog": "^1.1.0",
     "@rn-primitives/avatar": "^1.1.0",
@@ -47,9 +49,10 @@
     "expo-font": "~13.0.3",
     "expo-haptics": "~14.0.1",
     "expo-image-picker": "~16.0.6",
+    "expo-linear-gradient": "~14.0.2",
     "expo-linking": "^7.0.5",
     "expo-navigation-bar": "^4.0.8",
-    "expo-router": "~4.0.17",
+    "expo-router": "^4.0.20",
     "expo-secure-store": "~14.0.1",
     "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
@@ -78,9 +81,7 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "validator": "^13.12.0",
-    "zod": "^3.24.1",
-    "expo-linear-gradient": "~14.0.2",
-    "@react-native-masked-view/masked-view": "0.3.2"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

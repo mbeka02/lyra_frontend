@@ -7,12 +7,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView>
       <WithRole role={Role.PATIENT}>
-        <View className="h-[90%]">
+        <View className="h-full">
           <PatientDashboard />
         </View>
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
-        <View className="h-[90%]">
+        <View className="h-full">
           <Scheduler />
         </View>
       </WithRole>

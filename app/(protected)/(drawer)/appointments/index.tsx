@@ -145,7 +145,7 @@ export default function AppointmentsScreen() {
   }
 
   return (
-    <View className="h-[90%]">
+    <View className="h-full">
       <ScrollView className="flex-1 ">
         <View className="mb-6 mx-6 mt-4">
           <GradientText isUnderlined={true} text="Your Appointments" />

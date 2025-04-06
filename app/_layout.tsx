@@ -60,7 +60,7 @@ function InitialLayout() {
               authState.user?.email!,
             );
             const route = isOnboarded
-              ? "/(protected)/(tabs)/home"
+              ? "/(protected)/(drawer)/home"
               : "/(protected)/onboarding";
 
             if (isMounted) {
