@@ -1,13 +1,22 @@
 import { Text } from "~/components/ui/text";
-import { View, ScrollView, Pressable } from "react-native";
-import { Video, ArrowRight } from "lucide-react-native";
+import { View, ScrollView } from "react-native";
 import { useAuthentication } from "~/context/AuthContext";
-import { Button } from "~/components/ui/button";
-import { Clock } from "~/lib/icons/Clock";
-import { Href, useRouter } from "expo-router";
 import { GradientText } from "~/components/GradientText";
 import { useEffect, useState } from "react";
-
+import QuickActionButton from "~/components/QuickActionButton";
+import {
+  Calendar,
+  Pill,
+  FileText,
+  BriefcaseMedical,
+} from "lucide-react-native";
+type QuickAction = {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  gradientColors: [string, string]; // Typed as a tuple with exactly 2 elements
+  route: string;
+};
 function handleGreeting(): string {
   const hour = new Date().getHours();
   let greeting: string;
@@ -24,37 +33,10 @@ function handleGreeting(): string {
 
   return greeting;
 }
-export function PatientDashboard() {
+const GreetingsSection = () => {
   const { authState } = useAuthentication();
   const greeting = handleGreeting();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const actions = [
-    {
-      name: "Book Appointment",
-      link: "/search",
-    },
-    {
-      name: "View Appointments",
-      link: "/appointments",
-    },
-    {
-      name: "Medical Records",
-      link: "/records",
-    },
-    {
-      name: "Prescriptions",
-      link: "/prescriptions",
-    },
-    {
-      name: "Profile",
-      link: "/settings/profile",
-    },
-    {
-      name: "Settings",
-      link: "/settings",
-    },
-  ];
-  const router = useRouter();
   // Update time every minute
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,69 +45,87 @@ export function PatientDashboard() {
 
     return () => clearInterval(interval);
   }, []);
+  return (
+    <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl ">
+      <Text className="font-jakarta-bold text-2xl">{greeting},</Text>
 
+      <GradientText
+        isUnderlined={false}
+        text={authState?.user?.full_name ?? "user"}
+      />
+      <Text className="text-sm font-jakarta-regular text-gray-500 mt-1">
+        {currentTime.toLocaleDateString("en-KE", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        })}
+      </Text>
+    </View>
+  );
+};
+
+const QuickActionsSection = () => {
+  const quickActions: QuickAction[] = [
+    {
+      id: "booking",
+      title: "Booking",
+      icon: <BriefcaseMedical size={20} color="white" />,
+      gradientColors: ["#6366f1", "#3b82f6"],
+      route: "/search",
+    },
+    {
+      id: "appointments",
+      title: "Appointments",
+      icon: <Calendar size={20} color="white" />,
+      gradientColors: ["#f59e0b", "#f97316"],
+      route: "/appointments",
+    },
+    {
+      id: "prescriptions",
+      title: "Prescriptions",
+      icon: <Pill size={20} color="white" />,
+      gradientColors: ["#10b981", "#14b8a6"],
+      route: "/prescriptions",
+    },
+    {
+      id: "records",
+      title: "Records",
+      icon: <FileText size={20} color="white" />,
+      gradientColors: ["#a855f7", "#ec4899"],
+      route: "/records",
+    },
+  ];
+  return (
+    <View className="mb-4">
+      <Text className="font-jakarta-semibold text-xl mb-2 mx-2">
+        Quick Actions
+      </Text>
+
+      <View className="flex-row  flex-wrap justify-between">
+        {quickActions.map((action) => (
+          <View
+            key={action.id}
+            className="w-1/2 px-2   mb-4"
+            style={{ minWidth: 150 }}
+          >
+            <QuickActionButton
+              title={action.title}
+              icon={action.icon}
+              gradientColors={action.gradientColors}
+              route={action.route}
+            />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+export function PatientDashboard() {
   return (
     <ScrollView className="px-8 ">
-      <View className="bg-slate-50 my-4 dark:bg-backgroundPrimary px-7 py-4 rounded-xl ">
-        <Text className="font-jakarta-bold text-2xl">{greeting},</Text>
-
-        <GradientText
-          isUnderlined={false}
-          text={authState?.user?.full_name ?? "user"}
-        />
-        <Text className="text-sm font-jakarta-regular text-gray-500 mt-1">
-          {currentTime.toLocaleDateString("en-KE", {
-            weekday: "long",
-            month: "short",
-            day: "numeric",
-          })}
-        </Text>
-      </View>
-
-      <View className="mb-4  bg-slate-50 dark:bg-backgroundPrimary shadow-sm elevation-sm p-5 rounded-xl">
-        <View className="flex-row items-center mb-4">
-          <Clock size={22} className="text-black dark:text-white mt-1" />
-          <Text className="ml-2 font-jakarta-semibold text-lg">
-            Upcoming Appointment
-          </Text>
-        </View>
-        <View className="ml-6">
-          <Text className="font-jakarta-regular text-base">
-            Dr. Michael Brown
-          </Text>
-          <Text className="font-jakarta-bold mt-1 text-sm ">Cardiologist</Text>
-          <Text className="mt-2 text-greenPrimary font-jakarta-medium ">
-            2:30 PM
-          </Text>
-          <Button className="bg-greenPrimary my-4 flex-row gap-2 w-36 items-center justify-center">
-            <Video size={20} color="#ffffff" strokeWidth={2} />
-            <Text className="font-jakarta-semibold text-white  ">
-              Join Call
-            </Text>
-          </Button>
-        </View>
-      </View>
-
-      <View className="mb-4">
-        <Text className="font-jakarta-semibold text-xl mb-1">
-          Quick Actions
-        </Text>
-        <View className="gap-4 flex-row flex-wrap">
-          {actions.map((action, index) => (
-            <Pressable
-              key={index}
-              onPress={() => router.push(action.link as Href)}
-              className="rounded-md shadow elevation-sm bg-slate-50 dark:bg-backgroundPrimary flex flex-row items-center justify-between min-w-[45%] px-2 p-1"
-            >
-              <Text className="font-jakarta-regular text-sm">
-                {action.name}
-              </Text>
-              <ArrowRight size={20} color="#24AE7C" />
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
+      <GreetingsSection />
+      <QuickActionsSection />
       <View>
         <Text className="font-jakarta-semibold text-xl mb-1">
           Recent Activity
