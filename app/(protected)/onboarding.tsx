@@ -32,7 +32,11 @@ function OnBoardingScreen() {
         />
       </WithRole>
       <WithRole role={Role.SPECIALIST}>
-        <DoctorForm />
+        <DoctorForm
+          selectedIndex={selectedIndex}
+          total={2}
+          onIndexChange={(index) => setSelectedIndex(index)}
+        />
       </WithRole>
     </SafeAreaView>
   );

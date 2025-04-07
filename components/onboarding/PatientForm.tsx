@@ -3,7 +3,6 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "../ui/text";
-import { Button, ButtonProps } from "../ui/button";
 import FormInput from "../form/FormInput";
 import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
@@ -12,39 +11,16 @@ import { patientOnboardingSchema } from "~/types/zod";
 import { onboardPatient } from "~/services/onboarding";
 import { toast } from "sonner-native";
 import Animated, {
-  AnimatedProps,
   FadeInDown,
-  FadeInLeft,
-  FadeOutLeft,
   FadeOutUp,
   LinearTransition,
 } from "react-native-reanimated";
 import { Pagination } from "./Pagination";
-
-const AnimatedButton = Animated.createAnimatedComponent(Button);
+import { FormButton } from "../form/FormButton";
 
 const _layoutTransition = LinearTransition.springify()
   .damping(80)
   .stiffness(200);
-
-function FormButton({
-  children,
-  className,
-  onPress,
-}: AnimatedProps<ButtonProps>) {
-  return (
-    <AnimatedButton
-      className={className}
-      entering={FadeInLeft.springify().damping(80).stiffness(200)}
-      exiting={FadeOutLeft.springify().damping(80).stiffness(200)}
-      layout={_layoutTransition}
-      onPress={onPress}
-    >
-      {children}
-    </AnimatedButton>
-  );
-}
-
 type FormData = z.infer<typeof patientOnboardingSchema>;
 
 interface PatientFormProps {
@@ -80,7 +56,7 @@ export function PatientForm({
       await onboardPatient(data);
       await completeOnboarding(authState?.user?.email!);
       toast.success("Completed onboarding");
-      router.replace("/(protected)/(tabs)/home");
+      router.replace("/home");
     } catch (error) {
       console.error(error);
       toast.error("Error: Unable to complete onboarding");
@@ -88,7 +64,7 @@ export function PatientForm({
   };
 
   return (
-    <View className="px-2 mt-1  h-[65%] relative">
+    <View className="px-2 mt-1  h-[70%] relative">
       <Pagination total={total} selectedIndex={selectedIndex} />
 
       {selectedIndex === 0 && (
