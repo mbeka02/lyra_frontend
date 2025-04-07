@@ -1,61 +1,9 @@
-// import { Tabs } from "expo-router";
-// import { Role, useAuthentication } from "~/context/AuthContext";
-// import CustomNavBar from "~/components/CustomNavBar";
-// import { Logout } from "~/components/auth/Logout";
-// export default function Tabslayout() {
-//   const { authState } = useAuthentication();
-//   return (
-//     <Tabs
-//       tabBar={(props) => <CustomNavBar {...props} />}
-//       screenOptions={{
-//         headerRight: () => <Logout />,
-//         headerStyle: {
-//           height: 80,
-//         },
-//         headerTitleStyle: {
-//           fontFamily: "Jakarta-Sans-SemiBold",
-//           fontSize: 15,
-//           textTransform: "uppercase",
-//         },
-//         headerTitleContainerStyle: {
-//           width: 100,
-//           marginLeft: 15,
-//         },
-//       }}
-//     >
-//       <Tabs.Screen
-//         name="home"
-//         options={{
-//           title: "Home",
-//         }}
-//       />
-//       <Tabs.Screen
-//         name="search"
-//         options={{
-//           title: "Search",
-//         }}
-//         redirect={authState?.user?.role !== Role.PATIENT}
-//       />
-//       <Tabs.Screen
-//         name="appointments"
-//         options={{
-//           title: "Appointments",
-//         }}
-//       />
-//       <Tabs.Screen
-//         name="settings"
-//         options={{
-//           title: "Settings",
-//         }}
-//       />
-//     </Tabs>
-//   );
-// }
 import { Drawer } from "expo-router/drawer";
 import { Home, Search, Calendar, Settings } from "lucide-react-native";
 import { Role, useAuthentication } from "~/context/AuthContext";
 import { Logout } from "~/components/auth/Logout";
 import { useColorScheme } from "~/lib/useColorScheme";
+import CustomDrawerContent from "~/components/CustomDrawerContent";
 
 type DrawerIconProps = {
   color: string;
@@ -67,6 +15,7 @@ export default function DrawerLayout() {
   const { isDarkColorScheme } = useColorScheme();
   return (
     <Drawer
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerRight: () => <Logout />,
         headerStyle: {
@@ -108,7 +57,7 @@ export default function DrawerLayout() {
         options={{
           title: "Home",
           drawerIcon: ({ color, size }: DrawerIconProps) => (
-            <Home style={{ marginRight: 10 }} color={color} size={size} />
+            <Home style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
       />
@@ -117,7 +66,7 @@ export default function DrawerLayout() {
         options={{
           title: "Search",
           drawerIcon: ({ color, size }: DrawerIconProps) => (
-            <Search style={{ marginRight: 10 }} color={color} size={size} />
+            <Search style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
         redirect={authState?.user?.role !== Role.PATIENT}
@@ -127,16 +76,17 @@ export default function DrawerLayout() {
         options={{
           title: "Appointments",
           drawerIcon: ({ color, size }: DrawerIconProps) => (
-            <Calendar style={{ marginRight: 10 }} color={color} size={size} />
+            <Calendar style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
+        redirect={authState?.user?.role !== Role.PATIENT}
       />
       <Drawer.Screen
         name="settings"
         options={{
           title: "Settings",
           drawerIcon: ({ color, size }: DrawerIconProps) => (
-            <Settings style={{ marginRight: 10 }} color={color} size={size} />
+            <Settings style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
       />
