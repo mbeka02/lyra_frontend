@@ -24,7 +24,7 @@ export function Pagination({
     }),
   );
   return (
-    <View className="flex-row mx-auto my-1 items-center">
+    <View className="flex-row mx-2 mb-12  my-1 items-center">
       <PaginationIndicator animation={derivedValue} />
       {Array.from({ length: total }).map((_, i) => (
         <Dot key={i} index={i} animation={derivedValue} />
