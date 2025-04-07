@@ -3,7 +3,6 @@ import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "../ui/text";
-import { Button } from "../ui/button";
 import FormInput from "../form/FormInput";
 import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
@@ -13,15 +12,35 @@ import { onboardDoctor } from "~/services/onboarding";
 import { toast } from "sonner-native";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { Pagination } from "./Pagination";
+import Animated, {
+  FadeInDown,
+  FadeOutUp,
+  LinearTransition,
+} from "react-native-reanimated";
+import { FormButton } from "../form/FormButton";
 type FormData = z.infer<typeof doctorOnboardingSchema>;
-export function DoctorForm() {
+interface DoctorFormProps {
+  selectedIndex: number;
+  total: number;
+  onIndexChange: (index: number) => void;
+}
+
+const _layoutTransition = LinearTransition.springify()
+  .damping(80)
+  .stiffness(200);
+export function DoctorForm({
+  selectedIndex,
+  total,
+  onIndexChange,
+}: DoctorFormProps) {
   const router = useRouter();
   const { authState } = useAuthentication();
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormData>({
     defaultValues: {
       specialization: "",
       license_number: "",
@@ -33,7 +52,6 @@ export function DoctorForm() {
     resolver: zodResolver(doctorOnboardingSchema),
   });
 
-  // console.log("Validation errors:", formState.errors);
   const onSubmit = async (data: FormData) => {
     try {
       await onboardDoctor({
@@ -45,75 +63,134 @@ export function DoctorForm() {
         county: data.county.toLowerCase(),
       });
       await completeOnboarding(authState?.user?.email!);
-      toast.success("completed onboarding");
-      router.replace("/(protected)/(tabs)/home");
+      toast.success("Completed onboarding");
+      router.replace("/home");
     } catch (error) {
-      toast.error("error:unable to complete onboarding");
+      toast.error("Unable to complete onboarding");
       console.error(error);
     }
   };
-  return (
-    <View className="px-2 mt-1">
-      <FormInput
-        name="specialization"
-        title="Your Specialization"
-        control={control}
-        placeholder="enter your specialization area"
-      />
-      <FormInput
-        name="license_number"
-        title="License Number"
-        control={control}
-        placeholder="enter your license number"
-      />
 
-      <FormInput
-        name="years_of_experience"
-        title="Years Of Experience"
-        control={control}
-        placeholder="enter the amount of experience you have"
-      />
-      <FormInput
-        name="price_per_hour"
-        title="Pricing"
-        control={control}
-        placeholder="enter your hourly rate"
-      />
-      {/*Change to a combobox*/}
-      <FormInput
-        name="county"
-        title="County"
-        control={control}
-        placeholder="enter your county"
-      />
-      <Label nativeID="description_label" className="mt-4 mb-2">
-        Description
-      </Label>
-      <Controller
-        control={control}
-        render={({ field: { onChange, value, onBlur } }) => (
-          <Textarea
-            value={value}
-            onChangeText={onChange}
-            aria-labelledby="textareaLabel"
-            placeholder="give a brief description of yourself"
-            onBlur={onBlur}
+  return (
+    <View className="px-2 mt-1 relative h-[70%]">
+      <Pagination total={total} selectedIndex={selectedIndex} />
+
+      {/* Step 1: Personal Information */}
+      {selectedIndex === 0 && (
+        <>
+          <Text className="font-jakarta-semibold text-2xl my-1">
+            Personal Information
+          </Text>
+
+          <FormInput
+            name="county"
+            title="County(required)"
+            control={control}
+            placeholder="Enter your county"
           />
-        )}
-        name="description"
-      />
-      {errors.description && (
-        <Text className="text-red-600 font-jakarta-bold">
-          {errors.description.message}
-        </Text>
+
+          <FormInput
+            name="years_of_experience"
+            title="Years of Experience(required)"
+            control={control}
+            placeholder="How many years have you practiced?"
+          />
+
+          <Label nativeID="description_label" className="mt-4 mb-2">
+            Description(required)
+          </Label>
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <Textarea
+                value={value}
+                onChangeText={onChange}
+                placeholder="Briefly describe your background and approach"
+                onBlur={onBlur}
+              />
+            )}
+          />
+          {errors.description && (
+            <Text className="text-red-600 font-jakarta-bold">
+              {errors.description.message}
+            </Text>
+          )}
+        </>
       )}
 
-      <Button
-        className="bg-greenPrimary font-jakarta-semibold   py-2 px-1  my-8 rounded-lg"
-        onPress={handleSubmit(onSubmit)}
-      >
-        <Text className="text-white font-jakarta-semibold ">Submit</Text>
-      </Button>
+      {/* Step 2: Professional Details */}
+      {selectedIndex === 1 && (
+        <>
+          <Text className="font-jakarta-semibold text-2xl my-1">
+            Professional Details
+          </Text>
+
+          <FormInput
+            name="specialization"
+            title="Specialization(required)"
+            control={control}
+            placeholder="E.g. Dermatology, Pediatrics, etc."
+          />
+
+          <FormInput
+            name="license_number"
+            title="License Number(required)"
+            control={control}
+            placeholder="Enter your medical license number"
+          />
+
+          <FormInput
+            name="price_per_hour"
+            title="Hourly Rate (KES)"
+            control={control}
+            placeholder="How much do you charge per hour?"
+          />
+        </>
+      )}
+
+      {/* Navigation Buttons */}
+      <View className="flex-row items-center absolute bottom-0 gap-2">
+        {selectedIndex > 0 && (
+          <FormButton
+            className="dark:bg-white bg-slate-100 flex-1"
+            onPress={() => onIndexChange(selectedIndex - 1)}
+          >
+            <Text className="font-jakarta-semibold text-black">Back</Text>
+          </FormButton>
+        )}
+        <FormButton
+          className="bg-greenPrimary flex-1"
+          onPress={() => {
+            if (selectedIndex >= total - 1) {
+              handleSubmit(onSubmit)();
+              return;
+            }
+            onIndexChange(selectedIndex + 1);
+          }}
+        >
+          {selectedIndex === total - 1 ? (
+            <Animated.Text
+              key="submit"
+              className="font-jakarta-semibold text-white"
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
+            >
+              Submit
+            </Animated.Text>
+          ) : (
+            <Animated.Text
+              key="continue"
+              className="font-jakarta-semibold text-white"
+              layout={_layoutTransition}
+              entering={FadeInDown.springify().damping(80).stiffness(200)}
+              exiting={FadeOutUp.springify().damping(80).stiffness(200)}
+            >
+              Continue
+            </Animated.Text>
+          )}
+        </FormButton>
+      </View>
     </View>
   );
 }
