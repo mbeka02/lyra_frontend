@@ -26,7 +26,7 @@ export const Logout = () => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          className="web:ring-offset-background border-none bg-transparent web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2 mr-5"
+          className="web:ring-offset-background border-none bg-transparent web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2 mr-1"
           size="icon"
         >
           <LogOut
