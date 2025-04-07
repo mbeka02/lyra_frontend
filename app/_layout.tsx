@@ -23,80 +23,29 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Loader } from "~/components/Loader";
+
 // Prevent auto-hiding of splash screen
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
+
+// Theme configuration
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
   colors: NAV_THEME.light,
 };
+
 const DARK_THEME: Theme = {
   ...DarkTheme,
   colors: NAV_THEME.dark,
 };
+
+// Create query client outside component to prevent recreation on renders
 const queryClient = new QueryClient();
-function InitialLayout() {
-  const { authState, initialized } = useAuthentication();
-  const segments = useSegments();
-  const router = useRouter();
-  const [isNavigating, setIsNavigating] = React.useState(false);
 
-  React.useEffect(() => {
-    let isMounted = true;
-
-    const handleNavigation = async () => {
-      // Prevent multiple navigations
-      if (!initialized || isNavigating || !isMounted) return;
-
-      try {
-        setIsNavigating(true);
-        const inProtectedGroup = segments[0] === "(protected)";
-
-        if (authState?.isAuthenticated) {
-          if (!inProtectedGroup) {
-            // Only check onboarding if we're not already in the protected group
-            const isOnboarded = await checkOnboardingStatus(
-              authState.user?.email!,
-            );
-            const route = isOnboarded
-              ? "/(protected)/(drawer)/home"
-              : "/(protected)/onboarding";
-
-            if (isMounted) {
-              router.replace(route);
-            }
-          }
-        } else if (segments[0] !== undefined) {
-          // Only redirect to home if we're not already there
-          if (isMounted) {
-            router.replace("/");
-          }
-        }
-      } catch (error) {
-        console.error("Navigation error:", error);
-      } finally {
-        if (isMounted) {
-          setIsNavigating(false);
-        }
-      }
-    };
-
-    handleNavigation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [initialized, authState?.isAuthenticated, segments]);
-
-  return <Slot />;
-}
-
-export default function RootLayout() {
-  const { isDarkColorScheme } = useColorScheme();
-  const [isLayoutReady, setIsLayoutReady] = React.useState(false);
-
-  const [fontsLoaded, fontError] = useFonts({
+// Custom hook for fonts loading
+function useAppFonts() {
+  return useFonts({
     "Jakarta-Sans-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
     "Jakarta-Sans-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
     "Jakarta-Sans-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -105,10 +54,17 @@ export default function RootLayout() {
     "Jakarta-Sans-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
     "Jakarta-Sans-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
   });
+}
+
+// Custom hook for initialization
+function useAppInitialization() {
+  const [isLayoutReady, setIsLayoutReady] = React.useState(false);
+  const [fontsLoaded, fontError] = useAppFonts();
 
   React.useEffect(() => {
     async function prepare() {
       try {
+        // Small delay to ensure everything is loaded properly
         await new Promise((resolve) => setTimeout(resolve, 50));
 
         if (Platform.OS === "web") {
@@ -132,6 +88,87 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, isLayoutReady]);
 
+  return { fontsLoaded, fontError, isLayoutReady };
+}
+
+// Authentication and route protection
+function AuthenticationGuard({ children }: { children: React.ReactNode }) {
+  const { authState, initialized } = useAuthentication();
+  const segments = useSegments();
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const handleNavigation = async () => {
+      // Prevent multiple navigations or unnecessary work
+      if (!initialized || isNavigating || !isMounted) return;
+
+      try {
+        setIsNavigating(true);
+        const inProtectedGroup = segments[0] === "(protected)";
+
+        if (authState?.isAuthenticated) {
+          if (!inProtectedGroup) {
+            // Check onboarding status only when not in protected routes
+            const isOnboarded = await checkOnboardingStatus(
+              authState.user?.email!,
+            );
+            const route = isOnboarded ? "/home" : "/onboarding";
+
+            if (isMounted) {
+              router.replace(route);
+            }
+          }
+        } else if (segments[0] !== undefined) {
+          // Only redirect if not already at home
+          if (isMounted) {
+            router.replace("/");
+          }
+        }
+      } catch (error) {
+        console.error("Navigation error:", error);
+      } finally {
+        if (isMounted) {
+          setIsNavigating(false);
+        }
+      }
+    };
+
+    handleNavigation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialized, authState?.isAuthenticated, segments]);
+
+  return children;
+}
+
+// Toast component with theme support
+function ThemedToaster() {
+  const { isDarkColorScheme } = useColorScheme();
+
+  return (
+    <Toaster
+      closeButton
+      theme={isDarkColorScheme ? "dark" : "light"}
+      position="top-center"
+      visibleToasts={2}
+      toastOptions={{
+        style: {
+          backgroundColor: isDarkColorScheme ? "#131619" : "#F8FAFC",
+        },
+      }}
+    />
+  );
+}
+
+export default function RootLayout() {
+  const { isDarkColorScheme } = useColorScheme();
+  const { fontsLoaded, fontError, isLayoutReady } = useAppInitialization();
+
   if (!fontsLoaded || !isLayoutReady || fontError) {
     return <Loader />;
   }
@@ -144,20 +181,10 @@ export default function RootLayout() {
           <ActionSheetProvider>
             <SafeAreaProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <InitialLayout />
-                <Toaster
-                  closeButton
-                  theme={isDarkColorScheme ? "dark" : "light"}
-                  position="top-center"
-                  visibleToasts={2}
-                  toastOptions={{
-                    style: {
-                      backgroundColor: isDarkColorScheme
-                        ? "#131619"
-                        : "#F8FAFC",
-                    },
-                  }}
-                />
+                <AuthenticationGuard>
+                  <Slot />
+                </AuthenticationGuard>
+                <ThemedToaster />
                 <PortalHost />
               </GestureHandlerRootView>
             </SafeAreaProvider>
