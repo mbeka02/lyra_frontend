@@ -6,7 +6,7 @@ export default function SearchScreen() {
   return (
     <View>
       <WithRole role={Role.PATIENT}>
-        <View className="h-[95%]">
+        <View className="h-full">
           <DoctorList />
         </View>
       </WithRole>
