@@ -12,16 +12,16 @@ function OnBoardingScreen() {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   return (
-    <SafeAreaView className="py-4 px-6 mt-12">
-      <View className="flex-row justify-end mx-2 mt-2 mb-4 p-1 ">
+    <SafeAreaView className="px-4 mt-12">
+      <View className="flex-row justify-end mx-1 mt-2 mb-4  p-1 ">
         <Logout />
       </View>
-      <View className="my-8">
-        <Text className="text-2xl font-jakarta-semibold">
-          Welcome {authState?.user?.full_name} 👋
+      <View className="mt-6 px-4 py-2 ">
+        <Text className="text-3xl font-jakarta-semibold mb-1">
+          Hey there {authState?.user?.full_name.split(/\s/)[0] || "user"} 👋,
         </Text>
-        <Text className="font-jakarta-regular text-muted-foreground">
-          Let us know more about yourself
+        <Text className="font-jakarta-regular text-lg mb-2 text-muted-foreground">
+          Tell us more about yourself
         </Text>
       </View>
       <WithRole role={Role.PATIENT}>
