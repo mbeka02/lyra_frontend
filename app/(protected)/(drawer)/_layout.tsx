@@ -1,5 +1,12 @@
 import { Drawer } from "expo-router/drawer";
-import { Home, Search, Calendar, Settings } from "lucide-react-native";
+import {
+  Home,
+  Search,
+  Calendar,
+  Settings,
+  Pill,
+  FileText,
+} from "lucide-react-native";
 import { Role, useAuthentication } from "~/context/AuthContext";
 import { Logout } from "~/components/auth/Logout";
 import { useColorScheme } from "~/lib/useColorScheme";
@@ -81,6 +88,27 @@ export default function DrawerLayout() {
         }}
         redirect={authState?.user?.role !== Role.PATIENT}
       />
+      <Drawer.Screen
+        name="prescriptions"
+        options={{
+          title: "Prescriptions",
+          drawerIcon: ({ color, size }: DrawerIconProps) => (
+            <Pill style={{ marginRight: 15 }} color={color} size={size} />
+          ),
+        }}
+        redirect={authState?.user?.role !== Role.PATIENT}
+      />
+      <Drawer.Screen
+        name="records"
+        options={{
+          title: "Records",
+          drawerIcon: ({ color, size }: DrawerIconProps) => (
+            <FileText style={{ marginRight: 15 }} color={color} size={size} />
+          ),
+        }}
+        redirect={authState?.user?.role !== Role.PATIENT}
+      />
+
       <Drawer.Screen
         name="settings"
         options={{
