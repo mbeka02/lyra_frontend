@@ -13,7 +13,8 @@ export enum Role {
 }
 interface AuthProps {
   authState: {
-    token: string | null;
+    accessToken: string | null;
+    getStreamToken: string | null;
     isAuthenticated: boolean | null;
     user: User | null;
   };
@@ -35,11 +36,13 @@ interface AuthProviderProps {
 }
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authState, setAuthState] = useState<{
-    token: string | null;
+    accessToken: string | null;
+    getStreamToken: string | null;
     isAuthenticated: boolean | null;
     user: User | null;
   }>({
-    token: null,
+    accessToken: null,
+    getStreamToken: null,
     isAuthenticated: null,
     user: null,
   });
@@ -51,9 +54,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (data) {
         const object = JSON.parse(data);
         // Set our context state
-
         setAuthState({
-          token: object.access_token,
+          accessToken: object.access_token,
+          getStreamToken: object.get_stream_token,
           isAuthenticated: true,
           user: object.user,
         });
@@ -77,7 +80,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
       const data = await response.json();
       setAuthState({
-        token: data.access_token,
+        accessToken: data.access_token,
+        getStreamToken: data.get_stream_token,
         isAuthenticated: true,
         user: data.user,
       });
@@ -109,7 +113,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await response.json();
       setAuthState({
-        token: data.access_token,
+        accessToken: data.access_token,
+        getStreamToken: data.get_stream_token,
         isAuthenticated: true,
         user: data.user,
       });
@@ -127,7 +132,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setAuthState({
-      token: null,
+      accessToken: null,
+      getStreamToken: null,
+
       isAuthenticated: false,
       user: null,
     });
