@@ -5,6 +5,7 @@ export enum ModalType {
 
 export type User = {
   user_id: number;
+  is_onboarded: boolean;
   full_name: string;
   email: string;
   telephone_number: string;

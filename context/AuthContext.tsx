@@ -23,6 +23,7 @@ interface AuthProps {
   ) => Promise<UserAPIResponse>;
   onLogin: (values: z.infer<typeof loginSchema>) => Promise<UserAPIResponse>;
   onLogout: () => Promise<any>;
+  updateUserOnboardingStatus: (isOnboarded: boolean) => Promise<void>;
   initialized: boolean;
 }
 const API_URL = process.env.EXPO_PUBLIC_DEV_URL;
@@ -139,8 +140,49 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       user: null,
     });
   };
+  // Add this function to your AuthProvider component
+  const updateUserOnboardingStatus = async (isOnboarded: boolean) => {
+    if (!authState.user) {
+      toast.error("No user is logged in");
+      return;
+    }
+
+    // Create updated user and authState
+    const updatedUser = {
+      ...authState.user,
+      is_onboarded: isOnboarded,
+    };
+
+    const updatedAuthState = {
+      ...authState,
+      user: updatedUser,
+    };
+
+    // Update state
+    setAuthState(updatedAuthState);
+
+    // Update SecureStore
+    try {
+      // Get existing data from storage first
+      const storedData = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        // Update the user in the stored data
+        const updatedData = {
+          ...parsedData,
+          user: updatedUser,
+        };
+        // Save back to storage
+        await SecureStore.setItemAsync(TOKEN_KEY, JSON.stringify(updatedData));
+      }
+    } catch (error) {
+      console.error("Failed to update onboarding status in storage:", error);
+      toast.error("Failed to save onboarding status");
+    }
+  };
   const value = {
     authState,
+    updateUserOnboardingStatus,
     onLogin: handleLogin,
     onLogout: handleLogout,
     onRegister: handleRegistration,
