@@ -1,15 +1,19 @@
 import {
   CallContent,
   Call,
+  CallingState,
   StreamCall,
   useStreamVideoClient,
 } from "@stream-io/video-react-native-sdk";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { PermissionsAndroid, View } from "react-native";
+import { View } from "react-native";
+import { CustomCallControls } from "~/components/CallControls";
 import { Text } from "~/components/ui/text";
+import { useAuthentication } from "~/providers/AuthProvider";
 export default function VideoCallScreen() {
   const { id } = useLocalSearchParams();
+  const { authState } = useAuthentication();
   const client = useStreamVideoClient();
   const [call, setCall] = useState<Call | null>(null);
   //initiate call
@@ -26,7 +30,24 @@ export default function VideoCallScreen() {
       //if true the call will be created if it doesn't exist
       { create: true },
     );
-  }, []);
+    //if the call is initiated
+    if (newCall) {
+      setCall(newCall);
+      //enable recording and transcriptions for doctor accounts
+      if (authState?.user?.role === "specialist") {
+        newCall.startRecording();
+        newCall.startTranscription();
+      }
+    }
+  }, [client, id]);
+  useEffect(() => {
+    //cleanup function (if the component unmounts if the call was not left already)
+    return () => {
+      if (call?.state.callingState !== CallingState.LEFT) {
+        call?.leave();
+      }
+    };
+  }, [call]);
   if (!call) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -37,7 +58,15 @@ export default function VideoCallScreen() {
   return (
     <StreamCall call={call}>
       <View className="flex-1">
-        <CallContent layout="spotlight" />
+        <CallContent
+          layout="spotlight"
+          onHangupCallHandler={() => {
+            call.stopRecording();
+            call.stopTranscription();
+            call.leave();
+          }}
+          CallControls={CustomCallControls}
+        />
       </View>
     </StreamCall>
   );
