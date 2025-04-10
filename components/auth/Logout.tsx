@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Text } from "~/components/ui/text";
 import { useState, useCallback } from "react";
+import { toast } from "sonner-native";
 export const Logout = ({ children }: { children: React.ReactNode }) => {
   const { onLogout } = useAuthentication();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -27,6 +28,7 @@ export const Logout = ({ children }: { children: React.ReactNode }) => {
       try {
         await onLogout();
       } catch (error) {
+        toast.error("logout error , contact support");
         console.error("Logout error:", error);
       } finally {
         setIsLoggingOut(false);
