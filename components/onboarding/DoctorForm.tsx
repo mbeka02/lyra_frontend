@@ -4,7 +4,6 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "../ui/text";
 import FormInput from "../form/FormInput";
-import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { doctorOnboardingSchema } from "~/types/zod";
@@ -35,7 +34,7 @@ export function DoctorForm({
   onIndexChange,
 }: DoctorFormProps) {
   const router = useRouter();
-  const { authState } = useAuthentication();
+  const { updateUserOnboardingStatus } = useAuthentication();
   const {
     control,
     handleSubmit,
@@ -62,9 +61,9 @@ export function DoctorForm({
         years_of_experience: data.years_of_experience,
         county: data.county.toLowerCase(),
       });
-      await completeOnboarding(authState?.user?.email!);
+      await updateUserOnboardingStatus!(true);
       toast.success("Completed onboarding");
-      router.replace("/home");
+      setTimeout(() => router.replace("/home"), 1000);
     } catch (error) {
       toast.error("Unable to complete onboarding");
       console.error(error);
