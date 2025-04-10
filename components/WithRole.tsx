@@ -1,4 +1,4 @@
-import { Role, useAuthentication } from "~/context/AuthContext";
+import { Role, useAuthentication } from "~/providers/AuthProvider";
 interface WithRoleProps {
   children: React.ReactNode;
   role: Role;
