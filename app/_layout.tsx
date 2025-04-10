@@ -10,10 +10,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PortalHost } from "@rn-primitives/portal";
-import { AuthProvider } from "~/context/AuthContext";
+import { AuthProvider } from "~/providers/AuthProvider";
 import { Toaster } from "sonner-native";
 import { Slot, useRouter, useSegments } from "expo-router";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import { NAV_THEME } from "~/lib/constants";
 import { OverlayProvider } from "stream-chat-expo";
 import {

@@ -1,4 +1,4 @@
-import { Role } from "~/context/AuthContext";
+import { Role } from "~/providers/AuthProvider";
 import { WithRole } from "~/components/WithRole";
 import { DoctorList } from "~/components/platform/patient/DoctorList";
 import { View } from "react-native";

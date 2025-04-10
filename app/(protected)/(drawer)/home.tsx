@@ -1,6 +1,6 @@
 import { Scheduler } from "~/components/platform/doctor/Scheduler";
 import { WithRole } from "~/components/WithRole";
-import { Role } from "~/context/AuthContext";
+import { Role } from "~/providers/AuthProvider";
 import { SafeAreaView, View } from "react-native";
 import { PatientDashboard } from "~/components/platform/patient/PatientDashBoard";
 export default function HomeScreen() {
