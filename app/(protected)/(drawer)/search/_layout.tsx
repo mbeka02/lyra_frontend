@@ -1,6 +1,4 @@
 import { Stack } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Platform } from "react-native";
 export default function SearchLayout() {
   return (
     <Stack>
