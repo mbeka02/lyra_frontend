@@ -57,7 +57,7 @@ export default function ChatProvider({
   if (!isInitialized) return <Loader />;
 
   return (
-    <OverlayProvider value={{ style: chatTheme }}>
+    <OverlayProvider /*value={{ style: chatTheme }}*/>
       <Chat client={streamClient}>{children}</Chat>
     </OverlayProvider>
   );
