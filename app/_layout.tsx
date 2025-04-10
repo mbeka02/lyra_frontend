@@ -63,7 +63,7 @@ function useAppInitialization() {
     async function prepare() {
       try {
         // Small delay to ensure everything is loaded properly
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        // await new Promise((resolve) => setTimeout(resolve, 50));
 
         if (Platform.OS === "web") {
           document.documentElement.classList.add("bg-background");
