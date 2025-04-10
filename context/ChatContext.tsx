@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Chat, OverlayProvider } from "stream-chat-expo";
 import { Loader } from "~/components/Loader";
 import { useAuthentication } from "./AuthContext";
@@ -19,6 +19,7 @@ const chatTheme = {
     },
   },
 };
+//TODO: CLEAN THIS UP
 export default function ChatProvider({
   children,
 }: {
@@ -26,32 +27,66 @@ export default function ChatProvider({
 }) {
   //state that tracks whether the streamClient is ready
   const [isInitialized, setIsInitialized] = useState(false);
+  // Use a ref to track connection status that won't be affected by stale closures
+  const isConnectedRef = useRef(false);
   const { authState } = useAuthentication();
+
   useEffect(() => {
-    //return if user is not authed
-    if (!authState?.isAuthenticated) return;
+    // Return if user is not authed
+    if (!authState?.isAuthenticated) {
+      // If we were previously connected, disconnect the user
+      if (isConnectedRef.current) {
+        streamClient
+          .disconnectUser()
+          .then(() => {
+            isConnectedRef.current = false;
+            setIsInitialized(false);
+          })
+          .catch((err) => {
+            console.error("Error disconnecting user:", err);
+          });
+      }
+      return;
+    }
+
     const user = {
       id: authState.user?.user_id.toString() || "",
       name: authState.user?.full_name || "",
     };
+
     const connectUser = async () => {
-      await streamClient.connectUser(
-        {
-          name: user.name || "",
-          id: user.id,
-        },
-        authState.getStreamToken,
-      );
-      setIsInitialized(true);
-    };
-    connectUser();
-    // Cleanup function to disconnect user when component unmounts
-    // or when authentication state changes
-    return () => {
-      if (isInitialized) {
-        streamClient.disconnectUser();
+      if (isConnectedRef.current) return;
+
+      try {
+        await streamClient.connectUser(
+          {
+            name: user.name || "",
+            id: user.id,
+          },
+          authState.getStreamToken,
+        );
+        isConnectedRef.current = true;
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error connecting user:", error);
       }
-      setIsInitialized(false);
+    };
+
+    connectUser();
+
+    // Cleanup function to disconnect user when component unmounts
+    return () => {
+      // Only run disconnectUser if we're unmounting the entire component
+      if (authState?.isAuthenticated && isConnectedRef.current) {
+        streamClient
+          .disconnectUser()
+          .then(() => {
+            isConnectedRef.current = false;
+          })
+          .catch((err) => {
+            console.error("Error disconnecting user on unmount:", err);
+          });
+      }
     };
   }, [authState?.isAuthenticated]);
   if (!isInitialized) return <Loader />;
