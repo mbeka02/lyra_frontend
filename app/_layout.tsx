@@ -15,6 +15,7 @@ import { Toaster } from "sonner-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useAuthentication } from "~/context/AuthContext";
 import { NAV_THEME } from "~/lib/constants";
+import { OverlayProvider } from "stream-chat-expo";
 import {
   DarkTheme,
   DefaultTheme,
@@ -152,7 +153,9 @@ export default function RootLayout() {
           <ActionSheetProvider>
             <SafeAreaProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <AuthenticationGuard />
+                <OverlayProvider>
+                  <AuthenticationGuard />
+                </OverlayProvider>
                 <ThemedToaster />
                 <PortalHost />
               </GestureHandlerRootView>
