@@ -55,7 +55,7 @@ export function PatientForm({
       await onboardPatient(data);
       await updateUserOnboardingStatus!(true);
       toast.success("Completed onboarding");
-      setTimeout(() => router.replace("/home"), 1000);
+      router.replace("/home");
     } catch (error) {
       console.error(error);
       toast.error("Error: Unable to complete onboarding");
