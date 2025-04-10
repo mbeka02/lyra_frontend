@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "../ui/text";
 import FormInput from "../form/FormInput";
-import { completeOnboarding } from "~/constants";
 import { useAuthentication } from "~/context/AuthContext";
 import { useRouter } from "expo-router";
 import { patientOnboardingSchema } from "~/types/zod";
@@ -35,7 +34,7 @@ export function PatientForm({
   onIndexChange,
 }: PatientFormProps) {
   const router = useRouter();
-  const { authState } = useAuthentication();
+  const { updateUserOnboardingStatus } = useAuthentication();
   const { control, handleSubmit } = useForm<FormData>({
     defaultValues: {
       allergies: "",
@@ -54,7 +53,7 @@ export function PatientForm({
   const onSubmit = async (data: FormData) => {
     try {
       await onboardPatient(data);
-      await completeOnboarding(authState?.user?.email!);
+      await updateUserOnboardingStatus!(true);
       toast.success("Completed onboarding");
       router.replace("/home");
     } catch (error) {
