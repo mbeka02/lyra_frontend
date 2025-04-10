@@ -63,7 +63,7 @@ export function DoctorForm({
       });
       await updateUserOnboardingStatus!(true);
       toast.success("Completed onboarding");
-      router.replace("/home");
+      setTimeout(() => router.replace("/home"), 1000);
     } catch (error) {
       toast.error("Unable to complete onboarding");
       console.error(error);
