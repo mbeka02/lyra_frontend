@@ -110,7 +110,7 @@ function AuthenticationGuard() {
     else if (!authState?.isAuthenticated && inProtectedGroup) {
       router.replace("/");
     }
-  }, [authState, segments, initialized]);
+  }, [authState, segments, initialized, router]);
   if (!initialized) {
     return <Loader />;
   }
