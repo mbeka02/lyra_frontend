@@ -24,7 +24,6 @@ export default function DrawerLayout() {
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
-        headerRight: () => <Logout />,
         headerStyle: {
           height: 80,
         },
