@@ -14,7 +14,6 @@ import { AuthProvider } from "~/context/AuthContext";
 import { Toaster } from "sonner-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { useAuthentication } from "~/context/AuthContext";
-import { checkOnboardingStatus } from "~/constants";
 import { NAV_THEME } from "~/lib/constants";
 import {
   DarkTheme,
@@ -23,7 +22,6 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Loader } from "~/components/Loader";
-
 // Prevent auto-hiding of splash screen
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
@@ -92,58 +90,26 @@ function useAppInitialization() {
 }
 
 // Authentication and route protection
-function AuthenticationGuard({ children }: { children: React.ReactNode }) {
+function AuthenticationGuard() {
   const { authState, initialized } = useAuthentication();
   const segments = useSegments();
   const router = useRouter();
-  const [isNavigating, setIsNavigating] = React.useState(false);
 
   React.useEffect(() => {
-    let isMounted = true;
-
-    const handleNavigation = async () => {
-      // Prevent multiple navigations or unnecessary work
-      if (!initialized || isNavigating || !isMounted) return;
-
-      try {
-        setIsNavigating(true);
-        const inProtectedGroup = segments[0] === "(protected)";
-
-        if (authState?.isAuthenticated) {
-          if (!inProtectedGroup) {
-            // Check onboarding status only when not in protected routes
-            const isOnboarded = await checkOnboardingStatus(
-              authState.user?.email!,
-            );
-            const route = isOnboarded ? "/home" : "/onboarding";
-
-            if (isMounted) {
-              router.replace(route);
-            }
-          }
-        } else if (segments[0] !== undefined) {
-          // Only redirect if not already at home
-          if (isMounted) {
-            router.replace("/");
-          }
-        }
-      } catch (error) {
-        console.error("Navigation error:", error);
-      } finally {
-        if (isMounted) {
-          setIsNavigating(false);
-        }
+    if (!initialized) return;
+    const inProtectedGroup = segments[0] === "(protected)";
+    if (authState?.isAuthenticated && !inProtectedGroup) {
+      if (authState.user?.is_onboarded) {
+        router.replace("/home");
+      } else {
+        router.replace("/onboarding");
       }
-    };
-
-    handleNavigation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [initialized, authState?.isAuthenticated, segments]);
-
-  return children;
+    }
+  }, [authState, segments, initialized]);
+  if (!initialized) {
+    return <Loader />;
+  }
+  return <Slot />;
 }
 
 // Toast component with theme support
@@ -181,9 +147,7 @@ export default function RootLayout() {
           <ActionSheetProvider>
             <SafeAreaProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <AuthenticationGuard>
-                  <Slot />
-                </AuthenticationGuard>
+                <AuthenticationGuard />
                 <ThemedToaster />
                 <PortalHost />
               </GestureHandlerRootView>
