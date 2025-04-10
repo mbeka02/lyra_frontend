@@ -94,16 +94,21 @@ function AuthenticationGuard() {
   const { authState, initialized } = useAuthentication();
   const segments = useSegments();
   const router = useRouter();
-
   React.useEffect(() => {
     if (!initialized) return;
     const inProtectedGroup = segments[0] === "(protected)";
+
+    // Route authenticated users to appropriate screens when not in protected group
     if (authState?.isAuthenticated && !inProtectedGroup) {
       if (authState.user?.is_onboarded) {
         router.replace("/home");
       } else {
         router.replace("/onboarding");
       }
+    }
+    // Redirect unauthenticated users away from protected routes
+    else if (!authState?.isAuthenticated && inProtectedGroup) {
+      router.replace("/");
     }
   }, [authState, segments, initialized]);
   if (!initialized) {
