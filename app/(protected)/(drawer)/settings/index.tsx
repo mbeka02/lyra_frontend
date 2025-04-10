@@ -4,13 +4,13 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { getUser } from "~/services/user";
 import FeatherIcon from "react-native-vector-icons/Feather";
-import { useAuthentication } from "~/context/AuthContext";
 import { Loader } from "~/components/Loader";
 import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { Link } from "expo-router";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { Switch } from "~/components/ui/switch";
+import { Logout } from "~/components/auth/Logout";
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { isDarkColorScheme, setColorScheme } = useColorScheme();
@@ -21,7 +21,6 @@ export default function SettingsScreen() {
     setAndroidNavigationBar(newTheme);
   }
 
-  const { onLogout } = useAuthentication();
   const { data, isError, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
@@ -152,16 +151,18 @@ export default function SettingsScreen() {
 
         <View className=" mt-6 py-3">
           <View className="rounded-xl shadow-sm bg-greenPrimary overflow-hidden">
-            <Button onPress={onLogout} className="bg-greenPrimary">
-              <Text className="text-base font-jakarta-semibold text-white">
-                Log Out
-              </Text>
-            </Button>
+            <Logout>
+              <Button className="bg-greenPrimary">
+                <Text className="text-base font-jakarta-semibold text-white">
+                  Log Out
+                </Text>
+              </Button>
+            </Logout>
           </View>
         </View>
 
         <Text className="mt-6 mb-6 text-sm font-medium text-center text-gray-500">
-          App Version 0.3
+          App Version 0.5
         </Text>
       </ScrollView>
     </View>
