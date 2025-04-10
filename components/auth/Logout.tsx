@@ -23,9 +23,9 @@ export const Logout = ({ children }: { children: React.ReactNode }) => {
     setIsLoggingOut(true);
 
     // Wrap the logout in setTimeout to allow the dialog to close fully first
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
-        onLogout();
+        await onLogout();
       } catch (error) {
         console.error("Logout error:", error);
       } finally {
