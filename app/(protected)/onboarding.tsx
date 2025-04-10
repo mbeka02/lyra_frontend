@@ -1,10 +1,10 @@
 import { SafeAreaView, View } from "react-native";
 import { Text } from "~/components/ui/text";
-import { Role } from "~/context/AuthContext";
+import { Role } from "~/providers/AuthProvider";
 import { WithRole } from "~/components/WithRole";
 import { PatientForm } from "~/components/onboarding/PatientForm";
 import { DoctorForm } from "~/components/onboarding/DoctorForm";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import { Logout } from "~/components/auth/Logout";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";

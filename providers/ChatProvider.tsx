@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Chat, OverlayProvider } from "stream-chat-expo";
 import { Loader } from "~/components/Loader";
-import { useAuthentication } from "./AuthContext";
+import { useAuthentication } from "./AuthProvider";
 import { StreamChat } from "stream-chat";
 //get the public access key and init the streamClient
 const streamClient = StreamChat.getInstance(

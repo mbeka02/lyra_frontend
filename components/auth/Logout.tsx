@@ -1,4 +1,4 @@
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 
 import {
   AlertDialog,

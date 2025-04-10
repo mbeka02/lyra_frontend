@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import FormInput from "~/components/form/FormInput";
 import { Mail } from "lucide-react-native";
 import { loginSchema } from "~/types/zod";

@@ -12,7 +12,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Text } from "./ui/text";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import UserAvatar from "./platform/shared/UserAvatar";
 export default function CustomDrawerContent(
   props: DrawerContentComponentProps,

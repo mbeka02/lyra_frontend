@@ -7,8 +7,7 @@ import {
   Pill,
   FileText,
 } from "lucide-react-native";
-import { Role, useAuthentication } from "~/context/AuthContext";
-import { Logout } from "~/components/auth/Logout";
+import { Role, useAuthentication } from "~/providers/AuthProvider";
 import { useColorScheme } from "~/lib/useColorScheme";
 import CustomDrawerContent from "~/components/CustomDrawerContent";
 

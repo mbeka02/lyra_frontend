@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Text } from "../ui/text";
 import FormInput from "../form/FormInput";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import { useRouter } from "expo-router";
 import { doctorOnboardingSchema } from "~/types/zod";
 import { onboardDoctor } from "~/services/onboarding";

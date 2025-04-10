@@ -1,6 +1,6 @@
 import { Text } from "~/components/ui/text";
 import { View, ScrollView } from "react-native";
-import { useAuthentication } from "~/context/AuthContext";
+import { useAuthentication } from "~/providers/AuthProvider";
 import { GradientText } from "~/components/GradientText";
 import { useEffect, useState } from "react";
 import QuickActionButton from "~/components/QuickActionButton";
