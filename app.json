@@ -21,7 +21,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#24AE7C"
       },
-
       "package": "com.mbeka02.lyra"
     },
     "web": {
@@ -57,12 +56,25 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you customize your account details."
+          "photosPermission": "$(PRODUCT_NAME) accesses your photos to let you customize your account details."
         }
       ],
-
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "$(PRODUCT_NAME) would like access to your photo gallery to share image in a message.",
+          "savePhotosPermission": "$(PRODUCT_NAME) would like to save photos to your photo gallery after downloading from a message."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "$(PRODUCT_NAME) would like to use your microphone for voice recording."
+        }
+      ],
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
