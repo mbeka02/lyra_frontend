@@ -1,4 +1,3 @@
-import { useColorScheme } from "~/lib/useColorScheme";
 import { useAuthentication } from "~/context/AuthContext";
 
 import {
@@ -12,30 +11,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
-
 import { Text } from "~/components/ui/text";
-import { LogOut } from "lucide-react-native";
-
-export const Logout = () => {
+import { useState, useCallback } from "react";
+export const Logout = ({ children }: { children: React.ReactNode }) => {
   const { onLogout } = useAuthentication();
-  const { isDarkColorScheme } = useColorScheme();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = useCallback(() => {
+    if (isLoggingOut || !onLogout) return;
+
+    setIsLoggingOut(true);
+
+    // Wrap the logout in setTimeout to allow the dialog to close fully first
+    setTimeout(() => {
+      try {
+        onLogout();
+      } catch (error) {
+        console.error("Logout error:", error);
+      } finally {
+        setIsLoggingOut(false);
+      }
+    }, 500);
+  }, [onLogout, isLoggingOut]);
   if (!onLogout) return null;
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          className="web:ring-offset-background border-none bg-transparent web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2 mr-1"
-          size="icon"
-        >
-          <LogOut
-            strokeWidth={2}
-            size={18}
-            color={isDarkColorScheme ? "white" : "black"}
-          />
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="font-jakarta-semibold text-2xl mb-2">
@@ -50,10 +52,11 @@ export const Logout = () => {
             <Text>Cancel</Text>
           </AlertDialogCancel>
           <AlertDialogAction
-            onPress={onLogout}
-            className="bg-red-600 font-jakarta-semibold text-white"
+            onPress={handleLogout}
+            className={`${isLoggingOut ? "bg-greenPrimary" : "bg-red-600"} font-jakarta-semibold  text-white`}
+            disabled={isLoggingOut}
           >
-            <Text>Continue</Text>
+            <Text>{isLoggingOut ? "Logging Out" : "Continue"}</Text>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
