@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
+import { Text } from "~/components/ui/text";
 import { Calendar } from "lucide-react-native";
 import { parseISO, format } from "date-fns";
 import { Href, useRouter } from "expo-router";
