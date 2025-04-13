@@ -39,11 +39,12 @@ export type AppointmentStatus =
   | "completed"
   | "cancelled";
 
-export type PatientAppointment = {
+// Base appointment fields shared between doctor and patient views
+export interface BaseAppointment {
   appointment_id: number;
   patient_id: number;
   doctor_id: number;
-  current_status: AppointmentStatus; // Adjust based on your `AppointmentStatus` enum
+  current_status: AppointmentStatus;
   reason: string;
   notes: {
     String: string;
@@ -53,7 +54,34 @@ export type PatientAppointment = {
   end_time: string; // ISO date string
   created_at: string; // ISO date string
   updated_at: string | null; // ISO date string or null
+}
+
+// Patient-specific view of appointments (includes doctor details)
+export interface PatientAppointment extends BaseAppointment {
   specialization: string;
   doctor_name: string;
   doctor_profile_image_url: string;
-};
+}
+
+// Doctor-specific view of appointments (includes patient details)
+export interface DoctorAppointment extends BaseAppointment {
+  patient_name: string;
+  patient_profile_image_url: string;
+}
+
+// Union type for either kind of appointment
+export type Appointment = PatientAppointment | DoctorAppointment;
+
+// Type guard to check if an appointment is a patient appointment
+export function isPatientAppointment(
+  appointment: Appointment,
+): appointment is PatientAppointment {
+  return "doctor_name" in appointment;
+}
+
+// Type guard to check if an appointment is a doctor appointment
+export function isDoctorAppointment(
+  appointment: Appointment,
+): appointment is DoctorAppointment {
+  return "patient_name" in appointment;
+}
