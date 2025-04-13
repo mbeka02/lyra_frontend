@@ -5,17 +5,27 @@ import {
   StreamCall,
   useStreamVideoClient,
 } from "@stream-io/video-react-native-sdk";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { CustomCallControls } from "~/components/CallControls";
 import { Text } from "~/components/ui/text";
 import { useAuthentication } from "~/providers/AuthProvider";
+import { PermissionsAndroid } from "react-native";
+// PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 export default function VideoCallScreen() {
   const { id } = useLocalSearchParams();
+  console.log("id=>", id);
   const { authState } = useAuthentication();
   const client = useStreamVideoClient();
   const [call, setCall] = useState<Call | null>(null);
+  const navigation = useNavigation();
+  useEffect(() => {
+    navigation.setOptions({
+      headerBackTitle: "Back",
+      title: `Appointment #${id}`,
+    });
+  }, []);
   //initiate call
   useEffect(() => {
     //creates a new call

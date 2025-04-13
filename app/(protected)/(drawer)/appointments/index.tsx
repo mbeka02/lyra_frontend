@@ -7,7 +7,7 @@ import { ArrowRight } from "~/lib/icons/ArrowRight";
 import { FlipVertical2 } from "~/lib/icons/FlipVerical2";
 import { Heart } from "~/lib/icons/Heart";
 import { Clock } from "~/lib/icons/Clock";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 import { Text } from "~/components/ui/text";
 import { format, parseISO } from "date-fns";
 import { AppointmentStatus, PatientAppointment } from "~/services/types";
@@ -18,19 +18,6 @@ import { useState } from "react";
 import { GradientText } from "~/components/GradientText";
 import { SkeletonLoader } from "~/components/platform/shared/SkeletonLoader";
 import { Button } from "~/components/ui/button";
-/*
-interface Appointment {
-  appointment_id: string;
-  doctor_name: string;
-  specialization: string;
-  doctor_profile_image_url: string;
-  start_time: string;
-  end_time: string;
-  duration?: string;
-  status: AppointmentStatus;
-  meetingUrl?: string;
-  notes?: string;
-}*/
 export default function AppointmentsScreen() {
   const router = useRouter();
   const [interval, setInterval] = useState(21);
@@ -176,7 +163,9 @@ export default function AppointmentsScreen() {
                           }`}
                         onPress={() => {
                           if (isJoinable(appointment.current_status)) {
-                            console.log("...joining");
+                            router.push(
+                              `/appointments/${appointment.appointment_id}` as Href,
+                            );
                           }
                         }}
                         activeOpacity={
