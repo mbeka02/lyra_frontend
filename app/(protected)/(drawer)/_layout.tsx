@@ -84,7 +84,6 @@ export default function DrawerLayout() {
             <Calendar style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
-        redirect={authState?.user?.role !== Role.PATIENT}
       />
       <Drawer.Screen
         name="prescriptions"
