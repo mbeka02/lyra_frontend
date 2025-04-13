@@ -12,7 +12,7 @@ import { CustomCallControls } from "~/components/CallControls";
 import { Text } from "~/components/ui/text";
 import { useAuthentication } from "~/providers/AuthProvider";
 import { PermissionsAndroid } from "react-native";
-// PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 export default function VideoCallScreen() {
   const { id } = useLocalSearchParams();
   const { authState } = useAuthentication();

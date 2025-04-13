@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
+import { Text } from "~/components/ui/text";
 import { Calendar } from "~/lib/icons/Calendar";
 import { Video } from "~/lib/icons/Video";
 import { AlertCircle } from "~/lib/icons/AlertCircle";
