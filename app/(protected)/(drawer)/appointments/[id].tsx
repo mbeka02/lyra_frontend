@@ -15,7 +15,6 @@ import { PermissionsAndroid } from "react-native";
 // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
 export default function VideoCallScreen() {
   const { id } = useLocalSearchParams();
-  console.log("id=>", id);
   const { authState } = useAuthentication();
   const client = useStreamVideoClient();
   const [call, setCall] = useState<Call | null>(null);
