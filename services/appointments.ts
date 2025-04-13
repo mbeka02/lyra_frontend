@@ -1,5 +1,5 @@
 import { Api } from "./api";
-import { PatientAppointment } from "./types";
+import { PatientAppointment, DoctorAppointment } from "./types";
 
 export const getPatientAppointments = (
   status: string,
@@ -10,5 +10,21 @@ export const getPatientAppointments = (
   if (interval) params.append("interval", interval.toString());
   // Convert params to string and append to base URL
   const queryString = params.toString();
-  return Api.get(`/appointments${queryString ? "?" + queryString : ""}`);
+  return Api.get(
+    `/patients/appointments${queryString ? "?" + queryString : ""}`,
+  );
+};
+
+export const getDoctorAppointments = (
+  status: string,
+  interval: number = 21,
+): Promise<DoctorAppointment[]> => {
+  const params = new URLSearchParams();
+  if (status && status.trim() !== "") params.append("status", status);
+  if (interval) params.append("interval", interval.toString());
+  // Convert params to string and append to base URL
+  const queryString = params.toString();
+  return Api.get(
+    `/doctors/appointments${queryString ? "?" + queryString : ""}`,
+  );
 };
