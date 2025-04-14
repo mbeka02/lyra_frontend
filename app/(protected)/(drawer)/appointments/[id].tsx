@@ -224,6 +224,7 @@ export default function VideoCallScreen() {
               call.stopTranscription();
             }
             call.leave();
+            router.back();
           }}
           CallControls={CustomCallControls}
         />
