@@ -1,7 +1,7 @@
 import { WithRole } from "~/components/WithRole";
 import { Role } from "~/providers/AuthProvider";
-import PatientAppointmentsScreen from "./PatientAppointmentsScreen";
-import DoctorAppointmentsScreen from "./DoctorAppointmentScreen";
+import PatientAppointmentsScreen from "~/components/platform/patient/PatientAppointmentsScreen";
+import DoctorAppointmentsScreen from "~/components/platform/doctor/DoctorAppointmentScreen";
 export default function AppointmentsScreen() {
   return (
     <>
