@@ -82,7 +82,7 @@ export function DoctorList() {
   };
 
   const toggleModal = () => setModalVisible(!modalVisible);
-
+  // const filteredData=data?.doctors.filter(doctor=>doctor.doctor_id !==)
   return (
     <View className="py-2 px-4 mb-8">
       {isPending ? (

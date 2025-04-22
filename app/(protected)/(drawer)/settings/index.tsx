@@ -14,7 +14,6 @@ import { Logout } from "~/components/auth/Logout";
 export default function SettingsScreen() {
   const queryClient = useQueryClient();
   const { isDarkColorScheme, setColorScheme } = useColorScheme();
-
   function toggleColorScheme() {
     const newTheme = isDarkColorScheme ? "light" : "dark";
     setColorScheme(newTheme);

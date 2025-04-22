@@ -115,7 +115,10 @@ export function DoctorCard({
             </View>
             <Button
               className="bg-greenPrimary mt-6 mb-2 flex flex-row items-center w-full gap-2"
-              onPress={openModal}
+              onPress={() => {
+                console.log("pressed");
+                openModal();
+              }}
             >
               <Phone className="text-white h-4 w-4" size={18} color="white" />
               <Text className="font-jakarta-semibold text-lg text-white">

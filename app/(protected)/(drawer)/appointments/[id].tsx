@@ -1,93 +1,3 @@
-// import {
-//   CallContent,
-//   Call,
-//   CallingState,
-//   StreamCall,
-//   useStreamVideoClient,
-// } from "@stream-io/video-react-native-sdk";
-// import { useLocalSearchParams, useNavigation } from "expo-router";
-// import { useEffect, useState } from "react";
-// import { View } from "react-native";
-// import { CustomCallControls } from "~/components/CallControls";
-// import { Text } from "~/components/ui/text";
-// import { useAuthentication } from "~/providers/AuthProvider";
-// import { PermissionsAndroid } from "react-native";
-// PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-// export default function VideoCallScreen() {
-//   const { id } = useLocalSearchParams();
-//   const { authState } = useAuthentication();
-//   const client = useStreamVideoClient();
-//   const [call, setCall] = useState<Call | null>(null);
-//   const navigation = useNavigation();
-//   useEffect(() => {
-//     navigation.setOptions({
-//       headerBackTitle: "Back",
-//       title: `Appointment #${id}`,
-//     });
-//   }, []);
-//   //initiate call
-//   useEffect(() => {
-//     const handleCall = () => {
-//       try {
-//         //creates a new call
-//         const newCall = client?.call("default", id as string);
-//         /**
-//          * Will start to watch for call related WebSocket events and initiate a call session with the server.
-//          *
-//          * @returns a promise which resolves once the call join-flow has finished.
-//          */
-//
-//         call?.join(
-//           //if true the call will be created if it doesn't exist
-//           { create: true },
-//         );
-//         //if the call is initiated
-//         if (newCall) {
-//           console.log("...the call has been initiated");
-//           setCall(newCall);
-//           //enable recording and transcriptions for doctor accounts
-//           if (authState?.user?.role === "specialist") {
-//             newCall.startRecording();
-//             newCall.startTranscription();
-//           }
-//         }
-//       } catch (error) {
-//         console.error(error);
-//       }
-//     };
-//     handleCall();
-//   }, [client, id]);
-//   useEffect(() => {
-//     //cleanup function (if the component unmounts if the call was not left already)
-//     return () => {
-//       if (call?.state.callingState !== CallingState.LEFT) {
-//         call?.leave();
-//       }
-//     };
-//   }, [call]);
-//   if (!call) {
-//     return (
-//       <View className="flex-1 items-center justify-center">
-//         <Text>...the session details are loading</Text>
-//       </View>
-//     );
-//   }
-//   return (
-//     <StreamCall call={call}>
-//       <View className="flex-1 border-solid border-white border-2">
-//         <CallContent
-//           layout="spotlight"
-//           onHangupCallHandler={() => {
-//             call.stopRecording();
-//             call.stopTranscription();
-//             call.leave();
-//           }}
-//           CallControls={CustomCallControls}
-//         />
-//       </View>
-//     </StreamCall>
-//   );
-// }
 import {
   CallContent,
   Call,
@@ -103,6 +13,8 @@ import { Text } from "~/components/ui/text";
 import { useAuthentication } from "~/providers/AuthProvider";
 import { PermissionsAndroid } from "react-native";
 import { toast } from "sonner-native";
+import { useMutation } from "@tanstack/react-query";
+import { updateAppointmentStatus } from "~/services/appointments";
 
 export default function VideoCallScreen() {
   const { id } = useLocalSearchParams();
@@ -111,6 +23,13 @@ export default function VideoCallScreen() {
   const [call, setCall] = useState<Call | null>(null);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const router = useRouter();
+  const isDoctor = authState?.user?.role === "specialist";
+  const mutation = useMutation({
+    mutationFn: updateAppointmentStatus,
+    onSuccess: (_, variables) => {
+      toast.info(`the meeting status has been updated to:${variables.status}`);
+    },
+  });
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -173,9 +92,13 @@ export default function VideoCallScreen() {
         console.log("Call joined successfully");
 
         // Enable recording and transcriptions for doctor accounts
-        if (authState?.user?.role === "specialist") {
+        if (isDoctor) {
           await newCall.startRecording();
           await newCall.startTranscription();
+          mutation.mutate({
+            status: "in_progress",
+            appointment_id: parseInt(id as string),
+          });
         }
       } catch (error) {
         console.error("Error creating or joining call:", error);
@@ -219,10 +142,15 @@ export default function VideoCallScreen() {
         <CallContent
           layout="spotlight"
           onHangupCallHandler={() => {
-            if (authState?.user?.role === "specialist") {
+            if (isDoctor) {
               call.stopRecording();
               call.stopTranscription();
+              mutation.mutate({
+                status: "completed",
+                appointment_id: parseInt(id as string),
+              });
             }
+
             call.leave();
             router.back();
           }}

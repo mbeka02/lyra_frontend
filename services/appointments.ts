@@ -1,6 +1,12 @@
 import { Api } from "./api";
 import { PatientAppointment, DoctorAppointment } from "./types";
-
+interface updateParams {
+  status: string;
+  appointment_id: number;
+}
+export const updateAppointmentStatus = (params: updateParams) => {
+  return Api.patch("/appointments/status", params);
+};
 export const getPatientAppointments = (
   status: string,
   interval?: number,
