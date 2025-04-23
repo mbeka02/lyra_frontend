@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet } from "react-native";
+import { Text } from "~/components/ui/text";
 import Video from "react-native-video";
 import { useStreamVideoClient } from "@stream-io/video-react-native-sdk";
 import { getCompletedAppointmentIds } from "~/services/appointments";
-// Types for your recordings
+import { toast } from "sonner-native";
+import { GradientText } from "~/components/GradientText";
+import { SkeletonLoader } from "~/components/platform/shared/SkeletonLoader";
 interface Recording {
   id: string;
   url: string;
@@ -22,13 +25,12 @@ export default function RecordingsScreen() {
   const [recordingsData, setRecordingsData] = useState<AppointmentRecordings[]>(
     [],
   );
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const streamClient = useStreamVideoClient();
 
   useEffect(() => {
     const fetchAppointmentRecordings = async () => {
       try {
-        // Fetch completed appointment IDs from the backend
         const appointmentIds = await getCompletedAppointmentIds();
 
         // Fetch recordings for each appointment
@@ -57,6 +59,7 @@ export default function RecordingsScreen() {
         setRecordingsData(recordingsResults);
       } catch (error) {
         console.error("Failed to fetch recordings:", error);
+        toast.error("unable to get your meeting recordings");
       } finally {
         setLoading(false);
       }
@@ -67,8 +70,10 @@ export default function RecordingsScreen() {
 
   const renderRecording = ({ item }: { item: Recording }) => {
     return (
-      <View style={styles.recordingContainer}>
-        <Text style={styles.recordingInfo}>Duration: {item.duration}</Text>
+      <View className="mt-3">
+        <Text className="font-jakarta-regular mb-1">
+          Duration: {item.duration}
+        </Text>
         <Video
           source={{ uri: item.url }}
           controls={true}
@@ -80,11 +85,11 @@ export default function RecordingsScreen() {
   };
 
   const renderAppointment = ({ item }: { item: AppointmentRecordings }) => (
-    <View style={styles.appointmentContainer}>
-      <Text style={styles.appointmentTitle}>
+    <View className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl shadow-sm- mb-7 p-3">
+      <Text className="font-jakarta-semibold text-xl">
         Appointment: {item.appointmentId}
       </Text>
-      <Text style={styles.recordingsCount}>
+      <Text className="mt-1 mb-2">
         {item.recordings.length} recording
         {item.recordings.length !== 1 ? "s" : ""}
       </Text>
@@ -97,12 +102,18 @@ export default function RecordingsScreen() {
   );
 
   if (loading) {
-    return <Text>Loading recordings...</Text>;
+    return (
+      <SkeletonLoader
+        count={5}
+        containerStyles="gap-4 py-2 px-6"
+        skeletonStlyes="rounded-xl px-4 p-2 w-full h-28"
+      />
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.screenTitle}>Your Appointment Recordings</Text>
+    <View className="flex-1 py-2 px-6">
+      <GradientText isUnderlined={true} text="Your Session Recordings" />
       <FlatList
         data={recordingsData}
         keyExtractor={(item) => item.appointmentId}
@@ -113,36 +124,6 @@ export default function RecordingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  screenTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  appointmentContainer: {
-    marginBottom: 24,
-    padding: 12,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-  },
-  appointmentTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  recordingsCount: {
-    marginTop: 4,
-    color: "#666",
-    marginBottom: 8,
-  },
-  recordingContainer: {
-    marginTop: 12,
-  },
-  recordingInfo: {
-    marginBottom: 4,
-  },
   videoPlayer: {
     height: 200,
     width: "100%",
