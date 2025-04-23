@@ -6,6 +6,7 @@ import {
   Settings,
   Pill,
   FileText,
+  Video,
 } from "lucide-react-native";
 import { Role, useAuthentication } from "~/providers/AuthProvider";
 import { useColorScheme } from "~/lib/useColorScheme";
@@ -105,7 +106,15 @@ export default function DrawerLayout() {
         }}
         redirect={authState?.user?.role !== Role.PATIENT}
       />
-
+      <Drawer.Screen
+        name="recordings"
+        options={{
+          title: "Recordings",
+          drawerIcon: ({ color, size }: DrawerIconProps) => (
+            <Video style={{ marginRight: 15 }} color={color} size={size} />
+          ),
+        }}
+      />
       <Drawer.Screen
         name="settings"
         options={{
