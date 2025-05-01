@@ -12,6 +12,9 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import { Platform } from "react-native";
 import { GradientText } from "~/components/GradientText";
+import { toast } from "sonner-native";
+import { name } from "@stream-io/video-react-native-sdk";
+import { UploadPatientDocument } from "~/services/documents";
 
 const documentTypes = [
   {
@@ -60,13 +63,33 @@ export default function AddRecordScreen() {
       });
 
       if (result.canceled) {
+        toast.info("file selection canceled");
         return;
       }
-
-      setSelectedFile(result.assets[0]);
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const fileName = asset.name;
+        const mimeType = asset.mimeType;
+        setSelectedFile(asset);
+        const formData = new FormData();
+        //build the form data
+        formData.append("document", {
+          uri: asset.uri,
+          name: fileName,
+          type: mimeType,
+        } as any);
+        formData.append("metadata", {
+          title: fileName,
+        } as any);
+        await UploadPatientDocument(formData);
+        //TODO: Consider invalidating some stale data here
+        toast.success("your document has been uploaded successfully");
+      } else {
+        toast.error("no document selected");
+      }
     } catch (error) {
       console.error("Error picking document:", error);
-      Alert.alert("Error", "Failed to pick document");
+      toast.error("Error:failed to pick document");
     }
   };
 

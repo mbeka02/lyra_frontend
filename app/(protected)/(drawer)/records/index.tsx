@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Href, router } from "expo-router";
 import { getMockDocuments } from "@/utils/mockData";
 import { DocumentReference } from "@/types/fhir";
