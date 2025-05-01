@@ -13,7 +13,6 @@ import * as DocumentPicker from "expo-document-picker";
 import { Platform } from "react-native";
 import { GradientText } from "~/components/GradientText";
 import { toast } from "sonner-native";
-import { name } from "@stream-io/video-react-native-sdk";
 import { UploadPatientDocument } from "~/services/documents";
 
 const documentTypes = [
