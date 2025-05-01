@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function SettingsLayout() {
   return (
     <SafeAreaView
@@ -16,6 +16,12 @@ export default function SettingsLayout() {
       <Stack>
         <Stack.Screen
           name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="add"
           options={{
             headerShown: false,
           }}
