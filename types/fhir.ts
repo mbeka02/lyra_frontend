@@ -1,5 +1,91 @@
 // FHIR Standard Resource Types
 
+// Bundle Resource
+export interface Bundle {
+  resourceType: "Bundle";
+  id?: string;
+  meta?: Meta;
+  type: BundleType;
+  total?: number;
+  link?: BundleLink[];
+  entry?: BundleEntry[];
+  signature?: Signature;
+  timestamp?: string;
+}
+
+export type BundleType =
+  | "document"
+  | "message"
+  | "transaction"
+  | "transaction-response"
+  | "batch"
+  | "batch-response"
+  | "history"
+  | "searchset"
+  | "collection";
+
+export interface BundleLink {
+  relation: string;
+  url: string;
+}
+
+export interface BundleEntry {
+  fullUrl?: string;
+  resource?: Resource;
+  search?: BundleEntrySearch;
+  request?: BundleEntryRequest;
+  response?: BundleEntryResponse;
+}
+
+export interface BundleEntrySearch {
+  mode?: "match" | "include" | "outcome";
+  score?: number;
+}
+
+export interface BundleEntryRequest {
+  method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "PATCH";
+  url: string;
+  ifNoneMatch?: string;
+  ifModifiedSince?: string;
+  ifMatch?: string;
+  ifNoneExist?: string;
+}
+
+export interface BundleEntryResponse {
+  status: string;
+  location?: string;
+  etag?: string;
+  lastModified?: string;
+  outcome?: Resource;
+}
+
+export interface Meta {
+  versionId?: string;
+  lastUpdated?: string;
+  source?: string;
+  profile?: string[];
+  security?: Coding[];
+  tag?: Coding[];
+}
+
+export interface Signature {
+  type: Coding[];
+  when: string;
+  who: Reference;
+  onBehalfOf?: Reference;
+  targetFormat?: string;
+  sigFormat?: string;
+  data?: string;
+}
+
+export interface Resource {
+  resourceType: string;
+  id?: string;
+  meta?: Meta;
+  implicitRules?: string;
+  language?: string;
+}
+
 // Patient Resource
 export interface Patient {
   resourceType: "Patient";
