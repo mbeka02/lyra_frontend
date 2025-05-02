@@ -14,7 +14,6 @@ interface GetPatientDocumentParams {
 export function GetPatientDocuments(
   params: GetPatientDocumentParams,
 ): Promise<DocumentReferenceBundle> {
-  //TODO: Append patient parameters
   const urlParams = new URLSearchParams();
   if (params.patientId)
     urlParams.append("patient_id", params.patientId.toString());

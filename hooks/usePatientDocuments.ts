@@ -32,7 +32,6 @@ export const usePatientDocuments = (
         throw new Error("Patient ID is required");
         // return Promise.reject(new Error("Patient ID is required")); // Alternative
       }
-      // Assuming fetchPatientDocuments expects string or number and returns the Bundle promise
       return fetchPatientDocuments({ patientId: patientId });
     },
     select: (bundle: DocumentReferenceBundle): DocumentReference[] => {
@@ -42,14 +41,11 @@ export const usePatientDocuments = (
         bundle.entry
           ?.map((entry) => entry.resource)
           .filter(
-            (
-              resource,
-            ): resource is DocumentReference => // Type guard is good
+            (resource): resource is DocumentReference =>
               resource?.resourceType === "DocumentReference",
-          ) ?? [] // Default to empty array if entry is null/undefined
+          ) ?? [] // defaults to empty array if entry is null/undefined
       );
     },
-    // Keep query enabled only when patientId is truthy
     // enabled: !!patientId,
   });
 };
