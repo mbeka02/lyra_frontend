@@ -12,10 +12,11 @@ import {
   Lock,
 } from "lucide-react-native";
 import { DocumentReference } from "@/types/fhir";
-import { getMockDocuments } from "@/utils/mockData";
 import { format } from "date-fns";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
+import DocumentStorageManager from "~/utils/document_storage_manger";
+import { Loader } from "~/components/Loader";
 
 export default function RecordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,10 +29,23 @@ export default function RecordDetailScreen() {
 
     const loadDocument = async () => {
       setLoading(true);
-      const allDocs = getMockDocuments() as DocumentReference[];
-      const doc = allDocs.find((d) => d.id === id) || null;
-      setDocument(doc);
-      setLoading(false);
+      try {
+        // Fetch document using DocumentStorageManager
+        const doc = await DocumentStorageManager.getDocument(id as string);
+
+        if (doc) {
+          setDocument(doc);
+        } else {
+          //TODO: Fallback to API call or other data source if needed
+          console.warn("Document not found in storage");
+          setDocument(null);
+        }
+      } catch (error) {
+        console.error("Error loading document data:", error);
+        setDocument(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadDocument();
@@ -69,9 +83,18 @@ export default function RecordDetailScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            // In a real app, this would call an API
-            router.replace("/records");
+          onPress: async () => {
+            try {
+              // Delete document using DocumentStorageManager
+              if (id) {
+                await DocumentStorageManager.deleteDocument(id as string);
+              }
+              // In a real app, this would also call an API
+              router.replace("/records");
+            } catch (error) {
+              console.error("Error deleting document:", error);
+              Alert.alert("Error", "Failed to delete document");
+            }
           },
         },
       ],
@@ -92,25 +115,25 @@ export default function RecordDetailScreen() {
   };
 
   const isImageDocument = (doc: DocumentReference) => {
-    return doc.content[0]?.attachment.contentType?.startsWith("image/");
+    return (
+      doc.content?.[0]?.attachment?.contentType?.startsWith("image/") || false
+    );
   };
 
   if (loading) {
     return (
-      <View className="flex-1 ">
+      <View className="flex-1 bg-white dark:bg-black">
         <View className="flex-row justify-between items-center px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="#24AE7C" size={24} />
           </TouchableOpacity>
-          <Text className="font-semibold text-lg text-center flex-1 ">
+          <Text className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white">
             Loading...
           </Text>
           <View className="w-6" />
         </View>
         <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-500 dark:text-gray-400">
-            Loading document...
-          </Text>
+          <Loader />
         </View>
       </View>
     );
@@ -118,7 +141,7 @@ export default function RecordDetailScreen() {
 
   if (!document) {
     return (
-      <View className="flex-1">
+      <View className="flex-1 bg-white dark:bg-black">
         <View className="flex-row justify-between items-center px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="#24AE7C" size={24} />
@@ -129,9 +152,17 @@ export default function RecordDetailScreen() {
           <View className="w-6" />
         </View>
         <View className="flex-1 justify-center items-center">
-          <Text className=" font-jakarta-semibold text-red-500">
+          <Text className="font-jakarta-semibold text-red-500">
             Document not found
           </Text>
+          <TouchableOpacity
+            className="mt-4 p-3 bg-slate-50 dark:bg-backgroundPrimary rounded-lg"
+            onPress={() => router.replace("/records")}
+          >
+            <Text className="font-jakarta-medium text-green-600 dark:text-green-400">
+              Back to Records
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -144,7 +175,7 @@ export default function RecordDetailScreen() {
           <ArrowLeft color="#24AE7C" size={24} />
         </TouchableOpacity>
         <Text
-          className="font-jakarta-semibold text-lg text-center flex-1 "
+          className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white"
           numberOfLines={1}
         >
           Document Details
@@ -168,18 +199,19 @@ export default function RecordDetailScreen() {
           </View>
 
           <Text className="font-jakarta-bold text-xl px-4 pb-4 text-black dark:text-white">
-            {document.content[0]?.attachment.title || "Untitled Document"}
+            {document.content?.[0]?.attachment?.title || "Untitled Document"}
           </Text>
 
-          {isImageDocument(document) && document.content[0]?.attachment.url && (
-            <View className="w-full h-72 mb-4">
-              <Image
-                source={{ uri: document.content[0].attachment.url }}
-                className="w-full h-full"
-                resizeMode="contain"
-              />
-            </View>
-          )}
+          {isImageDocument(document) &&
+            document.content?.[0]?.attachment?.url && (
+              <View className="w-full h-72 mb-4">
+                <Image
+                  source={{ uri: document?.content[0]?.attachment?.url }}
+                  className="w-full h-full"
+                  resizeMode="contain"
+                />
+              </View>
+            )}
 
           {!isImageDocument(document) && (
             <View className="h-52 justify-center items-center mb-4 bg-gray-50 dark:bg-gray-700">
@@ -218,9 +250,9 @@ export default function RecordDetailScreen() {
                 Format:
               </Text>
               <Text className="font-jakarta-medium text-sm flex-1 text-black dark:text-white">
-                {document.content[0]?.attachment.contentType
+                {document.content?.[0]?.attachment?.contentType
                   ?.split("/")[1]
-                  .toUpperCase() || "Unknown"}
+                  ?.toUpperCase() || "Unknown"}
               </Text>
             </View>
 
@@ -229,8 +261,8 @@ export default function RecordDetailScreen() {
                 Status:
               </Text>
               <Text className="font-jakarta-medium text-sm flex-1 text-black dark:text-white">
-                {document.status.charAt(0).toUpperCase() +
-                  document.status.slice(1)}
+                {document.status?.charAt(0).toUpperCase() +
+                  document.status?.slice(1) || "Unknown"}
               </Text>
             </View>
           </View>
@@ -250,7 +282,9 @@ export default function RecordDetailScreen() {
           onPress={handleShare}
         >
           <Share2 color="#24AE7C" size={20} />
-          <Text className="font-jakarta-medium text-sm ml-1 ">Share</Text>
+          <Text className="font-jakarta-medium text-sm ml-1 text-black dark:text-white">
+            Share
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -260,7 +294,9 @@ export default function RecordDetailScreen() {
           }
         >
           <Download color="#24AE7C" size={20} />
-          <Text className="font-jakarta-medium text-sm ml-1 ">Download</Text>
+          <Text className="font-jakarta-medium text-sm ml-1 text-black dark:text-white">
+            Download
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
