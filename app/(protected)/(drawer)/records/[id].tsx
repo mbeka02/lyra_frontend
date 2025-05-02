@@ -206,7 +206,7 @@ export default function RecordDetailScreen() {
             document.content?.[0]?.attachment?.url && (
               <View className="w-full h-72 mb-4">
                 <Image
-                  source={{ uri: document.content[0].attachment.url }}
+                  source={{ uri: document?.content[0]?.attachment?.url }}
                   className="w-full h-full"
                   resizeMode="contain"
                 />
