@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DocumentReference } from "@/types/fhir";
 
-// Prefix for document keys in AsyncStorage
 const DOCUMENT_KEY_PREFIX = "document_";
 
 /**
