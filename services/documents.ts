@@ -8,8 +8,15 @@ interface DocumentReferenceBundle extends Bundle {
 export function UploadPatientDocument(data: FormData) {
   return Api.post("/documents/upload", data);
 }
-
-export function GetPatientDocuments(): Promise<DocumentReferenceBundle> {
-  //TODO: Append patient parameters
-  return Api.get("/documents");
+interface GetPatientDocumentParams {
+  patientId?: number;
+}
+export function GetPatientDocuments(
+  params: GetPatientDocumentParams,
+): Promise<DocumentReferenceBundle> {
+  const urlParams = new URLSearchParams();
+  if (params.patientId)
+    urlParams.append("patient_id", params.patientId.toString());
+  const queryString = urlParams.toString();
+  return Api.get(`/documents${queryString ? "?" + queryString : ""}`);
 }
