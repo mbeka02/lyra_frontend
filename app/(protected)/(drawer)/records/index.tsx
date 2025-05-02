@@ -16,6 +16,7 @@ import { Loader } from "~/components/Loader";
 import { router, Href } from "expo-router";
 import { useState, useCallback } from "react";
 import { toast } from "sonner-native";
+import DocumentStorageManager from "~/utils/document_storage_manger";
 
 export default function RecordsScreen() {
   const { authState } = useAuthentication();
@@ -55,6 +56,19 @@ export default function RecordsScreen() {
 
   const getDocumentTypeText = (doc: DocumentReference) => {
     return doc.type?.text || "Document";
+  };
+
+  const navigateToDocumentDetail = async (document: DocumentReference) => {
+    try {
+      if (document && document.id) {
+        await DocumentStorageManager.saveDocument(document);
+      }
+
+      router.push(`/records/${document.id}` as Href);
+    } catch (error) {
+      console.error("Error storing document data:", error);
+      toast.error("Unable to open document");
+    }
   };
 
   if (isError) {
@@ -115,7 +129,7 @@ export default function RecordsScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             className="flex-row p-4 rounded-xl mb-4 border bg-slate-50 shadow dark:bg-backgroundPrimary dark:border-gray-700"
-            onPress={() => router.push(`/records/${item.id}` as Href)}
+            onPress={() => navigateToDocumentDetail(item)}
           >
             <View className="w-12 h-12 rounded-full justify-center items-center bg-green-50 dark:bg-greenPrimary/20">
               {getDocumentIcon(item)}
