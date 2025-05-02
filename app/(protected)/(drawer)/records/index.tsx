@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
 import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import { Href, router } from "expo-router";
-import { getMockDocuments } from "@/utils/mockData";
 import { DocumentReference } from "@/types/fhir";
 import {
   FileText,
@@ -13,24 +11,16 @@ import {
 import { format } from "date-fns";
 import { Text } from "~/components/ui/text";
 import { GradientText } from "~/components/GradientText";
+import { usePatientDocuments } from "~/hooks/usePatientDocuments";
+import { Role, useAuthentication } from "~/providers/AuthProvider";
+import { Loader } from "~/components/Loader";
 export default function RecordsScreen() {
-  const [documents, setDocuments] = useState<DocumentReference[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const loadData = useCallback(async () => {
-    setDocuments(getMockDocuments() as DocumentReference[]);
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
+  const { authState } = useAuthentication();
+  const {
+    isError,
+    data: documents,
+    isLoading,
+  } = usePatientDocuments(authState?.user?.role as Role);
   const getDocumentIcon = (doc: DocumentReference) => {
     const contentType = doc.content[0]?.attachment.contentType;
     if (contentType?.startsWith("image/")) {
@@ -47,7 +37,18 @@ export default function RecordsScreen() {
   const getDocumentTypeText = (doc: DocumentReference) => {
     return doc.type?.text || "Document";
   };
-
+  if (isError) {
+    return (
+      <View className="flex-1">
+        <Text className="font-jakarta-semibold text-xl mx-auto my-auto text-red-600">
+          Error: Unable to load page info
+        </Text>
+      </View>
+    );
+  }
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center px-4 pt-4 pb-4">
@@ -108,9 +109,6 @@ export default function RecordsScreen() {
           </TouchableOpacity>
         )}
         className="p-4"
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
         ListEmptyComponent={
           <View className="p-8 rounded-lg items-center justify-center mt-8 bg-slate-50 dark:bg-backgroundPrimary">
             <Text className="font-jakarta-regular text-base text-center text-gray-500 dark:text-gray-400">
