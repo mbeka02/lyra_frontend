@@ -126,6 +126,7 @@ export default function RecordDetailScreen() {
         <View className="flex-row justify-between items-center px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="#24AE7C" size={24} />
+            <Text className="ml-2 font-jakarta-semibold">Back</Text>
           </TouchableOpacity>
           <Text className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white">
             Loading...
@@ -145,6 +146,7 @@ export default function RecordDetailScreen() {
         <View className="flex-row justify-between items-center px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="#24AE7C" size={24} />
+            <Text className="ml-2 font-jakarta-semibold">Back</Text>
           </TouchableOpacity>
           <Text className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white">
             Not Found
@@ -173,6 +175,7 @@ export default function RecordDetailScreen() {
       <View className="flex-row justify-between items-center px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
           <ArrowLeft color="#24AE7C" size={24} />
+          <Text className="ml-2 font-jakarta-semibold">Back</Text>
         </TouchableOpacity>
         <Text
           className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white"

@@ -28,11 +28,9 @@ export default function SettingsLayout() {
         />
         <Stack.Screen
           name="[id]"
-          options={
-            {
-              // headerShown: false,
-            }
-          }
+          options={{
+            headerShown: false,
+          }}
         />
       </Stack>
     </SafeAreaView>

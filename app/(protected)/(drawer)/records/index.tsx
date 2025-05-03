@@ -9,7 +9,6 @@ import {
 } from "lucide-react-native";
 import { format } from "date-fns";
 import { Text } from "~/components/ui/text";
-import { GradientText } from "~/components/GradientText";
 import { usePatientDocuments } from "~/hooks/usePatientDocuments";
 import { Role, useAuthentication } from "~/providers/AuthProvider";
 import { Loader } from "~/components/Loader";
@@ -157,10 +156,10 @@ export default function RecordsScreen() {
               No records found
             </Text>
             <TouchableOpacity
-              className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded-lg"
+              className="mt-4 p-3 bg-greenPrimary rounded-lg"
               onPress={() => router.push("/records/add" as Href)}
             >
-              <Text className="font-jakarta-medium text-green-600 dark:text-green-400">
+              <Text className="font-jakarta-semibold text-white">
                 Add Your First Record
               </Text>
             </TouchableOpacity>
