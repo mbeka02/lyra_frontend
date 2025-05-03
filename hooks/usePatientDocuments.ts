@@ -46,7 +46,7 @@ export const usePatientDocuments = (
           ) ?? [] // defaults to empty array if entry is null/undefined
       );
     },
-    // refetchInterval: 15000,
+    refetchInterval: 60000,
     // enabled: !!patientId,
   });
 };
