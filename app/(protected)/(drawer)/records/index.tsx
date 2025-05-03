@@ -93,8 +93,7 @@ export default function RecordsScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <View className="flex-row justify-between items-center px-4 pt-4 pb-4">
-        <GradientText isUnderlined={true} text="Medical Records" />
+      <View className="flex-row  justify-end items-center px-4 pt-4 pb-4">
         <View className="flex-row">
           <TouchableOpacity
             className="w-10 h-10 rounded-full justify-center items-center bg-slate-50 dark:bg-backgroundPrimary"
@@ -179,10 +178,10 @@ export default function RecordsScreen() {
       />
 
       <TouchableOpacity
-        className="absolute bottom-8 right-8 w-15 h-15 rounded-full justify-center items-center bg-greenPrimary shadow-md"
+        className="absolute bottom-10 right-8 w-16 h-16 rounded-full justify-center items-center bg-greenPrimary shadow-md"
         onPress={() => router.push("/records/add" as Href)}
       >
-        <FilePlus color="white" size={24} />
+        <FilePlus color="white" size={28} />
       </TouchableOpacity>
     </View>
   );

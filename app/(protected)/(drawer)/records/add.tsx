@@ -13,14 +13,21 @@ import {
   Camera,
   Image as ImageIcon,
   X,
-  AlertCircle,
 } from "lucide-react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Platform } from "react-native";
-import { GradientText } from "~/components/GradientText";
 import { toast } from "sonner-native";
 import { UploadPatientDocument } from "~/services/documents";
-
+type DocumentTypeProps = {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  selected: boolean;
+  color: string;
+  bgColor: string;
+  onPress: () => void;
+  disabled?: boolean;
+};
 const documentTypes = [
   {
     id: "lab",
@@ -70,18 +77,52 @@ const ALLOWED_FILE_TYPES = {
   "image/heic": ".heic",
 };
 
+function DocumentTypeCard({
+  id,
+  name,
+  icon,
+  selected,
+  color,
+  bgColor,
+  onPress,
+  disabled = false,
+}: DocumentTypeProps) {
+  return (
+    <TouchableOpacity
+      key={id}
+      onPress={onPress}
+      disabled={disabled}
+      className={`w-[47%] mx-[1.5%] mb-4 p-4 rounded-lg items-center border ${selected
+          ? ""
+          : "border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-backgroundPrimary"
+        }`}
+      style={
+        selected
+          ? {
+            borderColor: color,
+            backgroundColor: bgColor,
+          }
+          : undefined
+      }
+    >
+      <View
+        className="w-12 h-12 rounded-full justify-center items-center mb-2"
+        style={{ backgroundColor: bgColor }}
+      >
+        {icon}
+      </View>
+      <Text className="font-jakarta-medium text-sm text-center">{name}</Text>
+    </TouchableOpacity>
+  );
+}
 export default function AddRecordScreen() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] =
     useState<DocumentPicker.DocumentPickerAsset | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState("");
-
-  const clearError = () => setError("");
 
   const handlePickDocument = async () => {
-    clearError();
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: Object.keys(ALLOWED_FILE_TYPES),
@@ -97,9 +138,6 @@ export default function AddRecordScreen() {
 
         // Validate file size
         if (asset.size && asset.size > MAX_FILE_SIZE) {
-          setError(
-            `File size exceeds the limit of ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB`,
-          );
           toast.error(
             `File too large (max ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB)`,
           );
@@ -111,7 +149,6 @@ export default function AddRecordScreen() {
           asset.mimeType &&
           !Object.keys(ALLOWED_FILE_TYPES).includes(asset.mimeType)
         ) {
-          setError("Unsupported file type. Please upload PDF or image files.");
           toast.error("Unsupported file type");
           return;
         }
@@ -121,7 +158,6 @@ export default function AddRecordScreen() {
       }
     } catch (error) {
       console.error("Error picking document:", error);
-      setError("Failed to select document. Please try again.");
       toast.error("Error selecting document");
     }
   };
@@ -144,12 +180,10 @@ export default function AddRecordScreen() {
 
   const handleUpload = async () => {
     if (!selectedType || !selectedFile) {
-      setError("Please select both document type and file");
       toast.error("Missing information");
       return;
     }
 
-    clearError();
     setUploading(true);
     setUploadProgress(0);
 
@@ -164,28 +198,25 @@ export default function AddRecordScreen() {
 
       // Append file with the correct format for React Native
       // @ts-ignore - React Native FormData has a different implementation than standard FormData
+
       formData.append("document", {
         uri: selectedFile.uri,
         name: fileName,
         type: mimeType,
       });
-
       formData.append(
         "metadata",
         JSON.stringify({
           title: fileName,
         }),
       );
-
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => {
           const newProgress = prev + Math.random() * 15;
           return newProgress >= 90 ? 90 : newProgress;
         });
       }, 500);
-
       await UploadPatientDocument(formData);
-
       clearInterval(progressInterval);
       setUploadProgress(100);
 
@@ -202,7 +233,6 @@ export default function AddRecordScreen() {
       console.error("Upload error:", error);
 
       const errorMessage = "Upload failed. Please try again.";
-      setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setUploading(false);
@@ -214,28 +244,18 @@ export default function AddRecordScreen() {
   const selectedTypeObj = selectedType ? getTypeById(selectedType) : null;
 
   return (
-    <View className="flex-1 bg-white dark:bg-backgroundDark">
+    <View className="flex-1 ">
       {/* Header */}
-      <View className="flex-row justify-between items-center px-4 py-4 border-b border-gray-200 dark:border-gray-800">
-        <TouchableOpacity onPress={() => router.back()} disabled={uploading}>
+      <View className="flex-row justify-between items-center px-2 py-2">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="flex items-center flex-row"
+          disabled={uploading}
+        >
           <ArrowLeft color="#24AE7C" size={24} />
+          <Text className="ml-2 font-jakarta-semibold">Back</Text>
         </TouchableOpacity>
-        <GradientText isUnderlined={true} text="Add Medical Record" />
-        <View className="w-6" />
       </View>
-
-      {/* Error banner */}
-      {error ? (
-        <View className="bg-red-100 dark:bg-red-900 px-4 py-3 flex-row items-center">
-          <AlertCircle color="#FF6B6B" size={18} />
-          <Text className="font-jakarta-medium text-red-600 dark:text-red-300 ml-2 flex-1">
-            {error}
-          </Text>
-          <TouchableOpacity onPress={clearError}>
-            <X color="#FF6B6B" size={18} />
-          </TouchableOpacity>
-        </View>
-      ) : null}
 
       <ScrollView className="flex-1 px-4">
         {/* Document Type Selection */}
@@ -245,33 +265,17 @@ export default function AddRecordScreen() {
 
         <View className="flex-row flex-wrap -mx-1.5">
           {documentTypes.map((type) => (
-            <TouchableOpacity
+            <DocumentTypeCard
               key={type.id}
-              className={`w-[47%] mx-[1.5%] mb-4 p-4 rounded-lg items-center border ${selectedType === type.id
-                  ? `border-[${type.color}]`
-                  : "border-gray-200 dark:border-gray-700"
-                } ${selectedType === type.id
-                  ? type.bgColor
-                  : "bg-slate-50 dark:bg-backgroundPrimary"
-                }`}
-              style={{
-                borderColor: selectedType === type.id ? type.color : undefined,
-                backgroundColor:
-                  selectedType === type.id ? type.bgColor : undefined,
-              }}
+              id={type.id}
+              name={type.name}
+              icon={type.icon}
+              selected={selectedType === type.id}
+              color={type.color}
+              bgColor={type.bgColor}
               onPress={() => setSelectedType(type.id)}
               disabled={uploading}
-            >
-              <View
-                className="w-12 h-12 rounded-full justify-center items-center mb-2"
-                style={{ backgroundColor: type.bgColor }}
-              >
-                {type.icon}
-              </View>
-              <Text className="font-jakarta-medium text-sm text-center">
-                {type.name}
-              </Text>
-            </TouchableOpacity>
+            />
           ))}
         </View>
 
@@ -385,7 +389,7 @@ export default function AddRecordScreen() {
       <View className="p-4 border-t border-gray-200 dark:border-gray-700">
         <TouchableOpacity
           className={`p-4 rounded-lg items-center ${selectedType && selectedFile && !uploading
-              ? "bg-green-500"
+              ? "bg-greenPrimary"
               : "bg-gray-300 dark:bg-gray-600"
             }`}
           onPress={handleUpload}
