@@ -9,7 +9,6 @@ import {
 } from "lucide-react-native";
 import { format } from "date-fns";
 import { Text } from "~/components/ui/text";
-import { GradientText } from "~/components/GradientText";
 import { usePatientDocuments } from "~/hooks/usePatientDocuments";
 import { Role, useAuthentication } from "~/providers/AuthProvider";
 import { Loader } from "~/components/Loader";
@@ -93,8 +92,7 @@ export default function RecordsScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <View className="flex-row justify-between items-center px-4 pt-4 pb-4">
-        <GradientText isUnderlined={true} text="Medical Records" />
+      <View className="flex-row  justify-end items-center px-4 pt-4 pb-4">
         <View className="flex-row">
           <TouchableOpacity
             className="w-10 h-10 rounded-full justify-center items-center bg-slate-50 dark:bg-backgroundPrimary"
@@ -158,10 +156,10 @@ export default function RecordsScreen() {
               No records found
             </Text>
             <TouchableOpacity
-              className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded-lg"
+              className="mt-4 p-3 bg-greenPrimary rounded-lg"
               onPress={() => router.push("/records/add" as Href)}
             >
-              <Text className="font-jakarta-medium text-green-600 dark:text-green-400">
+              <Text className="font-jakarta-semibold text-white">
                 Add Your First Record
               </Text>
             </TouchableOpacity>
@@ -179,10 +177,10 @@ export default function RecordsScreen() {
       />
 
       <TouchableOpacity
-        className="absolute bottom-8 right-8 w-15 h-15 rounded-full justify-center items-center bg-greenPrimary shadow-md"
+        className="absolute bottom-10 right-8 w-16 h-16 rounded-full justify-center items-center bg-greenPrimary shadow-md"
         onPress={() => router.push("/records/add" as Href)}
       >
-        <FilePlus color="white" size={24} />
+        <FilePlus color="white" size={28} />
       </TouchableOpacity>
     </View>
   );

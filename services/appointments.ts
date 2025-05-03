@@ -20,7 +20,7 @@ export const getPatientAppointments = (
     `/patients/appointments${queryString ? "?" + queryString : ""}`,
   );
 };
-export const getCompletedAppointmentIds = (): Promise<number[]> => {
+export const getCompletedAppointmentIds = (): Promise<number[] | null> => {
   return Api.get("/appointments/completed");
 };
 export const getDoctorAppointments = (

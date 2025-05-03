@@ -6,7 +6,7 @@ interface DocumentReferenceBundle extends Bundle {
   entry?: { resource: DocumentReference }[]; // Specify the resource type in entry
 }
 export function UploadPatientDocument(data: FormData) {
-  return Api.post("/documents/upload", data);
+  return Api.postForm("/documents/upload", data);
 }
 interface GetPatientDocumentParams {
   patientId?: number;
