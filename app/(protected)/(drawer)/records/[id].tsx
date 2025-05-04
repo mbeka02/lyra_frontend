@@ -12,6 +12,7 @@ import { GetSignedURL } from "~/services/documents";
 import { useAuthentication } from "~/providers/AuthProvider";
 import { DocumentReferenceBundle } from "~/services/documents";
 import { useQueryClient } from "@tanstack/react-query";
+import PdfWebViewer from "~/components/platform/shared/PdfWebView";
 export default function RecordDetailScreen() {
   const { id: documentId } = useLocalSearchParams<{ id: string }>();
   const { authState } = useAuthentication();
@@ -132,7 +133,10 @@ export default function RecordDetailScreen() {
     return (
       <View className="flex-1">
         <View className="flex-row justify-between items-center px-4 py-4">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="flex-row items-center gap-1"
+          >
             <ArrowLeft color="#24AE7C" size={24} />
             <Text className="ml-2 font-jakarta-semibold">Back</Text>
           </TouchableOpacity>
@@ -146,21 +150,20 @@ export default function RecordDetailScreen() {
     return (
       <View className="flex-1 bg-white dark:bg-black">
         <View className="flex-row justify-between items-center px-4 py-4">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="flex-row items-center gap-1"
+          >
             <ArrowLeft color="#24AE7C" size={24} />
             <Text className="ml-2 font-jakarta-semibold">Back</Text>
           </TouchableOpacity>
-          <Text className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white">
-            Not Found
-          </Text>
-          <View className="w-6" />
         </View>
         <View className="flex-1 justify-center items-center">
           <Text className="font-jakarta-semibold text-red-500">
             Document not found
           </Text>
           <TouchableOpacity
-            className="mt-4 p-3  bg-backgroundPrimary rounded-lg"
+            className="mt-4 p-3  bg-greenPrimary rounded-lg"
             onPress={() => router.replace("/records")}
           >
             <Text className="font-jakarta-semibold text-white">
@@ -173,7 +176,7 @@ export default function RecordDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-black">
+    <View className="flex-1">
       <View className="flex-row justify-between items-center px-4 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
@@ -184,8 +187,8 @@ export default function RecordDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 p-4">
-        <View className="rounded-lg border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-backgroundPrimary overflow-hidden">
+      <ScrollView className="flex-1  p-4 ">
+        <View className="rounded-lg border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-backgroundPrimary   overflow-hidden">
           <View className="flex-row justify-between items-center p-4">
             <View className="px-2 py-1 rounded bg-green-100 dark:bg-green-900/20">
               <Text className="font-jakarta-medium text-xs text-green-600 dark:text-green-400">
@@ -211,12 +214,13 @@ export default function RecordDetailScreen() {
             </View>
           )}
 
-          {!isImageDocument(document) && (
-            <View className="h-52 justify-center items-center mb-4 bg-gray-50 dark:bg-gray-700">
-              <FileText color="#24AE7C" size={48} />
-              <Text className="font-jakarta-medium text-base mt-2 text-black dark:text-white">
-                PDF Document
-              </Text>
+          {!isImageDocument(document) && signedURL && (
+            <View className="w-full h-72 mb-4">
+              <PdfWebViewer
+                source={{
+                  uri: signedURL,
+                }}
+              />
             </View>
           )}
 
@@ -267,7 +271,7 @@ export default function RecordDetailScreen() {
         </View>
       </ScrollView>
 
-      <View className="flex-row p-4 border-t border-gray-200 dark:border-gray-700">
+      <View className="hidden p-4 border-t border-gray-200 dark:border-gray-700">
         <TouchableOpacity
           className="flex-1 p-4 rounded-lg items-center justify-center mx-1 flex-row bg-slate-50 dark:bg-backgroundPrimary"
           onPress={handleShare}
