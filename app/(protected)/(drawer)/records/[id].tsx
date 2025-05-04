@@ -15,49 +15,84 @@ import { DocumentReference } from "@/types/fhir";
 import { format } from "date-fns";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
-import DocumentStorageManager from "~/utils/document_storage_manger";
 import { Loader } from "~/components/Loader";
 import { GetSignedURL } from "~/services/documents";
-
+import { useAuthentication } from "~/providers/AuthProvider";
+import { useQueryClient } from "@tanstack/react-query";
 export default function RecordDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-
+  const { id: documentId } = useLocalSearchParams<{ id: string }>();
+  const { authState } = useAuthentication();
+  const queryClient = useQueryClient();
   const [document, setDocument] = useState<DocumentReference | null>(null);
   const [signedURL, setSignedURL] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const [isLoadingData, setIsLoadingData] = useState(true); // Loading state for this screen
+  const [isFetchingUrl, setIsFetchingUrl] = useState(false); // Separate loading for signed URL
+  const userId = authState?.user?.user_id;
   useEffect(() => {
-    if (!id) return;
-
-    const loadDocument = async () => {
-      setLoading(true);
-      try {
-        // Fetch document using DocumentStorageManager
-        const doc = await DocumentStorageManager.getDocument(id as string);
-
-        if (doc) {
-          setDocument(doc);
-          const attachmentURL = doc.content[0].attachment.url;
-          if (attachmentURL) {
-            const signedURL = await GetSignedURL(attachmentURL);
-            setSignedURL(signedURL);
-          }
-          // get the signed url to view the document
-        } else {
-          //TODO: Fallback to API call or other data source if needed
-          console.warn("Document not found in storage");
-          setDocument(null);
-        }
-      } catch (error) {
-        console.error("Error loading document data:", error);
-        setDocument(null);
-      } finally {
-        setLoading(false);
+    async function loadDocument() {
+      if (!documentId) {
+        console.warn("Document ID  for cache key is missing");
+        setDocument(null); // Set to null (not found) if IDs are missing
+        setIsLoadingData(false);
+        return;
       }
-    };
+      setIsLoadingData(true);
+      setSignedURL(null); // Reset signed URL when ID changes
 
+      // --- Attempt to get data from React Query cache ---
+      // Construct the query key used by the list hook
+      const queryKey = ["myPatientDocuments", userId];
+      // Get cached data without triggering a fetch
+      const cachedListData =
+        queryClient.getQueryData<DocumentReference[]>(queryKey);
+      let foundDocument: DocumentReference | null | undefined = undefined;
+
+      if (cachedListData) {
+        foundDocument = cachedListData.find((doc) => doc.id === documentId);
+      }
+
+      if (foundDocument) {
+        console.log("Document found in cache:", documentId);
+        setDocument(foundDocument);
+        // Fetch signed URL immediately if document found in cache
+        fetchSignedUrl(foundDocument);
+        setIsLoadingData(false);
+      } else {
+        // --- Fallback: Document not in cache (or cache stale/missing) ---
+        console.log(
+          "Document not in cache, attempting refetch or dedicated fetch:",
+          documentId,
+        );
+
+        console.error(
+          `Document ${documentId} not found in cache. Implement detail fetch.`,
+        );
+        setDocument(null); // Set to null (not found)
+        setIsLoadingData(false);
+      }
+    }
     loadDocument();
-  }, [id]);
-
+  }, [documentId, userId, queryClient]);
+  // --- Function to fetch signed URL ---
+  const fetchSignedUrl = async (doc: DocumentReference | null) => {
+    if (!doc?.content?.[0]?.attachment?.url) {
+      console.warn("Document has no attachment URL to sign.");
+      setSignedURL(null);
+      return;
+    }
+    setIsFetchingUrl(true);
+    try {
+      const url = await GetSignedURL(doc.content[0].attachment.url);
+      setSignedURL(url);
+    } catch (error) {
+      console.error("Error fetching signed URL:", error);
+      // Optionally show toast error
+      setSignedURL(null); // Clear URL on error
+    } finally {
+      setIsFetchingUrl(false);
+    }
+  };
   const handleShare = async () => {
     if (Platform.OS === "web") {
       Alert.alert("Not Available", "Sharing is not available on web");
@@ -93,10 +128,6 @@ export default function RecordDetailScreen() {
           onPress: async () => {
             try {
               // Delete document using DocumentStorageManager
-              if (id) {
-                await DocumentStorageManager.deleteDocument(id as string);
-              }
-              // In a real app, this would also call an API
               router.replace("/records");
             } catch (error) {
               console.error("Error deleting document:", error);
@@ -127,7 +158,7 @@ export default function RecordDetailScreen() {
     );
   };
 
-  if (loading) {
+  if (isLoadingData) {
     return (
       <View className="flex-1 bg-white dark:bg-black">
         <View className="flex-row justify-between items-center px-4 py-4">
@@ -147,7 +178,7 @@ export default function RecordDetailScreen() {
     );
   }
 
-  if (!document) {
+  if (document === null) {
     return (
       <View className="flex-1 bg-white dark:bg-black">
         <View className="flex-row justify-between items-center px-4 py-4">
