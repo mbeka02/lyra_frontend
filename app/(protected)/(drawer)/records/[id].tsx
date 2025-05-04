@@ -17,13 +17,14 @@ import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 import DocumentStorageManager from "~/utils/document_storage_manger";
 import { Loader } from "~/components/Loader";
+import { GetSignedURL } from "~/services/documents";
 
 export default function RecordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const [document, setDocument] = useState<DocumentReference | null>(null);
+  const [signedURL, setSignedURL] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!id) return;
 
@@ -35,6 +36,12 @@ export default function RecordDetailScreen() {
 
         if (doc) {
           setDocument(doc);
+          const attachmentURL = doc.content[0].attachment.url;
+          if (attachmentURL) {
+            const signedURL = await GetSignedURL(attachmentURL);
+            setSignedURL(signedURL);
+          }
+          // get the signed url to view the document
         } else {
           //TODO: Fallback to API call or other data source if needed
           console.warn("Document not found in storage");
@@ -205,16 +212,15 @@ export default function RecordDetailScreen() {
             {document.content?.[0]?.attachment?.title || "Untitled Document"}
           </Text>
 
-          {isImageDocument(document) &&
-            document.content?.[0]?.attachment?.url && (
-              <View className="w-full h-72 mb-4">
-                <Image
-                  source={{ uri: document?.content[0]?.attachment?.url }}
-                  className="w-full h-full"
-                  resizeMode="contain"
-                />
-              </View>
-            )}
+          {isImageDocument(document) && signedURL && (
+            <View className="w-full h-72 mb-4">
+              <Image
+                source={{ uri: signedURL }}
+                className="w-full h-full"
+                resizeMode="contain"
+              />
+            </View>
+          )}
 
           {!isImageDocument(document) && (
             <View className="h-52 justify-center items-center mb-4 bg-gray-50 dark:bg-gray-700">

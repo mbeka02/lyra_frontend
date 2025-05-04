@@ -11,6 +11,11 @@ export function UploadPatientDocument(data: FormData) {
 interface GetPatientDocumentParams {
   patientId?: number;
 }
+export function GetSignedURL(url: string): Promise<string> {
+  return Api.post("/documents/signed-url", {
+    unsigned_url: url,
+  });
+}
 export function GetPatientDocuments(
   params: GetPatientDocumentParams,
 ): Promise<DocumentReferenceBundle> {
