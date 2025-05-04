@@ -3,19 +3,45 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { GetPatientDocuments as fetchPatientDocuments } from "@/services/documents"; // Renaming on import for clarity
 import { Bundle, DocumentReference } from "@/types/fhir"; // Your FHIR types
 import { Role } from "~/providers/AuthProvider";
-
+import { useMemo } from "react";
 // Define the structure of the Bundle again or import if defined elsewhere
 interface DocumentReferenceBundle extends Bundle {
   entry?: { resource: DocumentReference }[];
 }
+type PatientDocumentsQueryKey =
+  | ["myPatientDocuments", number | string | undefined] // Key for patient viewing their own
+  | ["patientDocumentsForSpecialist", number | string | undefined]; // Key for specialist viewing specific patient
+interface usePatientHookParams {
+  role: Role;
+  selfUserId?: number; // Logged-in user's ID for unique patient key
 
-// Type for the query key for better type safety
-type PatientDocumentsQueryKey = ["patientDocuments", number | undefined];
-
+  targetPatientId?: number; // The patient ID needed when role is SPECIALIST
+}
 export const usePatientDocuments = (
-  role: Role,
-  patientId?: number,
+  params: usePatientHookParams,
 ): UseQueryResult<DocumentReference[], Error> => {
+  const { role, selfUserId, targetPatientId } = params;
+  // Determine the correct query key based on role
+  const queryKey = useMemo((): PatientDocumentsQueryKey => {
+    if (role === Role.PATIENT) {
+      // Key specific to the logged-in user viewing their *own* documents
+      return ["myPatientDocuments", selfUserId];
+    } else if (role === Role.SPECIALIST) {
+      // Key specific to the specialist viewing a *target* patient
+      return ["patientDocumentsForSpecialist", targetPatientId];
+    } else {
+      // Undefined/fallback key - query will likely be disabled
+      return ["patientDocumentsForSpecialist", undefined];
+    }
+  }, [role, selfUserId, targetPatientId]);
+
+  // Determine if the query should be enabled
+  const enabled = useMemo(() => {
+    if (!role || !selfUserId) return false; // Must have role and logged-in user ID
+    if (role === Role.PATIENT) return true; // Always enabled for logged-in patient
+    if (role === Role.SPECIALIST) return !!targetPatientId; // Enabled only if target ID is provided for specialist
+    return false; // Disabled for other roles or missing info
+  }, [role, selfUserId, targetPatientId]);
   // <-- Explicit return type added
   return useQuery<
     DocumentReferenceBundle, // TQueryFnData: Type returned by queryFn (fetchPatientDocuments)
@@ -24,15 +50,28 @@ export const usePatientDocuments = (
     PatientDocumentsQueryKey // TQueryKey: Type of the query key array
   >({
     // Pass generics to useQuery
-    queryKey: ["patientDocuments", patientId], // Use the defined query key type
+    queryKey: queryKey, // Use the defined query key type
     queryFn: () => {
-      if (!patientId && role === Role.SPECIALIST) {
-        // Throwing an error here is okay, or return Promise.reject()
-        // React Query handles queryFn errors
-        throw new Error("Patient ID is required");
-        // return Promise.reject(new Error("Patient ID is required")); // Alternative
+      if (role === Role.PATIENT) {
+        // Patient fetching their own: Call API *without* explicit patientId param
+        console.log("Fetching documents for logged-in patient...");
+        return fetchPatientDocuments({});
+      } else if (role === Role.SPECIALIST) {
+        // Specialist fetching for a target patient
+        if (!targetPatientId) {
+          // This case should ideally be prevented by the 'enabled' flag, but check again
+          console.error("Specialist role requires targetPatientId");
+          throw new Error("Patient ID is required for specialists");
+        }
+        console.log(
+          `Fetching documents for patient ${targetPatientId} by specialist...`,
+        );
+        // Call API *with* the target patientId param
+        return fetchPatientDocuments({ patientId: targetPatientId });
+      } else {
+        // Should not happen if 'enabled' logic is correct
+        throw new Error("Invalid role for fetching documents");
       }
-      return fetchPatientDocuments({ patientId: patientId });
     },
     select: (bundle: DocumentReferenceBundle): DocumentReference[] => {
       // Type input to select
@@ -47,6 +86,6 @@ export const usePatientDocuments = (
       );
     },
     refetchInterval: 60000,
-    // enabled: !!patientId,
+    enabled: enabled,
   });
 };

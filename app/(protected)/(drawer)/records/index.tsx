@@ -15,7 +15,6 @@ import { Loader } from "~/components/Loader";
 import { router, Href } from "expo-router";
 import { useState, useCallback } from "react";
 import { toast } from "sonner-native";
-import DocumentStorageManager from "~/utils/document_storage_manger";
 
 export default function RecordsScreen() {
   const { authState } = useAuthentication();
@@ -26,8 +25,10 @@ export default function RecordsScreen() {
     data: documents,
     isLoading,
     refetch,
-  } = usePatientDocuments(authState?.user?.role as Role);
-
+  } = usePatientDocuments({
+    role: authState?.user?.role as Role,
+    selfUserId: authState?.user?.user_id,
+  });
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -59,13 +60,10 @@ export default function RecordsScreen() {
 
   const navigateToDocumentDetail = async (document: DocumentReference) => {
     try {
-      if (document && document.id) {
-        await DocumentStorageManager.saveDocument(document);
-      }
-
+      console.log("document id on the index page", document.id);
       router.push(`/records/${document.id}` as Href);
     } catch (error) {
-      console.error("Error storing document data:", error);
+      console.error("Error navigating to details page:", error);
       toast.error("Unable to open document");
     }
   };

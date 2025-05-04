@@ -92,10 +92,15 @@ export async function removeFilesAsync(): Promise<void> {
   }
 }
 
-const getGoogleReaderUrl = (url: string) =>
-  `https://docs.google.com/viewer?url=${url}`;
-const getGoogleDriveUrl = (url: string) =>
-  `https://drive.google.com/viewerng/viewer?embedded=true&url=${url}`;
+const getGoogleReaderUrl = (url: string) => {
+  const encodedUrl = encodeURIComponent(url);
+  return `https://docs.google.com/viewer?url=${encodedUrl}`;
+};
+const getGoogleDriveUrl = (url: string) => {
+  // Encode the entire signed URL before appending it
+  const encodedUrl = encodeURIComponent(url);
+  return `https://drive.google.com/viewerng/viewer?embedded=true&url=${encodedUrl}`;
+};
 
 const validate = ({
   onError,
@@ -175,11 +180,11 @@ const getRenderType = ({
 }) => {
   const { uri, base64 } = source;
 
-  if (useGoogleReader) {
+  if (useGoogleReader && uri) {
     return "GOOGLE_READER";
   }
 
-  if (useGoogleDriveViewer) {
+  if (useGoogleDriveViewer && uri) {
     return "GOOGLE_DRIVE_VIEWER";
   }
 
@@ -197,7 +202,7 @@ const getRenderType = ({
   }
 
   if (uri !== undefined) {
-    return "URL_TO_BASE64";
+    return "DIRECT_URL";
   }
 
   return undefined;
@@ -212,24 +217,37 @@ const getWebviewSource = ({
   renderType?: RenderType;
   onError: (event: WebViewErrorEvent | WebViewHttpErrorEvent | string) => void;
 }): WebViewSource | undefined => {
-  const { uri, headers } = source;
-
-  switch (renderType!) {
-    case "GOOGLE_READER":
-      return { uri: getGoogleReaderUrl(uri!) };
-    case "GOOGLE_DRIVE_VIEWER":
-      return { uri: getGoogleDriveUrl(uri || "") };
-    case "DIRECT_BASE64":
-    case "URL_TO_BASE64":
-      return { uri: htmlPath };
-    case "DIRECT_URL":
-      return { headers, uri: uri! };
-    case "BASE64_TO_LOCAL_PDF":
-      return { uri: pdfPath };
-    default: {
-      onError!("Unknown RenderType");
-      return undefined;
+  const { uri, headers, base64 } = source;
+  try {
+    switch (renderType!) {
+      case "GOOGLE_READER":
+        if (!uri) throw new Error("URI required for Google Reader");
+        return { uri: getGoogleReaderUrl(uri) };
+      case "GOOGLE_DRIVE_VIEWER":
+        if (!uri) throw new Error("URI required for Google Drive Viewer");
+        return { uri: getGoogleDriveUrl(uri) };
+      case "DIRECT_BASE64":
+        if (!base64) throw new Error("Base64 required for Direct Base64");
+        onError!(
+          "DIRECT_BASE64 rendering might need specific implementation (Data URI or HTML)",
+        );
+        return { uri: base64 };
+      case "URL_TO_BASE64":
+        return { uri: htmlPath };
+      case "DIRECT_URL":
+        if (!uri) throw new Error("URI required for Direct URL");
+        return { headers, uri: uri };
+      case "BASE64_TO_LOCAL_PDF":
+        if (!base64) throw new Error("Base64 required for Local PDF");
+        return { uri: Platform.OS === "ios" ? pdfPath : `file://${pdfPath}` };
+      default: {
+        onError!(`Unknown or invalid RenderType: ${renderType}`);
+        return undefined;
+      }
     }
+  } catch (error: any) {
+    onError(error?.message || "Error determining WebView source");
+    return undefined;
   }
 };
 
@@ -239,84 +257,134 @@ const PdfWebViewer = ({
   webviewStyle,
   webviewProps,
   noLoader = false,
-  useGoogleDriveViewer,
-  useGoogleReader,
+  useGoogleDriveViewer = false,
+  useGoogleReader = false,
   onLoad,
   onLoadEnd,
   onError = console.error,
 }: Props) => {
   const [ready, setReady] = useState<boolean>(false);
-  const [renderType, setRenderType] = useState<RenderType | undefined>(
-    undefined,
-  );
-  const [renderedOnce, setRenderedOnce] = useState<boolean>(false);
-
+  const [currentRenderType, setCurrentRenderType] = useState<
+    RenderType | undefined
+  >(undefined);
+  // Effect to determine render type and initialize
   useEffect(() => {
-    if (renderType) {
-      console.debug(renderType);
-      validate({ onError, renderType, source });
-      init({ renderType, setReady, source });
+    const determinedType = getRenderType({
+      source,
+      useGoogleDriveViewer,
+      useGoogleReader,
+    });
+    setCurrentRenderType(determinedType);
+
+    if (determinedType) {
+      console.debug("Determined RenderType:", determinedType);
+      validate({ onError, renderType: determinedType, source });
+      // Init now sets ready state internally after potential async ops
+      init({ renderType: determinedType, setReady, source });
+    } else {
+      onError("Could not determine render type for the provided source.");
+      setReady(false); // Ensure not ready if type is unknown
     }
 
+    // Cleanup function
     return () => {
       if (
-        renderType === "DIRECT_BASE64" ||
-        renderType === "URL_TO_BASE64" ||
-        renderType === "BASE64_TO_LOCAL_PDF"
+        determinedType === "DIRECT_BASE64" || // Add cleanup if DIRECT_BASE64 writes HTML
+        // determinedType === "URL_TO_BASE64" || // Removed type
+        determinedType === "BASE64_TO_LOCAL_PDF"
       ) {
-        removeFilesAsync();
+        // Only remove files if these types were actually used
+        removeFilesAsync().catch((err) =>
+          console.error("Error during file cleanup:", err),
+        );
       }
     };
-  }, [renderType]);
+  }, [source.uri, source.base64, useGoogleDriveViewer, useGoogleReader]); // Rerun if source or viewer props change
 
-  useEffect(() => {
-    if (source.uri || source.base64) {
-      setReady(false);
-      setRenderType(
-        getRenderType({ source, useGoogleDriveViewer, useGoogleReader }),
-      );
-    }
-  }, [source.uri, source.base64]);
-
+  // Calculate the source for the WebView
   const sourceToUse = useMemo(() => {
-    if (!!onError && renderType && source) {
-      return getWebviewSource({ onError, renderType, source });
+    // Ensure renderType is valid before getting source
+    if (currentRenderType && source) {
+      return getWebviewSource({
+        onError,
+        renderType: currentRenderType,
+        source,
+      });
     }
-    return undefined;
-  }, [getWebviewSource, onError, renderType, source]);
+    return undefined; // Return undefined if type is not yet determined or invalid
+  }, [currentRenderType, source, onError]); // Dependencies for source calculation
 
-  const isAndroid = useMemo(() => Platform.OS === "android", [Platform]);
+  // Handle WebView Load/Error events for better debugging
+  const handleLoadEnd = (event: WebViewNavigationEvent | WebViewErrorEvent) => {
+    console.log(
+      "WebView Load End:",
+      event.nativeEvent.title,
+      event.nativeEvent.url,
+    );
+    if ("error" in event.nativeEvent) {
+      // Check if it's an error event
+      console.error("WebView Load End Error:", event.nativeEvent);
+      // Call original onError if it was an error
+      onError(event as WebViewErrorEvent);
+    }
+    if (onLoadEnd) {
+      onLoadEnd(event);
+    }
+  };
 
-  return ready ? (
+  const handleWebViewError = (event: WebViewErrorEvent) => {
+    console.error("WebView Error:", event.nativeEvent);
+    onError(event); // Call the passed onError prop
+  };
+
+  const handleHttpError = (event: WebViewHttpErrorEvent) => {
+    console.error("WebView HTTP Error:", event.nativeEvent);
+    onError(event); // Call the passed onError prop
+  };
+  return (
     <View style={[styles.container, style]}>
-      <WebView
-        {...{
-          onError,
-          onHttpError: onError,
-          onLoad: (event) => {
-            setRenderedOnce(true);
-            if (onLoad) {
-              onLoad(event);
-            }
-          },
-          onLoadEnd,
-          originWhitelist,
-          source: renderedOnce || !isAndroid ? sourceToUse : undefined,
-          style: [styles.webview, webviewStyle],
-        }}
-        allowFileAccess={isAndroid}
-        allowFileAccessFromFileURLs={isAndroid}
-        allowUniversalAccessFromFileURLs={isAndroid}
-        scalesPageToFit={Platform.select({ android: false })}
-        mixedContentMode={isAndroid ? "always" : undefined}
-        sharedCookiesEnabled={false}
-        startInLoadingState={!noLoader}
-        renderLoading={() => (noLoader ? <View /> : <Loader />)}
-        {...webviewProps}
-      />
+      {/* Show loader UNTIL the WebView source is ready AND the component's ready state is true */}
+      {(!ready || !sourceToUse) && !noLoader && (
+        <View style={styles.loaderContainer}>
+          <Loader />
+        </View>
+      )}
+
+      {/* Render WebView only when ready and source is calculated */}
+      {ready && sourceToUse && (
+        <WebView
+          // Props passed down
+          {...webviewProps}
+          // Core props
+          source={sourceToUse} // --- MODIFICATION: Pass source directly ---
+          originWhitelist={originWhitelist}
+          style={[styles.webview, webviewStyle]}
+          // Event handlers for debugging/control
+          onLoad={(event) => {
+            console.log(
+              "WebView Load Start:",
+              event.nativeEvent.title,
+              event.nativeEvent.url,
+            );
+            if (onLoad) onLoad(event);
+          }}
+          onLoadEnd={handleLoadEnd}
+          onError={handleWebViewError}
+          onHttpError={handleHttpError} // Catch HTTP errors specifically
+          // Configuration props
+          allowFileAccess // Keep true for file:// access if needed
+          allowFileAccessFromFileURLs // Keep true for file:// access if needed
+          allowUniversalAccessFromFileURLs // Keep true for file:// access if needed
+          scalesPageToFit={Platform.select({ android: true, ios: true })} // Often useful for PDFs
+          javaScriptEnabled={true} // Needed for some viewers/PDF JS libraries
+          domStorageEnabled={true} // Might be needed by some viewers
+          mixedContentMode={"compatibility"} // Be more lenient with mixed content
+          sharedCookiesEnabled={false} // Good default for security
+          startInLoadingState={!noLoader} // Show built-in loader initially
+          renderLoading={() => (noLoader ? <View /> : <Loader />)}
+        />
+      )}
     </View>
-  ) : (
-    <View style={styles.loaderContainer}>{!noLoader && <Loader />}</View>
   );
 };
 
@@ -325,9 +393,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loaderContainer: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: "center",
-    flex: 1,
     justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    zIndex: 10,
   },
   webview: {
     flex: 1,
