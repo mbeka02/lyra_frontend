@@ -205,7 +205,7 @@ export default function RecordDetailScreen() {
           </Text>
 
           {isImageDocument(document) && signedURL && (
-            <View className="w-full h-72 mb-4">
+            <View className="w-full h-96 mb-4">
               <Image
                 source={{ uri: signedURL }}
                 className="w-full h-full"
@@ -215,10 +215,14 @@ export default function RecordDetailScreen() {
           )}
 
           {!isImageDocument(document) && signedURL && (
-            <View className="w-full h-72 mb-4">
+            <View className="w-full h-96 mb-4">
               <PdfWebViewer
                 source={{
                   uri: signedURL,
+                }}
+                useGoogleDriveViewer={Platform.OS === "android"}
+                onError={(error) => {
+                  console.error("PdfWebViewer Error:", error);
                 }}
               />
             </View>
