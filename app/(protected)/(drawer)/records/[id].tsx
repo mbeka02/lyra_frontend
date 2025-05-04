@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import { View, TouchableOpacity, ScrollView, Alert, Image } from "react-native";
 import { Text } from "~/components/ui/text";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  ArrowLeft,
-  FileText,
-  Share2,
-  Download,
-  Lock,
-} from "lucide-react-native";
+import { ArrowLeft, FileText, Share2, Download } from "lucide-react-native";
 import { DocumentReference } from "@/types/fhir";
 import { format } from "date-fns";
 import * as Sharing from "expo-sharing";
@@ -38,7 +32,6 @@ export default function RecordDetailScreen() {
     setIsLoadingData(true);
     setSignedURL(null); // Reset signed URL when ID changes
 
-    // --- Attempt to get data from React Query cache ---
     // Construct the query key used by the list hook
     const queryKey = ["myPatientDocuments", userId];
     // Get cached data without triggering a fetch
@@ -137,20 +130,14 @@ export default function RecordDetailScreen() {
 
   if (isLoadingData) {
     return (
-      <View className="flex-1 bg-white dark:bg-black">
+      <View className="flex-1">
         <View className="flex-row justify-between items-center px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
             <ArrowLeft color="#24AE7C" size={24} />
             <Text className="ml-2 font-jakarta-semibold">Back</Text>
           </TouchableOpacity>
-          <Text className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white">
-            Loading...
-          </Text>
-          <View className="w-6" />
         </View>
-        <View className="flex-1 justify-center items-center">
-          <Loader />
-        </View>
+        <Loader />
       </View>
     );
   }
@@ -173,10 +160,10 @@ export default function RecordDetailScreen() {
             Document not found
           </Text>
           <TouchableOpacity
-            className="mt-4 p-3 bg-slate-50 dark:bg-backgroundPrimary rounded-lg"
+            className="mt-4 p-3  bg-backgroundPrimary rounded-lg"
             onPress={() => router.replace("/records")}
           >
-            <Text className="font-jakarta-medium text-green-600 dark:text-green-400">
+            <Text className="font-jakarta-semibold text-white">
               Back to Records
             </Text>
           </TouchableOpacity>
@@ -276,13 +263,6 @@ export default function RecordDetailScreen() {
                   document.status?.slice(1) || "Unknown"}
               </Text>
             </View>
-          </View>
-
-          <View className="flex-row items-center p-4 bg-green-100/30 dark:bg-green-900/20">
-            <Lock color="#22C55E" size={16} />
-            <Text className="font-jakarta-medium text-sm ml-2 text-green-600 dark:text-green-400">
-              Shared with 2 healthcare providers
-            </Text>
           </View>
         </View>
       </ScrollView>
