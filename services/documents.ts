@@ -2,7 +2,7 @@ import { Api } from "./api";
 import type { Bundle, DocumentReference } from "~/types/fhir";
 
 // Define the structure of the Bundle returned by your API
-interface DocumentReferenceBundle extends Bundle {
+export interface DocumentReferenceBundle extends Bundle {
   entry?: { resource: DocumentReference }[]; // Specify the resource type in entry
 }
 export function UploadPatientDocument(data: FormData) {
