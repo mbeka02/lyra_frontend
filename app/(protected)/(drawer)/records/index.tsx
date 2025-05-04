@@ -29,7 +29,6 @@ export default function RecordsScreen() {
     role: authState?.user?.role as Role,
     selfUserId: authState?.user?.user_id,
   });
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -61,6 +60,7 @@ export default function RecordsScreen() {
 
   const navigateToDocumentDetail = async (document: DocumentReference) => {
     try {
+      console.log("document id on the index page", document.id);
       router.push(`/records/${document.id}` as Href);
     } catch (error) {
       console.error("Error navigating to details page:", error);

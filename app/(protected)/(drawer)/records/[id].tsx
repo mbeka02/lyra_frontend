@@ -5,10 +5,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
   FileText,
-  Trash2,
   Share2,
   Download,
-  UserPlus,
   Lock,
 } from "lucide-react-native";
 import { DocumentReference } from "@/types/fhir";
@@ -18,6 +16,7 @@ import { Platform } from "react-native";
 import { Loader } from "~/components/Loader";
 import { GetSignedURL } from "~/services/documents";
 import { useAuthentication } from "~/providers/AuthProvider";
+import { DocumentReferenceBundle } from "~/services/documents";
 import { useQueryClient } from "@tanstack/react-query";
 export default function RecordDetailScreen() {
   const { id: documentId } = useLocalSearchParams<{ id: string }>();
@@ -30,49 +29,55 @@ export default function RecordDetailScreen() {
   const [isFetchingUrl, setIsFetchingUrl] = useState(false); // Separate loading for signed URL
   const userId = authState?.user?.user_id;
   useEffect(() => {
-    async function loadDocument() {
-      if (!documentId) {
-        console.warn("Document ID  for cache key is missing");
-        setDocument(null); // Set to null (not found) if IDs are missing
-        setIsLoadingData(false);
-        return;
-      }
-      setIsLoadingData(true);
-      setSignedURL(null); // Reset signed URL when ID changes
-
-      // --- Attempt to get data from React Query cache ---
-      // Construct the query key used by the list hook
-      const queryKey = ["myPatientDocuments", userId];
-      // Get cached data without triggering a fetch
-      const cachedListData =
-        queryClient.getQueryData<DocumentReference[]>(queryKey);
-      let foundDocument: DocumentReference | null | undefined = undefined;
-
-      if (cachedListData) {
-        foundDocument = cachedListData.find((doc) => doc.id === documentId);
-      }
-
-      if (foundDocument) {
-        console.log("Document found in cache:", documentId);
-        setDocument(foundDocument);
-        // Fetch signed URL immediately if document found in cache
-        fetchSignedUrl(foundDocument);
-        setIsLoadingData(false);
-      } else {
-        // --- Fallback: Document not in cache (or cache stale/missing) ---
-        console.log(
-          "Document not in cache, attempting refetch or dedicated fetch:",
-          documentId,
-        );
-
-        console.error(
-          `Document ${documentId} not found in cache. Implement detail fetch.`,
-        );
-        setDocument(null); // Set to null (not found)
-        setIsLoadingData(false);
-      }
+    if (!documentId) {
+      console.warn("Document ID  for cache key is missing");
+      setDocument(null); // Set to null (not found) if IDs are missing
+      setIsLoadingData(false);
+      return;
     }
-    loadDocument();
+    setIsLoadingData(true);
+    setSignedURL(null); // Reset signed URL when ID changes
+
+    // --- Attempt to get data from React Query cache ---
+    // Construct the query key used by the list hook
+    const queryKey = ["myPatientDocuments", userId];
+    // Get cached data without triggering a fetch
+    const cachedBundle =
+      queryClient.getQueryData<DocumentReferenceBundle>(queryKey);
+    let foundDocument: DocumentReference | null | undefined = undefined;
+
+    if (cachedBundle) {
+      console.log("Raw Bundle found in cache:", cachedBundle);
+      // --- Manually TRANSFORM the Bundle data ---
+      const documentsArray: DocumentReference[] =
+        cachedBundle.entry
+          ?.map((entry) => entry.resource)
+          .filter(
+            (resource): resource is DocumentReference =>
+              resource?.resourceType === "DocumentReference",
+          ) ?? [];
+      foundDocument = documentsArray.find((doc) => doc.id === documentId);
+    }
+
+    if (foundDocument) {
+      console.log("Document found in cache:", documentId);
+      setDocument(foundDocument);
+      // Fetch signed URL immediately if document found in cache
+      fetchSignedUrl(foundDocument);
+      setIsLoadingData(false);
+    } else {
+      // --- Fallback: Document not in cache (or cache stale/missing) ---
+      console.log(
+        "Document not in cache, attempting refetch or dedicated fetch:",
+        documentId,
+      );
+
+      console.error(
+        `Document ${documentId} not found in cache. Implement detail fetch.`,
+      );
+      setDocument(null); // Set to null (not found)
+      setIsLoadingData(false);
+    }
   }, [documentId, userId, queryClient]);
   // --- Function to fetch signed URL ---
   const fetchSignedUrl = async (doc: DocumentReference | null) => {
@@ -115,34 +120,6 @@ export default function RecordDetailScreen() {
       Alert.alert("Error", "Failed to share document");
     }
   };
-
-  const handleDelete = () => {
-    Alert.alert(
-      "Delete Record",
-      "Are you sure you want to delete this record? This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              // Delete document using DocumentStorageManager
-              router.replace("/records");
-            } catch (error) {
-              console.error("Error deleting document:", error);
-              Alert.alert("Error", "Failed to delete document");
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  const handleManageConsent = () => {
-    router.push(`/records`);
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     return format(new Date(dateString), "MMMM d, yyyy");
@@ -211,18 +188,12 @@ export default function RecordDetailScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <View className="flex-row justify-between items-center px-4 py-4">
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="flex-row items-center gap-1"
+        >
           <ArrowLeft color="#24AE7C" size={24} />
           <Text className="ml-2 font-jakarta-semibold">Back</Text>
-        </TouchableOpacity>
-        <Text
-          className="font-jakarta-semibold text-lg text-center flex-1 text-black dark:text-white"
-          numberOfLines={1}
-        >
-          Document Details
-        </Text>
-        <TouchableOpacity onPress={handleDelete}>
-          <Trash2 color="#FF6B6B" size={24} />
         </TouchableOpacity>
       </View>
 
@@ -336,16 +307,6 @@ export default function RecordDetailScreen() {
           <Download color="#24AE7C" size={20} />
           <Text className="font-jakarta-medium text-sm ml-1 text-black dark:text-white">
             Download
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="flex-1 p-4 rounded-lg items-center justify-center mx-1 flex-row bg-green-500"
-          onPress={handleManageConsent}
-        >
-          <UserPlus color="white" size={20} />
-          <Text className="font-jakarta-medium text-sm ml-1 text-white">
-            Manage Access
           </Text>
         </TouchableOpacity>
       </View>
