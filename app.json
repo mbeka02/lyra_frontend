@@ -106,7 +106,13 @@
           "androidKeepCallAlive": true
         }
       ],
-
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
       [
         "@config-plugins/react-native-webrtc",
         {
