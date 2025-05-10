@@ -3,6 +3,7 @@ import { Text } from "~/components/ui/text";
 import UserAvatar from "~/components/platform/shared/UserAvatar";
 import { format } from "date-fns";
 import { PatientUnderCare } from "~/services/types";
+import { Href, useRouter } from "expo-router";
 export default function PatientCard({
   user_id,
   patient_id,
@@ -11,9 +12,13 @@ export default function PatientCard({
   profile_picture,
 }: PatientUnderCare) {
   const age = new Date().getFullYear() - new Date(date_of_birth).getFullYear();
+  const router = useRouter();
 
   return (
-    <Pressable className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-4 mb-3 flex-row items-center shadow-sm">
+    <Pressable
+      className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-4 mb-3 flex-row items-center shadow-sm"
+      onPress={() => router.push(`/patients/${patient_id}` as Href)}
+    >
       <UserAvatar uri={profile_picture} />
       <View className="ml-4 flex-1">
         <Text className="text-lg font-jakarta-semibold text-gray-800">

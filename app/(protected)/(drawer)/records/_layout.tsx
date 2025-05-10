@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-export default function SettingsLayout() {
+export default function RecordsLayout() {
   return (
     <SafeAreaView
       style={{
