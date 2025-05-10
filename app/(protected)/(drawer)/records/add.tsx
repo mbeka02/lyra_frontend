@@ -177,49 +177,66 @@ export default function AddRecordScreen() {
     else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     else return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
-
   const handleUpload = async () => {
     if (!selectedType || !selectedFile) {
-      toast.error("Missing information");
+      toast.error("Please select a document type and file");
       return;
     }
 
     setUploading(true);
     setUploadProgress(0);
+    let progressInterval: NodeJS.Timeout | null = null;
 
     try {
-      if (!selectedFile) return;
-
       const fileName = selectedFile.name || "document";
       const mimeType = selectedFile.mimeType || "application/octet-stream";
 
-      // Create FormData object
+      // Create FormData object correctly
       const formData = new FormData();
 
-      // Append file with the correct format for React Native
-      // @ts-ignore - React Native FormData has a different implementation than standard FormData
+      // Check if we're running on web platform
+      if (Platform.OS === "web") {
+        // For web, we need to handle the file differently
+        formData.append("document", selectedFile as any);
+      } else {
+        // For native platforms (iOS, Android)
+        formData.append("document", {
+          uri: selectedFile.uri,
+          name: fileName,
+          type: mimeType,
+        } as any);
+      }
 
-      formData.append("document", {
-        uri: selectedFile.uri,
-        name: fileName,
-        type: mimeType,
-      });
+      // Add metadata as a separate field
       formData.append(
         "metadata",
         JSON.stringify({
           title: fileName,
         }),
       );
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          const newProgress = prev + Math.random() * 15;
-          return newProgress >= 90 ? 90 : newProgress;
-        });
-      }, 500);
-      await UploadPatientDocument(formData);
-      clearInterval(progressInterval);
-      setUploadProgress(100);
 
+      // Simulate progress for better UX (this will be replaced by actual progress events in production)
+      let lastProgress = 0;
+      progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          // Make progress more realistic - slower at beginning and end
+          const increment = prev < 30 ? 2 : prev > 70 ? 0.5 : 1;
+          const newProgress = prev + Math.random() * increment;
+          lastProgress = newProgress >= 90 ? 90 : newProgress;
+          return lastProgress;
+        });
+      }, 300);
+
+      // Perform the actual upload
+      await UploadPatientDocument(formData);
+
+      // Clear interval and set to 100% when complete
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+
+      setUploadProgress(100);
       toast.success("Document uploaded successfully");
 
       // Reset form and navigate back after success
@@ -232,13 +249,35 @@ export default function AddRecordScreen() {
     } catch (error) {
       console.error("Upload error:", error);
 
-      const errorMessage = "Upload failed. Please try again.";
+      // Clear any existing interval
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+
+      // Provide more specific error message if possible
+      let errorMessage = "Upload failed. Please try again.";
+
+      if (error instanceof Error) {
+        if (error.message.includes("network")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else if (error.message.includes("timeout")) {
+          errorMessage =
+            "Upload timed out. Please try again with a smaller file or better connection.";
+        }
+      }
+
       toast.error(errorMessage);
+      setUploadProgress(0);
     } finally {
+      // Ensure interval is cleared in all cases
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
       setUploading(false);
     }
   };
-
   const getTypeById = (id: string) =>
     documentTypes.find((type) => type.id === id) || null;
   const selectedTypeObj = selectedType ? getTypeById(selectedType) : null;

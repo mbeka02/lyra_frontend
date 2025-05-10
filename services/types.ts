@@ -8,6 +8,13 @@ type Doctor = {
   price_per_hour: string;
   county: string;
 };
+export interface PatientUnderCare {
+  user_id: string;
+  patient_id: string;
+  date_of_birth: string;
+  full_name: string;
+  profile_picture: string | undefined;
+}
 export interface Availability {
   availability_id?: number;
   doctor_id?: number;
