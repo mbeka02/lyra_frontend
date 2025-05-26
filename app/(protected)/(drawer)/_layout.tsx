@@ -88,13 +88,14 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="patients"
+        name="patient"
         options={{
           title: "My Patients",
           drawerIcon: ({ color, size }: DrawerIconProps) => (
             <User style={{ marginRight: 15 }} color={color} size={size} />
           ),
         }}
+        redirect={authState?.user?.role !== Role.SPECIALIST}
       />
       <Drawer.Screen
         name="prescriptions"

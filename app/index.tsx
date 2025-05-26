@@ -12,7 +12,6 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useCallback, useRef, useState } from "react";
 import { ModalType } from "@/types";
-
 import { AuthModal } from "@/components/auth/AuthModal";
 import { Button } from "@/components/ui/button";
 

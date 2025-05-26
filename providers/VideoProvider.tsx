@@ -32,6 +32,7 @@ export default function VideoProvider({
   // Get authentication state from AuthProvider
   const { authState } = useAuthentication();
   const isConnectedRef = useRef(false);
+
   // Initialize and connect to Stream Video when the user is authenticated
   useEffect(() => {
     // Skip if auth state is not available
@@ -48,7 +49,6 @@ export default function VideoProvider({
             console.error("Error disconnecting user:", err);
           });
       }
-
       return;
     }
 
@@ -60,29 +60,49 @@ export default function VideoProvider({
         id: authState.user?.user_id.toString() || "",
         name: authState.user?.email || "",
       };
+
       try {
+        // Get the token - it's a string value
+        const token = authState.getStreamToken!;
+
         const client = new StreamVideoClient({
           apiKey,
-          token: authState.getStreamToken!,
+          token,
           user,
         });
+
         setVideoClient(client);
         isConnectedRef.current = true;
+        console.log("initialized the client with the user credentials...");
       } catch (error) {
-        console.error("error connecting the user");
+        console.error("error connecting the user:", error);
+        // Reset state on error
+        setVideoClient(null);
+        isConnectedRef.current = false;
       }
     };
 
-    initVideoClient();
+    // Only initialize if we don't already have a connected client
+    if (!isConnectedRef.current) {
+      initVideoClient();
+    }
 
     // Cleanup function to disconnect user when component unmounts
     // or when authentication state changes
     return () => {
-      if (videoClient && isConnectedRef.current && authState.isAuthenticated) {
-        videoClient.disconnectUser();
+      if (videoClient && isConnectedRef.current) {
+        videoClient.disconnectUser().catch((err) => {
+          console.error("Error during cleanup disconnect:", err);
+        });
+        isConnectedRef.current = false;
       }
     };
-  }, [authState?.isAuthenticated]);
+  }, [
+    authState?.isAuthenticated,
+    authState?.user?.user_id,
+    authState?.getStreamToken,
+    videoClient,
+  ]);
 
   // Show loading indicator while connecting to Stream Video
   if (!videoClient) {
