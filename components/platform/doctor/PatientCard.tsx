@@ -17,15 +17,15 @@ export default function PatientCard({
   return (
     <Pressable
       className="bg-slate-50 dark:bg-backgroundPrimary rounded-xl p-4 mb-3 flex-row items-center shadow-sm"
-      onPress={() => router.push(`/patients/${patient_id}` as Href)}
+      onPress={() => router.push(`/patient/${patient_id}` as Href)}
     >
       <UserAvatar uri={profile_picture} />
       <View className="ml-4 flex-1">
-        <Text className="text-lg font-jakarta-semibold text-gray-800">
+        <Text className="text-lg font-jakarta-semibold text-white">
           {full_name}
         </Text>
         <View className="flex-row items-center mt-1">
-          <Text className="text-sm font-jakarta-regular text-gray-500">
+          <Text className="text-sm font-jakarta-regular text-gray-100">
             {`Age: ${age} • DOB: ${format(new Date(date_of_birth), "MMM dd, yyyy")}`}
           </Text>
         </View>

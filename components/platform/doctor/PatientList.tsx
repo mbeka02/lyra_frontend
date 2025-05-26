@@ -52,7 +52,7 @@ export function PatientList() {
   return (
     <View className="h-full">
       <View className="mb-6 mx-6 mt-4">
-        <GradientText isUnderlined={true} text="My patients" />
+        <GradientText isUnderlined={true} text="My Patients" />
       </View>
       <FlatList
         data={patients}
