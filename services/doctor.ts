@@ -1,19 +1,13 @@
 import { Api } from "./api";
-import { AppointmentSlots, GetDoctorsResponse } from "./types";
+import {
+  AppointmentSlots,
+  GetDoctorsResponse,
+  PatientUnderCare,
+} from "./types";
+export function getPatientsUnderCare(): Promise<PatientUnderCare[]> {
+  return Api.get("/doctors/my-patients");
+}
 
-// export const getAllDoctors = (
-//   page: number,
-//   sortBy: string | null,
-//   order: string,
-//   county: string | null,
-// ): Promise<GetDoctorsResponse> => {
-//   if (county === null || county === "") {
-//     return Api.get(`/doctors?page=${page}&sort=${sortBy}&order=${order}`);
-//   }
-//   return Api.get(
-//     `/doctors?page=${page}&county=${county}&sort=${sortBy}&order=${order}`,
-//   );
-// };
 export const getAllDoctors = (
   page: number,
   sortBy: "experience" | "price" | null,

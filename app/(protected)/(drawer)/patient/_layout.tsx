@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-export default function RecordsLayout() {
+export default function PatientsLayout() {
   return (
     <SafeAreaView
       style={{
@@ -16,12 +16,6 @@ export default function RecordsLayout() {
       <Stack>
         <Stack.Screen
           name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="add"
           options={{
             headerShown: false,
           }}

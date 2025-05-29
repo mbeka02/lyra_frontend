@@ -86,13 +86,13 @@ export function AppointmentCard({
   };
 
   const formatAppointmentTime = (startTime: string) => {
-    const start = parseISO(startTime);
-    // const end = parseISO(endTime);
-    // return `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
-
-    return `${format(start, "h:mm a")}`;
+    const utcDate = parseISO(startTime);
+    // Convert UTC to local by creating new Date with local timezone
+    const localDate = new Date(
+      utcDate.getTime() + utcDate.getTimezoneOffset() * 60000,
+    );
+    return `${format(localDate, "h:mm a")}`;
   };
-
   const statusDetails = getStatusDetails(appointment.current_status);
 
   // Determine the name and profile image based on the view type and appointment type

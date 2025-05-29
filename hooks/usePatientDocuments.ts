@@ -1,5 +1,4 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-// Make sure fetchPatientDocuments is correctly imported (adjust path if needed)
 import { GetPatientDocuments as fetchPatientDocuments } from "@/services/documents"; // Renaming on import for clarity
 import { Bundle, DocumentReference } from "@/types/fhir"; // Your FHIR types
 import { Role } from "~/providers/AuthProvider";
