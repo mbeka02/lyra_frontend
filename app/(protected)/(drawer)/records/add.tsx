@@ -215,7 +215,7 @@ export default function AddRecordScreen() {
         }),
       );
 
-      // Simulate progress for better UX (this will be replaced by actual progress events in production)
+      // Simulate progress for better UX TODO: REPLACE THIS WITH AN ACTUAL PROGRESS EVENT
       let lastProgress = 0;
       progressInterval = setInterval(() => {
         setUploadProgress((prev) => {
