@@ -7,7 +7,7 @@ import { Users } from "~/lib/icons/Users";
 import { Coins } from "~/lib/icons/Coins";
 import { View } from "react-native";
 import { Button } from "~/components/ui/button";
-import { Href, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 interface DoctorCardProps {
   doctor_id: number;
@@ -36,8 +36,9 @@ export function DoctorCard({
   const handleBookAppointment = () => {
     // Navigate to the appointment screen with doctor data as params
     router.push({
-      pathname: `/search/${doctor_id}`,
+      pathname: `/search/[id]`,
       params: {
+        id: doctor_id.toString(),
         full_name,
         price_per_hour,
       },

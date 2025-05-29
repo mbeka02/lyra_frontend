@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, ScrollView, Pressable } from "react-native";
 import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { Calendar } from "~/lib/icons/Calendar";
 import { Clock } from "~/lib/icons/Clock";
 import { useDoctorTimeSlots } from "~/hooks/useDoctorTimeSlots";
@@ -179,7 +179,7 @@ export default function AppointmentScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-backgroundPrimary">
-      <ScrollView className="flex-1 px-6 pt-12">
+      <ScrollView className="flex-1 px-6 pt-6">
         {/* Header with Back Button */}
         <View className="flex-row justify-between items-center mb-6">
           <TouchableOpacity
